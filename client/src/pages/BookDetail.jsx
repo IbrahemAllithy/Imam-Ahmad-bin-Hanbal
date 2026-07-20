@@ -14,69 +14,85 @@ const BookDetail = () => {
   if (error) return <div className="container alert alert-error">{error}</div>;
 
   const { data: book, related } = data;
+  const accent = '#2563eb';
 
   return (
-    <>
-      <div className="page-header">
-        <div className="container">
-          <span className="pill">{book.category}</span>
-          <h1>{book.title}</h1>
-          <p>{book.author}</p>
-        </div>
+    <div className="book-page-wrapper">
+      <div className="book-breadcrumb">
+        <Link to="/">الرئيسية</Link>
+        <span>/</span>
+        <Link to="/books">الكتب</Link>
+        <span>/</span>
+        <span className="current">{book.title}</span>
       </div>
 
-      <div className="container book-detail">
-        <div className="book-detail-grid">
-          <div className="book-detail-cover">
+      <div className="book-layout">
+        <div className="book-sidebar">
+          <div className="book-cover-wrapper">
             {book.coverImage ? (
-              <img src={getStorageUrl(book.coverImage)} alt={book.title} />
+              <img src={getStorageUrl(book.coverImage)} alt={book.title} className="book-cover-img" />
             ) : (
-              <div className="book-placeholder-lg">📚</div>
+              <span className="book-cover-placeholder">غلاف الكتاب</span>
             )}
           </div>
-          <div className="book-detail-info">
-            {book.description && <p>{book.description}</p>}
-            {book.pages && <p className="book-meta">{book.pages} صفحة</p>}
-            <div className="book-detail-actions">
-              <a
-                href={getStorageUrl(book.pdfUrl)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-primary"
-              >
-                قراءة الكتاب
-              </a>
-              <a
-                href={getStorageUrl(book.pdfUrl)}
-                download
-                className="btn btn-outline"
-              >
-                <FiDownload /> تحميل PDF
-              </a>
-            </div>
+          <div className="book-info-card">
+            <div className="info-label">المؤلف</div>
+            <div className="info-value">{book.author}</div>
+            
+            <div className="info-label">القسم</div>
+            <div className="info-value">{book.category}</div>
+            
+            {book.pages && (
+              <>
+                <div className="info-label">عدد الصفحات</div>
+                <div className="info-value">{book.pages} صفحة</div>
+              </>
+            )}
+
+            <a 
+              href={getStorageUrl(book.pdfUrl)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="book-btn-primary"
+              style={{ background: accent }}
+            >
+              قراءة الكتاب
+            </a>
+            <a 
+              href={getStorageUrl(book.pdfUrl)}
+              download
+              className="book-btn-outline"
+            >
+              تحميل PDF
+            </a>
           </div>
         </div>
 
-        <div className="pdf-viewer">
-          <iframe
-            src={getStorageUrl(book.pdfUrl)}
-            title={book.title}
-            loading="lazy"
-          />
-        </div>
+        <div className="book-main-content">
+          <h1 className="book-title">{book.title}</h1>
+          {book.description && (
+            <p className="book-desc">{book.description}</p>
+          )}
 
-        {related?.length > 0 && (
-          <div className="related-section">
-            <h2>كتب ذات صلة</h2>
-            <div className="grid grid-3">
-              {related.map((b) => <BookCard key={b._id} book={b} />)}
-            </div>
+          <div className="book-pdf-viewer">
+            <iframe
+              src={getStorageUrl(book.pdfUrl)}
+              title={book.title}
+              loading="lazy"
+            />
           </div>
-        )}
 
-        <Link to="/books" className="btn btn-outline">← العودة للكتب</Link>
+          {related?.length > 0 && (
+            <div className="related-books-section">
+              <div className="section-title">كتب ذات صلة</div>
+              <div className="grid grid-3">
+                {related.map((b) => <BookCard key={b._id} book={b} />)}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-    </>
+    </div>
   );
 };
 
