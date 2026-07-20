@@ -46,22 +46,8 @@ const Navbar = () => {
           </div>
           
           {/* Mobile view buttons */}
-          <div className="navbar-actions mobile-only">
-            <button className="btn-login" onClick={() => { setOpen(false); navigate('/admin/login'); }}>تسجيل الدخول</button>
-            <button className="btn-start">ابدأ الآن</button>
-          </div>
+          {/* Removed login buttons per user request */}
         </nav>
-
-        <div className="navbar-actions desktop-only">
-          <Link to="/admin/login" className="user-icon-btn" aria-label="تسجيل الدخول">
-             <div className="user-icon">
-                <div className="user-head"></div>
-                <div className="user-body"></div>
-             </div>
-          </Link>
-          <button className="btn-login" onClick={() => navigate('/admin/login')}>تسجيل الدخول</button>
-          <button className="btn-start">ابدأ الآن</button>
-        </div>
       </div>
     </header>
   );
