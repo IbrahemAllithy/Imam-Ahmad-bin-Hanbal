@@ -25,9 +25,9 @@ const announcements = [
 ];
 
 const Home = () => {
-  const { data: lectures, loading: l1 } = useFetch('/lectures', { limit: 4 });
-  const { data: articles, loading: l2 } = useFetch('/articles', { limit: 4 });
-  const { data: books, loading: l3 } = useFetch('/books', { limit: 4 });
+  const { data: lectures, loading: l1 } = useFetch('/lectures', { limit: 6 });
+  const { data: articles, loading: l2 } = useFetch('/articles', { limit: 6 });
+  const { data: books, loading: l3 } = useFetch('/books', { limit: 6 });
 
   return (
     <div className="home-wrapper">
@@ -95,11 +95,7 @@ const Home = () => {
 
       <section className="home-latest">
         <div className="latest-inner">
-          <div className="about-sidecard">
-            <img src={logo} alt="شعار مجمع الإمام أحمد" className="about-logo" />
-            <div className="about-title">مجمع الإمام أحمد</div>
-            <p className="about-desc">صرح علمي يقدّم دروسًا وكتبًا ومقالات شرعية تحت إشراف فضيلة الشيخ شعبان العودة.</p>
-          </div>
+
           <div className="latest-content">
             
             <div className="latest-section">

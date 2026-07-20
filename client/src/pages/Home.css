@@ -297,40 +297,7 @@
   align-items: stretch;
 }
 
-.about-sidecard {
-  width: 260px;
-  flex-shrink: 0;
-  background: oklch(0.2 0.032 255);
-  border: 1px solid oklch(0.28 0.03 255);
-  border-radius: 16px;
-  padding: 26px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 14px;
-}
 
-.about-logo {
-  width: 76px;
-  height: 76px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.about-title {
-  font-size: 16.5px;
-  font-weight: 700;
-  color: oklch(0.95 0.01 255);
-  font-family: 'Amiri', serif;
-}
-
-.about-desc {
-  font-size: 13px;
-  color: oklch(0.6 0.03 255);
-  line-height: 1.8;
-  margin: 0;
-}
 
 .latest-content {
   flex: 1;
@@ -486,7 +453,7 @@
     flex-direction: column;
   }
   
-  .announcements-card, .about-sidecard {
+  .announcements-card {
     width: 100%;
   }
   
