@@ -1,19 +1,31 @@
 :root {
+  --primary-bg: oklch(0.16 0.03 255);
+  --primary-card: oklch(0.2 0.032 255);
+  --primary-border: oklch(0.28 0.03 255);
+  --primary-text: oklch(0.95 0.01 255);
+  --primary-text-muted: oklch(0.6 0.03 255);
+  
+  --accent-color: #2563eb;
+  
   --primary-900: #0c2d57;
   --primary-700: #1e4e8c;
   --primary-500: #2f7bd3;
   --primary-300: #7db4ec;
   --primary-100: #dcecfb;
-  --primary-50: #f2f8fe;
+  --primary-50: oklch(0.16 0.03 255);
+  
   --accent-gold: #d4a94e;
-  --text-dark: #1a2b3c;
-  --text-muted: #5a6b7c;
+  --text-dark: oklch(0.95 0.01 255);
+  --text-muted: oklch(0.6 0.03 255);
   --white: #ffffff;
+  
   --radius: 12px;
   --shadow: 0 4px 20px rgba(12, 45, 87, 0.08);
   --shadow-hover: 0 8px 30px rgba(12, 45, 87, 0.14);
+  
   --font-heading: 'Amiri', serif;
-  --font-body: 'Cairo', sans-serif;
+  --font-body: 'Tajawal', sans-serif;
+  
   --max-width: 1200px;
-  --header-height: 72px;
+  --header-height: 74px;
 }

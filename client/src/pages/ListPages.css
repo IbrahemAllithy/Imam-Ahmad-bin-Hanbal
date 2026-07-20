@@ -1,23 +1,174 @@
-.list-page {
-  padding: 2rem 0 4rem;
+.list-page-wrapper {
+  direction: rtl;
+  font-family: 'Tajawal', sans-serif;
+  background: oklch(0.16 0.03 255);
+  min-height: 100vh;
 }
 
-.list-toolbar {
-  margin-bottom: 1.5rem;
+.list-breadcrumb {
+  padding: 14px 48px;
+  background: oklch(0.14 0.028 255);
+  border-bottom: 1px solid oklch(0.25 0.03 255 / 0.5);
+  font-size: 13px;
+  color: oklch(0.6 0.03 255);
+  display: flex;
+  gap: 8px;
 }
 
-.search-input {
+.list-breadcrumb a {
+  color: oklch(0.6 0.03 255);
+  text-decoration: none;
+}
+
+.list-breadcrumb .current {
+  color: oklch(0.9 0.01 255);
+}
+
+.list-layout {
+  display: flex;
+  gap: 32px;
+  padding: 40px 48px;
+  max-width: 1400px;
+  margin: 0 auto;
+  align-items: flex-start;
+}
+
+.list-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 90px;
+  background: oklch(0.2 0.032 255);
+  border: 1px solid oklch(0.28 0.03 255);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.sidebar-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: oklch(0.95 0.01 255);
+  margin-bottom: 16px;
+}
+
+.sidebar-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  cursor: pointer;
+  color: oklch(0.85 0.02 255);
+  font-size: 14.5px;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: background 0.2s;
+  margin-bottom: 4px;
+}
+
+.sidebar-item:hover, .sidebar-item.active {
+  background: oklch(0.24 0.035 255);
+  color: oklch(0.95 0.01 255);
+}
+
+.sidebar-count {
+  font-size: 11.5px;
+  color: oklch(0.5 0.03 255);
+  background: oklch(0.16 0.028 255);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.list-main {
+  flex: 1;
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 24px;
+}
+
+.list-title {
+  font-family: 'Amiri', serif;
+  font-size: 28px;
+  color: oklch(0.97 0.01 255);
+  margin: 0;
+}
+
+.list-count {
+  font-size: 14px;
+  color: oklch(0.55 0.03 255);
+}
+
+/* Books / Pills filter layout */
+.list-layout-full {
+  padding: 40px 48px;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+.pills-filter {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+
+.pill-btn {
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: oklch(0.2 0.032 255);
+  border: 1px solid oklch(0.3 0.03 255);
+  color: oklch(0.68 0.03 255);
+  font-size: 13.5px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pill-btn:hover {
+  background: oklch(0.24 0.04 255);
+}
+
+.pill-btn.active {
+  background: var(--accent-color);
+  color: white;
+  font-weight: 600;
+  border-color: var(--accent-color);
+}
+
+/* Search input */
+.list-search {
   width: 100%;
   max-width: 400px;
-  padding: 0.75rem 1rem;
-  border: 1.5px solid var(--primary-100);
-  border-radius: var(--radius);
-  font-family: var(--font-body);
-  font-size: 1rem;
-  background: var(--white);
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid oklch(0.28 0.03 255);
+  background: oklch(0.18 0.03 255);
+  color: oklch(0.95 0.01 255);
+  font-family: 'Tajawal', sans-serif;
+  margin-bottom: 24px;
+  outline: none;
+  font-size: 14px;
 }
 
-.search-input:focus {
-  outline: none;
-  border-color: var(--primary-500);
+.list-search:focus {
+  border-color: var(--accent-color);
+}
+
+@media (max-width: 768px) {
+  .list-layout {
+    flex-direction: column;
+    padding: 24px;
+  }
+  .list-sidebar {
+    width: 100%;
+    position: static;
+  }
+  .list-layout-full {
+    padding: 24px;
+  }
+  .list-breadcrumb {
+    padding: 14px 24px;
+  }
 }

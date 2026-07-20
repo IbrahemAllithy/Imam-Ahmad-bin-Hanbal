@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>body{margin:0;background:oklch(0.16 0.03 255);}*{box-sizing:border-box;}a{text-decoration:none;}</style>
+</helmet>
+
+<div dir="rtl" style="direction:rtl;font-family:'Tajawal',sans-serif;background:oklch(0.16 0.03 255);color:oklch(0.95 0.01 255);min-height:100vh;">
+  <dc-import name="Header" active="books" accent="{{ accent }}" hint-size="100%,74px"></dc-import>
+
+  <div style="padding:14px 48px;background:oklch(0.14 0.028 255);border-bottom:1px solid oklch(0.25 0.03 255 / 0.5);font-size:13px;color:oklch(0.6 0.03 255);display:flex;gap:8px;">
+    <a href="./الرئيسية.dc.html" style="color:oklch(0.6 0.03 255);">الرئيسية</a><span>/</span>
+    <a href="./الكتب.dc.html" style="color:oklch(0.6 0.03 255);">الكتب</a><span>/</span>
+    <span style="color:oklch(0.9 0.01 255);">{{ book.title }}</span>
+  </div>
+
+  <div style="display:flex;gap:40px;padding:40px 48px;max-width:1300px;margin:0 auto;align-items:flex-start;">
+    <div style="width:300px;flex-shrink:0;position:sticky;top:90px;">
+      <div style="aspect-ratio:2/3;border-radius:14px;background:repeating-linear-gradient(135deg,oklch(0.26 0.03 255),oklch(0.26 0.03 255) 8px,oklch(0.3 0.03 255) 8px,oklch(0.3 0.03 255) 16px);display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+        <span style="font-family:monospace;font-size:12px;color:oklch(0.6 0.02 255);">غلاف الكتاب</span>
+      </div>
+      <div style="background:oklch(0.2 0.032 255);border:1px solid oklch(0.28 0.03 255);border-radius:14px;padding:22px;">
+        <div style="font-size:12px;color:oklch(0.55 0.03 255);margin-bottom:4px;">المؤلف</div>
+        <div style="font-size:15px;font-weight:700;color:oklch(0.95 0.01 255);margin-bottom:16px;">{{ book.author }}</div>
+        <div style="font-size:12px;color:oklch(0.55 0.03 255);margin-bottom:4px;">القسم</div>
+        <div style="font-size:15px;font-weight:700;color:oklch(0.95 0.01 255);margin-bottom:16px;">{{ book.category }}</div>
+        <div style="font-size:12px;color:oklch(0.55 0.03 255);margin-bottom:4px;">عدد الدروس</div>
+        <div style="font-size:15px;font-weight:700;color:oklch(0.95 0.01 255);margin-bottom:20px;">{{ book.lessons }} درسًا</div>
+        <button style="width:100%;padding:13px;border-radius:9px;border:none;background:{{ accent }};color:white;font-weight:700;font-size:14.5px;cursor:pointer;margin-bottom:10px;">بدء المشاهدة</button>
+        <button style="width:100%;padding:13px;border-radius:9px;border:1px solid oklch(0.4 0.03 255);background:transparent;color:oklch(0.85 0.02 255);font-weight:600;font-size:14.5px;cursor:pointer;">تحميل PDF</button>
+      </div>
+    </div>
+    <div style="flex:1;">
+      <h1 style="font-family:'Amiri',serif;font-size:32px;color:oklch(0.97 0.01 255);margin:0 0 20px;">{{ book.title }}</h1>
+      <p style="font-size:15.5px;color:oklch(0.68 0.03 255);line-height:1.9;margin:0 0 36px;">{{ bookDescription }}</p>
+      <div style="font-size:19px;font-weight:700;color:oklch(0.95 0.01 255);margin-bottom:18px;font-family:'Amiri',serif;">سلسلة الدروس</div>
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <sc-for list="{{ bookLessons }}" as="ls" hint-placeholder-count="8">
+          <div style="display:flex;align-items:center;gap:16px;padding:16px;border-radius:10px;">
+            <div style="width:34px;height:34px;border-radius:50%;background:oklch(0.22 0.032 255);border:1px solid oklch(0.32 0.03 255);display:flex;align-items:center;justify-content:center;font-size:13px;color:oklch(0.7 0.03 255);flex-shrink:0;">{{ ls.n }}</div>
+            <div style="flex:1;font-size:15px;color:oklch(0.9 0.01 255);">{{ ls.title }}</div>
+            <div style="font-size:13px;color:oklch(0.55 0.03 255);">{{ ls.duration }}</div>
+            <div style="width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-right:9px solid oklch(0.55 0.03 255);"></div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <dc-import name="Footer" hint-size="100%,320px"></dc-import>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1000},&quot;accentColor&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#2563eb&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#2563eb&quot;,&quot;#1d4ed8&quot;,&quot;#0ea5e9&quot;,&quot;#3b82f6&quot;]}}">
+class Component extends DCLogic {
+  books = [
+    { id: 1, title: 'شرح الأصول الثلاثة', author: 'الشيخ عبدالله المنصور', category: 'العقيدة', lessons: 12 },
+    { id: 2, title: 'بلوغ المرام', author: 'الشيخ محمد العتيبي', category: 'الحديث', lessons: 24 },
+    { id: 3, title: 'الآجرومية', author: 'الشيخ سعد الحارثي', category: 'اللغة العربية', lessons: 9 },
+    { id: 4, title: 'عمدة الأحكام', author: 'الشيخ خالد الشمري', category: 'الفقه', lessons: 18 },
+    { id: 5, title: 'تفسير الفاتحة وقصار السور', author: 'الشيخ ياسر القحطاني', category: 'التفسير', lessons: 15 },
+    { id: 6, title: 'الرحيق المختوم', author: 'الشيخ فيصل الدوسري', category: 'السيرة', lessons: 20 },
+  ];
+  bookLessons = [
+    { n: 1, title: 'مقدمة في أهمية الكتاب ومنهج المؤلف', duration: '22 د' },
+    { n: 2, title: 'الأصل الأول: معرفة الله', duration: '35 د' },
+    { n: 3, title: 'الأصل الثاني: معرفة الدين', duration: '40 د' },
+    { n: 4, title: 'الأصل الثالث: معرفة النبي ﷺ', duration: '38 د' },
+    { n: 5, title: 'أدلة التوحيد من القرآن', duration: '44 د' },
+    { n: 6, title: 'نواقض الإسلام (١)', duration: '50 د' },
+    { n: 7, title: 'نواقض الإسلام (٢)', duration: '47 د' },
+    { n: 8, title: 'خاتمة وأسئلة الطلاب', duration: '25 د' },
+  ];
+  renderVals() {
+    const accent = this.props.accentColor ?? '#2563eb';
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    const book = this.books.find(b => String(b.id) === String(id)) ?? this.books[0];
+    return {
+      accent, book, bookLessons: this.bookLessons,
+      bookDescription: `كتاب "${book.title}" من الكتب المعتمدة في مادة ${book.category}، ألّفه ${book.author}، ويشتمل على ${book.lessons} درسًا مرتبة تصاعديًا وفق منهجية تراعي تدرّج الطالب من المبادئ إلى المسائل التفصيلية.`,
+    };
+  }
+}
+</script>
+</body>
+</html>

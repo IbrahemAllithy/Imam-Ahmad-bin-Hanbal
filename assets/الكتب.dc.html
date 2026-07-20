@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>body{margin:0;background:oklch(0.16 0.03 255);}*{box-sizing:border-box;}a{text-decoration:none;}</style>
+</helmet>
+
+<div dir="rtl" style="direction:rtl;font-family:'Tajawal',sans-serif;background:oklch(0.16 0.03 255);color:oklch(0.95 0.01 255);min-height:100vh;">
+  <dc-import name="Header" active="books" accent="{{ accent }}" hint-size="100%,74px"></dc-import>
+
+  <div style="padding:14px 48px;background:oklch(0.14 0.028 255);border-bottom:1px solid oklch(0.25 0.03 255 / 0.5);font-size:13px;color:oklch(0.6 0.03 255);display:flex;gap:8px;">
+    <a href="./الرئيسية.dc.html" style="color:oklch(0.6 0.03 255);">الرئيسية</a><span>/</span><span style="color:oklch(0.9 0.01 255);">الكتب</span>
+  </div>
+
+  <div style="padding:40px 48px;max-width:1300px;margin:0 auto;">
+    <h1 style="font-family:'Amiri',serif;font-size:28px;color:oklch(0.97 0.01 255);margin:0 0 20px;">مكتبة الكتب</h1>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px;">
+      <span style="padding:8px 18px;border-radius:999px;background:{{ accent }};color:white;font-size:13.5px;font-weight:600;">الكل</span>
+      <sc-for list="{{ categories }}" as="cat" hint-placeholder-count="6">
+        <span style="padding:8px 18px;border-radius:999px;background:oklch(0.2 0.032 255);border:1px solid oklch(0.3 0.03 255);color:oklch(0.68 0.03 255);font-size:13.5px;">{{ cat.name }}</span>
+      </sc-for>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;">
+      <sc-for list="{{ books }}" as="bk" hint-placeholder-count="6">
+        <a href="{{ bk.href }}">
+          <div style="aspect-ratio:2/3;border-radius:12px;background:repeating-linear-gradient(135deg,oklch(0.26 0.03 255),oklch(0.26 0.03 255) 8px,oklch(0.3 0.03 255) 8px,oklch(0.3 0.03 255) 16px);display:flex;align-items:center;justify-content:center;margin-bottom:14px;">
+            <span style="font-family:monospace;font-size:11px;color:oklch(0.6 0.02 255);">غلاف الكتاب</span>
+          </div>
+          <div style="font-size:11.5px;color:{{ accent }};font-weight:600;margin-bottom:6px;">{{ bk.category }}</div>
+          <div style="font-size:15px;font-weight:700;color:oklch(0.95 0.01 255);margin-bottom:6px;line-height:1.4;">{{ bk.title }}</div>
+          <div style="font-size:13px;color:oklch(0.55 0.03 255);">{{ bk.author }} · {{ bk.lessons }} درسًا</div>
+        </a>
+      </sc-for>
+    </div>
+  </div>
+
+  <dc-import name="Footer" hint-size="100%,320px"></dc-import>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1000},&quot;accentColor&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#2563eb&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#2563eb&quot;,&quot;#1d4ed8&quot;,&quot;#0ea5e9&quot;,&quot;#3b82f6&quot;]}}">
+class Component extends DCLogic {
+  categories = [
+    { name: 'العقيدة' }, { name: 'الفقه' }, { name: 'الحديث' },
+    { name: 'التفسير' }, { name: 'السيرة' }, { name: 'اللغة العربية' },
+  ];
+  books = [
+    { id: 1, title: 'شرح الأصول الثلاثة', author: 'الشيخ عبدالله المنصور', category: 'العقيدة', lessons: 12 },
+    { id: 2, title: 'بلوغ المرام', author: 'الشيخ محمد العتيبي', category: 'الحديث', lessons: 24 },
+    { id: 3, title: 'الآجرومية', author: 'الشيخ سعد الحارثي', category: 'اللغة العربية', lessons: 9 },
+    { id: 4, title: 'عمدة الأحكام', author: 'الشيخ خالد الشمري', category: 'الفقه', lessons: 18 },
+    { id: 5, title: 'تفسير الفاتحة وقصار السور', author: 'الشيخ ياسر القحطاني', category: 'التفسير', lessons: 15 },
+    { id: 6, title: 'الرحيق المختوم', author: 'الشيخ فيصل الدوسري', category: 'السيرة', lessons: 20 },
+  ];
+  renderVals() {
+    const accent = this.props.accentColor ?? '#2563eb';
+    return { accent, categories: this.categories, books: this.books.map(b => ({ ...b, href: `./كتاب.dc.html?id=${b.id}` })) };
+  }
+}
+</script>
+</body>
+</html>

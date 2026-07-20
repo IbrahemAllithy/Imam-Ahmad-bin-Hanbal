@@ -1,72 +1,56 @@
-.book-card {
-  background: var(--white);
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: var(--shadow);
-  transition: transform 0.2s, box-shadow 0.2s;
-  display: flex;
-  flex-direction: column;
+.book-card-item {
+  display: block;
+  text-decoration: none;
+  transition: transform 0.2s;
 }
 
-.book-card:hover {
+.book-card-item:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-hover);
 }
 
-.book-cover {
-  aspect-ratio: 3/4;
-  background: var(--primary-100);
-  overflow: hidden;
-}
-
-.book-cover img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.book-placeholder {
-  width: 100%;
-  height: 100%;
+.book-card-cover {
+  aspect-ratio: 2/3;
+  border-radius: 12px;
+  background: repeating-linear-gradient(135deg, oklch(0.26 0.03 255), oklch(0.26 0.03 255) 8px, oklch(0.3 0.03 255) 8px, oklch(0.3 0.03 255) 16px);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 4rem;
-  background: linear-gradient(135deg, var(--primary-100), var(--primary-300));
+  margin-bottom: 14px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid oklch(0.28 0.03 255);
 }
 
-.book-body {
-  padding: 1.25rem;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+.book-card-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
-.book-body h3 {
-  font-size: 1.05rem;
-  color: var(--primary-900);
-  margin: 0.5rem 0 0.25rem;
+.book-card-cover span {
+  font-family: monospace;
+  font-size: 11px;
+  color: oklch(0.6 0.02 255);
 }
 
-.book-author {
-  color: var(--text-muted);
-  font-size: 0.9rem;
+.book-card-cat {
+  font-size: 11.5px;
+  font-weight: 600;
+  margin-bottom: 6px;
 }
 
-.book-pages {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  margin-top: 0.25rem;
+.book-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: oklch(0.95 0.01 255);
+  margin-bottom: 6px;
+  line-height: 1.4;
 }
 
-.book-actions {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: auto;
-  padding-top: 1rem;
-}
-
-.btn-sm {
-  padding: 0.5rem 1rem;
-  font-size: 0.85rem;
+.book-card-author {
+  font-size: 13px;
+  color: oklch(0.55 0.03 255);
 }

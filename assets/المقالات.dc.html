@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>body{margin:0;background:oklch(0.16 0.03 255);}*{box-sizing:border-box;}a{text-decoration:none;}</style>
+</helmet>
+
+<div dir="rtl" style="direction:rtl;font-family:'Tajawal',sans-serif;background:oklch(0.16 0.03 255);color:oklch(0.95 0.01 255);min-height:100vh;">
+  <dc-import name="Header" active="articles" accent="{{ accent }}" hint-size="100%,74px"></dc-import>
+
+  <div style="padding:14px 48px;background:oklch(0.14 0.028 255);border-bottom:1px solid oklch(0.25 0.03 255 / 0.5);font-size:13px;color:oklch(0.6 0.03 255);display:flex;gap:8px;">
+    <a href="./الرئيسية.dc.html" style="color:oklch(0.6 0.03 255);">الرئيسية</a><span>/</span><span style="color:oklch(0.9 0.01 255);">المقالات</span>
+  </div>
+
+  <div style="padding:40px 48px;max-width:1300px;margin:0 auto;">
+    <h1 style="font-family:'Amiri',serif;font-size:28px;color:oklch(0.97 0.01 255);margin:0 0 28px;">المقالات</h1>
+    <a href="{{ firstArticle.href }}" style="display:flex;gap:28px;background:oklch(0.2 0.032 255);border:1px solid oklch(0.28 0.03 255);border-radius:16px;overflow:hidden;margin-bottom:40px;">
+      <div style="width:46%;flex-shrink:0;background:repeating-linear-gradient(135deg,oklch(0.26 0.03 255),oklch(0.26 0.03 255) 8px,oklch(0.3 0.03 255) 8px,oklch(0.3 0.03 255) 16px);display:flex;align-items:center;justify-content:center;">
+        <span style="font-family:monospace;font-size:11px;color:oklch(0.6 0.02 255);">صورة المقال</span>
+      </div>
+      <div style="padding:30px 30px 30px 0;display:flex;flex-direction:column;justify-content:center;">
+        <div style="font-size:12.5px;color:{{ accent }};font-weight:600;margin-bottom:12px;">{{ firstArticle.category }}</div>
+        <div style="font-family:'Amiri',serif;font-size:24px;font-weight:700;color:oklch(0.97 0.01 255);margin-bottom:14px;line-height:1.5;">{{ firstArticle.title }}</div>
+        <p style="font-size:14.5px;color:oklch(0.6 0.03 255);line-height:1.8;margin:0 0 16px;">{{ firstArticle.excerpt }}</p>
+        <div style="font-size:13px;color:oklch(0.5 0.03 255);">{{ firstArticle.author }} · {{ firstArticle.date }}</div>
+      </div>
+    </a>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;">
+      <sc-for list="{{ restArticles }}" as="ar" hint-placeholder-count="5">
+        <a href="{{ ar.href }}" style="background:oklch(0.2 0.032 255);border:1px solid oklch(0.28 0.03 255);border-radius:14px;overflow:hidden;">
+          <div style="aspect-ratio:16/9;background:repeating-linear-gradient(135deg,oklch(0.26 0.03 255),oklch(0.26 0.03 255) 8px,oklch(0.3 0.03 255) 8px,oklch(0.3 0.03 255) 16px);display:flex;align-items:center;justify-content:center;">
+            <span style="font-family:monospace;font-size:11px;color:oklch(0.6 0.02 255);">صورة المقال</span>
+          </div>
+          <div style="padding:20px;">
+            <div style="font-size:12px;color:{{ accent }};font-weight:600;margin-bottom:8px;">{{ ar.category }}</div>
+            <div style="font-size:16px;font-weight:700;color:oklch(0.95 0.01 255);margin-bottom:10px;line-height:1.4;">{{ ar.title }}</div>
+            <div style="font-size:13px;color:oklch(0.55 0.03 255);">{{ ar.author }} · {{ ar.date }}</div>
+          </div>
+        </a>
+      </sc-for>
+    </div>
+  </div>
+
+  <dc-import name="Footer" hint-size="100%,320px"></dc-import>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1000},&quot;accentColor&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#2563eb&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#2563eb&quot;,&quot;#1d4ed8&quot;,&quot;#0ea5e9&quot;,&quot;#3b82f6&quot;]}}">
+class Component extends DCLogic {
+  articles = [
+    { id: 1, title: 'كيف تبدأ في طلب العلم الشرعي؟', excerpt: 'خطوات عملية لترتيب أولوياتك في بداية الطلب.', category: 'منهجية الطلب', author: 'أ. سالم الغامدي', date: '12 يوليو 2026' },
+    { id: 2, title: 'أهمية ضبط المتون قبل الشروح', excerpt: 'لماذا يوصي العلماء بحفظ المتون العلمية أولًا.', category: 'مقالات تربوية', author: 'أ. نورة السبيعي', date: '5 يوليو 2026' },
+    { id: 3, title: 'أدب طالب العلم مع شيخه', excerpt: 'جملة من الآداب التي ينبغي مراعاتها.', category: 'آداب وأخلاق', author: 'أ. عمر الزهراني', date: '28 يونيو 2026' },
+    { id: 4, title: 'الفرق بين الفقه وأصول الفقه', excerpt: 'توضيح مبسط للفرق بين العلمين وأهمية كل منهما.', category: 'الفقه', author: 'أ. بندر العنزي', date: '20 يونيو 2026' },
+    { id: 5, title: 'قراءة في سيرة الإمام الشافعي', excerpt: 'محطات من حياة الإمام الشافعي رحمه الله.', category: 'السيرة', author: 'أ. هند القرني', date: '14 يونيو 2026' },
+    { id: 6, title: 'كيف تراجع محفوظاتك بفعالية', excerpt: 'أساليب عملية في المراجعة والتثبيت.', category: 'منهجية الطلب', author: 'أ. سالم الغامدي', date: '2 يونيو 2026' },
+  ];
+  renderVals() {
+    const accent = this.props.accentColor ?? '#2563eb';
+    const withHref = this.articles.map(a => ({ ...a, href: `./مقال.dc.html?id=${a.id}` }));
+    return { accent, firstArticle: withHref[0], restArticles: withHref.slice(1) };
+  }
+}
+</script>
+</body>
+</html>

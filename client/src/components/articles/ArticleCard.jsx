@@ -3,20 +3,49 @@ import { getStorageUrl } from '../../services/api';
 import { formatDate, truncate } from '../../utils/helpers';
 import './ArticleCard.css';
 
-const ArticleCard = ({ article }) => (
-  <Link to={`/articles/${article._id}`} className="article-card">
-    {article.coverImage && (
-      <div className="article-cover">
-        <img src={getStorageUrl(article.coverImage)} alt={article.title} loading="lazy" />
+const ArticleCard = ({ article, featured = false }) => {
+  const accent = '#2563eb';
+  
+  if (featured) {
+    return (
+      <Link to={`/articles/${article._id}`} className="article-card-featured">
+        <div className="article-cover-featured">
+          {article.coverImage ? (
+            <img src={getStorageUrl(article.coverImage)} alt={article.title} loading="lazy" />
+          ) : (
+            <span>صورة المقال</span>
+          )}
+        </div>
+        <div className="article-body-featured">
+          <div className="article-cat" style={{ color: accent }}>{article.category}</div>
+          <div className="article-title-featured">{article.title}</div>
+          <p className="article-excerpt">{truncate(article.excerpt || article.content, 140)}</p>
+          <div className="article-footer">
+            {article.author} · {formatDate(article.createdAt)}
+          </div>
+        </div>
+      </Link>
+    );
+  }
+
+  return (
+    <Link to={`/articles/${article._id}`} className="article-card-item">
+      <div className="article-cover-normal">
+        {article.coverImage ? (
+          <img src={getStorageUrl(article.coverImage)} alt={article.title} loading="lazy" />
+        ) : (
+          <span>صورة المقال</span>
+        )}
       </div>
-    )}
-    <div className="article-body">
-      <span className="pill">{article.category}</span>
-      <h3>{article.title}</h3>
-      <p>{truncate(article.excerpt || article.content, 140)}</p>
-      <time>{formatDate(article.createdAt)}</time>
-    </div>
-  </Link>
-);
+      <div className="article-body-normal">
+        <div className="article-cat" style={{ color: accent }}>{article.category}</div>
+        <div className="article-title">{article.title}</div>
+        <div className="article-footer">
+          {article.author} · {formatDate(article.createdAt)}
+        </div>
+      </div>
+    </Link>
+  );
+};
 
 export default ArticleCard;

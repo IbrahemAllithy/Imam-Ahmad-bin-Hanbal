@@ -1,34 +1,43 @@
 import { Link } from 'react-router-dom';
-import { logo } from '../../assets';
 import './Footer.css';
 
 const Footer = () => (
   <footer className="footer">
-    <div className="container footer-grid">
+    <div className="footer-grid">
       <div>
-        <img src={logo} alt="مجمع الإمام أحمد بن حنبل" className="footer-logo" />
-        <h3>مجمع الإمام أحمد بن حنبل</h3>
-        <p>موقع تعليمي أكاديمي إسلامي على منهج السلف الصالح، تابع للشيخ شعبان العودة — حفظه الله.</p>
+        <div className="footer-title">الموقع الرسمي للشيخ شعبان العودة</div>
+        <p className="footer-desc">تابع لمجمع الإمام أحمد، يقدّم دروسًا وكتبًا ومقالات شرعية مبوّبة.</p>
       </div>
       <div>
-        <h4>روابط سريعة</h4>
-        <ul>
-          <li><Link to="/lectures">المحاضرات</Link></li>
-          <li><Link to="/articles">المقالات</Link></li>
-          <li><Link to="/books">الكتب</Link></li>
-          <li><Link to="/about">عن المجمع</Link></li>
-        </ul>
+        <div className="footer-col-title">الأقسام</div>
+        <div className="footer-links">
+          <Link to="/lectures">العقيدة</Link>
+          <Link to="/lectures">الفقه</Link>
+          <Link to="/lectures">الحديث</Link>
+          <Link to="/lectures">التفسير</Link>
+          <Link to="/lectures">السيرة</Link>
+          <Link to="/lectures">اللغة العربية</Link>
+        </div>
       </div>
       <div>
-        <h4>تواصل</h4>
-        <p>للاستفسارات والمقترحات</p>
-        <Link to="/contact" className="btn btn-outline footer-btn">راسلنا</Link>
+        <div className="footer-col-title">روابط</div>
+        <div className="footer-links">
+          <Link to="/lectures">الدروس</Link>
+          <Link to="/books">الكتب</Link>
+          <Link to="/articles">المقالات</Link>
+        </div>
+      </div>
+      <div>
+        <div className="footer-col-title">تواصل معنا</div>
+        <div className="footer-contact">
+          <span>info@imam-ahmad.com</span>
+          <span>تويتر / X</span>
+          <span>تيليجرام</span>
+        </div>
       </div>
     </div>
     <div className="footer-bottom">
-      <div className="container">
-        <p>© {new Date().getFullYear()} مجمع الإمام أحمد بن حنبل — جميع الحقوق محفوظة</p>
-      </div>
+      © {new Date().getFullYear()} الموقع الرسمي للشيخ شعبان العودة. جميع الحقوق محفوظة.
     </div>
   </footer>
 );

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>الموقع الرسمي للشيخ شعبان العودة — صفحة الكتاب</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<template id="__bundler_thumbnail" data-bg-color="#1a2e4d">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#1a2e4d"/>
+    <circle cx="600" cy="330" r="130" fill="#2563eb"/>
+    <text x="600" y="350" font-family="serif" font-size="90" fill="#fff" text-anchor="middle">ك</text>
+    <rect x="440" y="520" width="320" height="24" rx="12" fill="#5b7bb8"/>
+  </svg>
+</template>
+<style>
+  body{margin:0;background:oklch(0.16 0.03 255);}
+  *{box-sizing:border-box;}
+  a{text-decoration:none;}
+</style>
+</head>
+<body dir="rtl" style="direction:rtl;font-family:'Tajawal',sans-serif;background:oklch(0.16 0.03 255);color:oklch(0.95 0.01 255);min-height:100vh;">
+
+  <header dir="rtl" style="position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:14px 48px;background:oklch(0.13 0.028 255 / 0.94);backdrop-filter:blur(12px);border-bottom:1px solid oklch(0.3 0.03 255 / 0.5);">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <img src="../assets/logo.png" alt="شعار مجمع الإمام أحمد" style="width:42px;height:42px;border-radius:50%;flex-shrink:0;object-fit:cover;box-shadow:0 4px 14px oklch(0.4 0.1 250 / 0.45);"/>
+      <div>
+        <div style="font-size:17px;font-weight:800;color:oklch(0.97 0.01 255);font-family:'Amiri',serif;">الموقع الرسمي للشيخ شعبان العودة</div>
+        <div style="font-size:11px;color:oklch(0.6 0.03 255);letter-spacing:0.4px;">مجمع الإمام أحمد</div>
+      </div>
+    </div>
+    <nav style="display:flex;gap:6px;background:oklch(0.19 0.03 255);padding:6px;border-radius:12px;">
+      <span style="padding:9px 20px;border-radius:8px;font-size:14.5px;font-weight:500;color:oklch(0.65 0.03 255);">الرئيسية</span>
+      <span style="padding:9px 20px;border-radius:8px;font-size:14.5px;font-weight:500;color:oklch(0.65 0.03 255);">الدروس</span>
+      <span style="padding:9px 20px;border-radius:8px;font-size:14.5px;font-weight:500;background:oklch(0.24 0.035 255);color:oklch(0.95 0.01 255);">الكتب</span>
+      <span style="padding:9px 20px;border-radius:8px;font-size:14.5px;font-weight:500;color:oklch(0.65 0.03 255);">المقالات</span>
+    </nav>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <button style="padding:10px 20px;border-radius:8px;border:1px solid oklch(0.4 0.03 255);background:transparent;color:oklch(0.85 0.02 255);font-family:'Tajawal',sans-serif;font-size:14px;font-weight:500;cursor:pointer;">تسجيل الدخول</button>
+      <button style="padding:10px 22px;border-radius:8px;border:none;background:#2563eb;color:white;font-weight:700;font-size:14px;cursor:pointer;">ابدأ الآن</button>
+    </div>
+  </header>
+
+  <div style="padding:14px 48px;background:oklch(0.14 0.028 255);border-bottom:1px solid oklch(0.25 0.03 255 / 0.5);font-size:13px;color:oklch(0.6 0.03 255);display:flex;gap:8px;">
+    <span>الرئيسية</span><span>/</span><span>الكتب</span><span>/</span><span id="bcTitle" style="color:oklch(0.9 0.01 255);"></span>
+  </div>
+
+  <div style="display:flex;gap:40px;padding:40px 48px;max-width:1300px;margin:0 auto;align-items:flex-start;">
+    <div style="width:300px;flex-shrink:0;">
+      <div style="aspect-ratio:2/3;border-radius:14px;background:repeating-linear-gradient(135deg,oklch(0.26 0.03 255),oklch(0.26 0.03 255) 8px,oklch(0.3 0.03 255) 8px,oklch(0.3 0.03 255) 16px);display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+        <span style="font-family:monospace;font-size:12px;color:oklch(0.6 0.02 255);">غلاف الكتاب</span>
+      </div>
+      <div style="background:oklch(0.2 0.032 255);border:1px solid oklch(0.28 0.03 255);border-radius:14px;padding:22px;">
+        <div style="font-size:12px;color:oklch(0.55 0.03 255);margin-bottom:4px;">المؤلف</div>
+        <div id="bAuthor" style="font-size:15px;font-weight:700;color:oklch(0.95 0.01 255);margin-bottom:16px;"></div>
+        <div style="font-size:12px;color:oklch(0.55 0.03 255);margin-bottom:4px;">القسم</div>
+        <div id="bCategory" style="font-size:15px;font-weight:700;color:oklch(0.95 0.01 255);margin-bottom:16px;"></div>
+        <div style="font-size:12px;color:oklch(0.55 0.03 255);margin-bottom:4px;">عدد الدروس</div>
+        <div id="bLessons" style="font-size:15px;font-weight:700;color:oklch(0.95 0.01 255);margin-bottom:20px;"></div>
+        <button style="width:100%;padding:13px;border-radius:9px;border:none;background:#2563eb;color:white;font-weight:700;font-size:14.5px;cursor:pointer;margin-bottom:10px;">بدء المشاهدة</button>
+        <button style="width:100%;padding:13px;border-radius:9px;border:1px solid oklch(0.4 0.03 255);background:transparent;color:oklch(0.85 0.02 255);font-weight:600;font-size:14.5px;cursor:pointer;">تحميل PDF</button>
+      </div>
+    </div>
+    <div style="flex:1;">
+      <h1 id="bTitle" style="font-family:'Amiri',serif;font-size:32px;color:oklch(0.97 0.01 255);margin:0 0 20px;"></h1>
+      <p id="bDesc" style="font-size:15.5px;color:oklch(0.68 0.03 255);line-height:1.9;margin:0 0 36px;"></p>
+      <div style="font-size:19px;font-weight:700;color:oklch(0.95 0.01 255);margin-bottom:18px;font-family:'Amiri',serif;">سلسلة الدروس</div>
+      <div id="lessonsList" style="display:flex;flex-direction:column;gap:2px;"></div>
+    </div>
+  </div>
+
+  <footer style="background:oklch(0.11 0.025 255);padding:56px 48px 28px;border-top:1px solid oklch(0.25 0.03 255 / 0.5);">
+    <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px;">
+      <div>
+        <div style="font-size:19px;font-weight:800;color:oklch(0.97 0.01 255);font-family:'Amiri',serif;margin-bottom:12px;">الموقع الرسمي للشيخ شعبان العودة</div>
+        <p style="font-size:14px;color:oklch(0.55 0.03 255);line-height:1.8;max-width:280px;margin:0;">تابع لمجمع الإمام أحمد، يقدّم دروسًا وكتبًا ومقالات شرعية مبوّبة.</p>
+      </div>
+      <div>
+        <div style="font-size:14px;font-weight:700;color:oklch(0.85 0.02 255);margin-bottom:16px;">الأقسام</div>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:13.5px;color:oklch(0.55 0.03 255);">
+          <span>العقيدة</span><span>الفقه</span><span>الحديث</span><span>التفسير</span><span>السيرة</span><span>اللغة العربية</span>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:14px;font-weight:700;color:oklch(0.85 0.02 255);margin-bottom:16px;">روابط</div>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:13.5px;color:oklch(0.55 0.03 255);">
+          <span>الدروس</span><span>الكتب</span><span>المقالات</span><span>مقرأة السنة</span><span>تعلم عن بعد</span>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:14px;font-weight:700;color:oklch(0.85 0.02 255);margin-bottom:16px;">تواصل معنا</div>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:13.5px;color:oklch(0.55 0.03 255);">
+          <span>info@almanhaj-academy.example</span><span>تويتر / X</span><span>تيليجرام</span>
+        </div>
+      </div>
+    </div>
+    <div style="max-width:1200px;margin:40px auto 0;padding-top:24px;border-top:1px solid oklch(0.22 0.03 255 / 0.6);text-align:center;font-size:13px;color:oklch(0.45 0.03 255);">© 2026 الموقع الرسمي للشيخ شعبان العودة. جميع الحقوق محفوظة.</div>
+  </footer>
+
+<script>
+  const books = [
+    { id: 1, title: 'شرح الأصول الثلاثة', author: 'الشيخ عبدالله المنصور', category: 'العقيدة', lessons: 12 },
+    { id: 2, title: 'بلوغ المرام', author: 'الشيخ محمد العتيبي', category: 'الحديث', lessons: 24 },
+    { id: 3, title: 'الآجرومية', author: 'الشيخ سعد الحارثي', category: 'اللغة العربية', lessons: 9 },
+    { id: 4, title: 'عمدة الأحكام', author: 'الشيخ خالد الشمري', category: 'الفقه', lessons: 18 },
+    { id: 5, title: 'تفسير الفاتحة وقصار السور', author: 'الشيخ ياسر القحطاني', category: 'التفسير', lessons: 15 },
+    { id: 6, title: 'الرحيق المختوم', author: 'الشيخ فيصل الدوسري', category: 'السيرة', lessons: 20 },
+  ];
+  const bookLessons = [
+    { n: 1, title: 'مقدمة في أهمية الكتاب ومنهج المؤلف', duration: '22 د' },
+    { n: 2, title: 'الأصل الأول: معرفة الله', duration: '35 د' },
+    { n: 3, title: 'الأصل الثاني: معرفة الدين', duration: '40 د' },
+    { n: 4, title: 'الأصل الثالث: معرفة النبي ﷺ', duration: '38 د' },
+    { n: 5, title: 'أدلة التوحيد من القرآن', duration: '44 د' },
+    { n: 6, title: 'نواقض الإسلام (١)', duration: '50 د' },
+    { n: 7, title: 'نواقض الإسلام (٢)', duration: '47 د' },
+    { n: 8, title: 'خاتمة وأسئلة الطلاب', duration: '25 د' },
+  ];
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+  const book = books.find(b => String(b.id) === String(id)) || books[0];
+  document.getElementById('bcTitle').textContent = book.title;
+  document.getElementById('bTitle').textContent = book.title;
+  document.getElementById('bAuthor').textContent = book.author;
+  document.getElementById('bCategory').textContent = book.category;
+  document.getElementById('bLessons').textContent = book.lessons + ' درسًا';
+  document.getElementById('bDesc').textContent = `كتاب "${book.title}" من الكتب المعتمدة في مادة ${book.category}، ألّفه ${book.author}، ويشتمل على ${book.lessons} درسًا مرتبة تصاعديًا وفق منهجية تراعي تدرّج الطالب من المبادئ إلى المسائل التفصيلية.`;
+  const list = document.getElementById('lessonsList');
+  bookLessons.forEach(ls => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:16px;padding:16px;border-radius:10px;';
+    row.innerHTML = `
+      <div style="width:34px;height:34px;border-radius:50%;background:oklch(0.22 0.032 255);border:1px solid oklch(0.32 0.03 255);display:flex;align-items:center;justify-content:center;font-size:13px;color:oklch(0.7 0.03 255);flex-shrink:0;">${ls.n}</div>
+      <div style="flex:1;font-size:15px;color:oklch(0.9 0.01 255);">${ls.title}</div>
+      <div style="font-size:13px;color:oklch(0.55 0.03 255);">${ls.duration}</div>
+      <div style="width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-right:9px solid oklch(0.55 0.03 255);"></div>
+    `;
+    list.appendChild(row);
+  });
+</script>
+</body>
+</html>

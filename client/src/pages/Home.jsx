@@ -1,106 +1,172 @@
 import { Link } from 'react-router-dom';
 import { useFetch } from '../hooks/useFetch';
-import { sheikh } from '../assets';
-import LectureCard from '../components/lectures/LectureCard';
-import ArticleCard from '../components/articles/ArticleCard';
-import BookCard from '../components/books/BookCard';
-import SectionTitle from '../components/ui/SectionTitle';
-import Loader from '../components/ui/Loader';
+import { sheikh, logo } from '../assets';
+import { getStorageUrl } from '../services/api';
 import './Home.css';
 
+const quickLinks = [
+  { label: 'الدروس', letter: 'د', href: '/lectures' },
+  { label: 'الكتب', letter: 'ك', href: '/books' },
+  { label: 'المقالات', letter: 'م', href: '/articles' },
+];
+
+const categories = [
+  { id: 'aqeedah', name: 'العقيدة', letter: 'ع', count: 42 },
+  { id: 'fiqh', name: 'الفقه', letter: 'ف', count: 65 },
+  { id: 'hadith', name: 'الحديث', letter: 'ح', count: 38 },
+  { id: 'tafsir', name: 'التفسير', letter: 'ت', count: 29 },
+  { id: 'seerah', name: 'السيرة', letter: 'س', count: 21 },
+  { id: 'lugha', name: 'اللغة العربية', letter: 'ل', count: 17 },
+];
+
+const announcements = [
+  'نسأل الله أن يبارك في علم الشيخ وينفع به الإسلام والمسلمين.',
+  'مرحباً بكم في الموقع الرسمي الجديد.',
+];
+
 const Home = () => {
-  const { data: lectures, loading: l1 } = useFetch('/lectures', { limit: 3 });
-  const { data: articles, loading: l2 } = useFetch('/articles', { limit: 3 });
-  const { data: books, loading: l3 } = useFetch('/books', { limit: 3 });
+  const { data: lectures, loading: l1 } = useFetch('/lectures', { limit: 4 });
+  const { data: articles, loading: l2 } = useFetch('/articles', { limit: 4 });
+  const { data: books, loading: l3 } = useFetch('/books', { limit: 4 });
 
   return (
-    <>
-      <section className="hero">
-        <div className="container hero-inner">
+    <div className="home-wrapper">
+      <section className="home-hero">
+        <div className="hero-pattern"></div>
+        <div className="hero-inner">
           <div className="hero-content">
-            <span className="hero-badge">موقع تعليمي أكاديمي</span>
-            <h1>مجمع الإمام أحمد بن حنبل</h1>
-            <p>
-              منارة علمية على منهج السلف الصالح — محاضرات ودروس ومقالات وكتب
-              تابع للشيخ شعبان العودة — حفظه الله.
-            </p>
+            <div className="hero-badge">مجمع الإمام أحمد</div>
+            <h1 className="hero-title">فضيلة الشيخ أبو عبيدة شعبان العودة</h1>
+            <p className="hero-desc">دروس وكتب ومقالات مبوّبة بعناية في العقيدة والفقه والحديث والتفسير، إضافة إلى مقرأة السنة وبرامج التعلّم عن بُعد.</p>
             <div className="hero-actions">
-              <Link to="/lectures" className="btn btn-gold">استمع للمحاضرات</Link>
-              <Link to="/about" className="btn btn-outline hero-outline">تعرّف على المجمع</Link>
+              <Link to="/lectures" className="hero-btn-primary">تصفح الدروس</Link>
+              <Link to="/books" className="hero-btn-outline">تصفح الكتب</Link>
             </div>
           </div>
           <div className="hero-visual">
-            <img
-              src={sheikh}
-              alt="الشيخ شعبان العودة — حفظه الله"
-              className="hero-sheikh"
-            />
+            <img src={sheikh} alt="الشيخ شعبان العودة" className="hero-image" />
           </div>
         </div>
       </section>
 
-      <section className="section">
-        <div className="container">
-          <SectionTitle title="أحدث المحاضرات" subtitle="دروس ومحاضرات علمية على يوتيوب" />
-          {l1 ? <Loader /> : (
-            <>
-              <div className="grid grid-3">
-                {lectures?.data?.map((l) => <LectureCard key={l._id} lecture={l} />)}
-              </div>
-              {!lectures?.data?.length && <p className="empty-state">لا توجد محاضرات بعد</p>}
-              <div className="section-link">
-                <Link to="/lectures" className="btn btn-outline">عرض كل المحاضرات</Link>
-              </div>
-            </>
-          )}
+      <section className="home-quicklinks">
+        <div className="quicklinks-inner">
+          <div className="quicklinks-grid">
+            {quickLinks.map((ql, idx) => (
+              <Link key={idx} to={ql.href} className="quicklink-card">
+                <div className="quicklink-icon">
+                  <span>{ql.letter}</span>
+                </div>
+                <span className="quicklink-label">{ql.label}</span>
+              </Link>
+            ))}
+          </div>
+          <div className="announcements-card">
+            <div className="announcements-title">إعلانات عن الدروس</div>
+            {announcements.map((an, idx) => (
+              <div key={idx} className="announcement-item">{an}</div>
+            ))}
+            <span className="announcements-footer">يتحدّث تلقائيًا</span>
+          </div>
         </div>
       </section>
 
-      <section className="section section-alt">
-        <div className="container">
-          <SectionTitle title="أحدث المقالات" subtitle="مقالات علمية ودعوية" />
-          {l2 ? <Loader /> : (
-            <>
-              <div className="grid grid-3">
-                {articles?.data?.map((a) => <ArticleCard key={a._id} article={a} />)}
-              </div>
-              {!articles?.data?.length && <p className="empty-state">لا توجد مقالات بعد</p>}
-              <div className="section-link">
-                <Link to="/articles" className="btn btn-outline">عرض كل المقالات</Link>
-              </div>
-            </>
-          )}
+      <section className="home-categories">
+        <div className="categories-inner">
+          <div className="categories-header">
+            <h2>العلوم الشرعية</h2>
+            <p>اختر العلم الذي تريد البدء بدراسته</p>
+          </div>
+          <div className="categories-grid">
+            {categories.map((cat, idx) => (
+              <Link key={idx} to={`/lectures?category=${cat.name}`} className="category-card">
+                <div className="category-icon">
+                  <span>{cat.letter}</span>
+                </div>
+                <div>
+                  <div className="category-name">{cat.name}</div>
+                  <div className="category-count">{cat.count} درسًا</div>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
-      <section className="section">
-        <div className="container">
-          <SectionTitle title="مكتبة الكتب" subtitle="كتب PDF للقراءة والتحميل" />
-          {l3 ? <Loader /> : (
-            <>
-              <div className="grid grid-3">
-                {books?.data?.map((b) => <BookCard key={b._id} book={b} />)}
+      <section className="home-latest">
+        <div className="latest-inner">
+          <div className="about-sidecard">
+            <img src={logo} alt="شعار مجمع الإمام أحمد" className="about-logo" />
+            <div className="about-title">مجمع الإمام أحمد</div>
+            <p className="about-desc">صرح علمي يقدّم دروسًا وكتبًا ومقالات شرعية تحت إشراف فضيلة الشيخ شعبان العودة.</p>
+          </div>
+          <div className="latest-content">
+            
+            <div className="latest-section">
+              <div className="latest-header">
+                <h2>جديد الدروس</h2>
+                <Link to="/lectures">عرض الكل ‹</Link>
               </div>
-              {!books?.data?.length && <p className="empty-state">لا توجد كتب بعد</p>}
-              <div className="section-link">
-                <Link to="/books" className="btn btn-outline">عرض كل الكتب</Link>
+              <div className="latest-scroll">
+                {!l1 && lectures?.data?.map((ls) => (
+                  <Link to={`/lectures/${ls._id}`} key={ls._id} className="latest-card latest-lecture">
+                    <div className="latest-thumb video-thumb">
+                       {ls.youtubeUrl && <img src={`https://img.youtube.com/vi/${new URL(ls.youtubeUrl).searchParams.get('v')}/mqdefault.jpg`} alt="" />}
+                    </div>
+                    <div className="latest-info">
+                      <div className="latest-title">{ls.title}</div>
+                    </div>
+                  </Link>
+                ))}
               </div>
-            </>
-          )}
+            </div>
+
+            <div className="latest-section">
+              <div className="latest-header">
+                <h2>جديد الكتب</h2>
+                <Link to="/books">عرض الكل ‹</Link>
+              </div>
+              <div className="latest-scroll">
+                {!l3 && books?.data?.map((bk) => (
+                  <Link to={`/books/${bk._id}`} key={bk._id} className="latest-book-card">
+                    <div className="latest-thumb book-thumb">
+                       {bk.coverImage && <img src={getStorageUrl(bk.coverImage)} alt="" />}
+                    </div>
+                    <div className="latest-title">{bk.title}</div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div className="latest-section">
+              <div className="latest-header">
+                <h2>جديد المقالات</h2>
+                <Link to="/articles">عرض الكل ‹</Link>
+              </div>
+              <div className="latest-scroll">
+                {!l2 && articles?.data?.map((ar) => (
+                  <Link to={`/articles/${ar._id}`} key={ar._id} className="latest-card latest-article">
+                    <div className="latest-thumb article-thumb">
+                       {ar.image && <img src={getStorageUrl(ar.image)} alt="" />}
+                    </div>
+                    <div className="latest-info">
+                      <div className="latest-title">{ar.title}</div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+          </div>
         </div>
       </section>
 
-      <section className="about-snippet">
-        <div className="container about-snippet-inner">
-          <h2>عن المجمع</h2>
-          <p>
-            مجمع الإمام أحمد بن حنبل مؤسسة تعليمية إسلامية تهدف إلى نشر العلم الشرعي
-            على منهج أهل السنة والجماعة، بإشراف الشيخ شعبان العودة.
-          </p>
-          <Link to="/about" className="btn btn-primary">اقرأ المزيد</Link>
-        </div>
+      <section className="home-community">
+        <h2>انضمّ إلى مجتمع طلاب العلم</h2>
+        <p>سجّل الآن مجانًا وتابع دروسك وكتبك المفضلة أولًا بأول</p>
+        <button className="btn-join">سجّل الآن مجانًا</button>
       </section>
-    </>
+    </div>
   );
 };
 

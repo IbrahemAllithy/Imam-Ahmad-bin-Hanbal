@@ -1,0 +1,7 @@
+.lecture-video-container {
+  margin-bottom: 32px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid oklch(0.28 0.03 255);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
