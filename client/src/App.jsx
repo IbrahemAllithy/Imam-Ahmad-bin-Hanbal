@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import LectureCategories from './pages/LectureCategories';
 import Lectures from './pages/Lectures';
 import LectureDetail from './pages/LectureDetail';
+import CourseDetail from './pages/CourseDetail';
 import Articles from './pages/Articles';
 import ArticleDetail from './pages/ArticleDetail';
 import Books from './pages/Books';
@@ -27,6 +28,7 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/lectures" element={<LectureCategories />} />
           <Route path="/lectures/list" element={<Lectures />} />
+          <Route path="/courses/:seriesName" element={<CourseDetail />} />
           <Route path="/lectures/:id" element={<LectureDetail />} />
           <Route path="/articles" element={<Articles />} />
           <Route path="/articles/:id" element={<ArticleDetail />} />

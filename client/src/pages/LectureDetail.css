@@ -6,87 +6,61 @@
   color: var(--text-dark);
 }
 
-/* Header Banner */
-.lecture-header-banner {
-  background: oklch(0.28 0.045 45); /* Dark brown theme */
-  color: var(--white);
-  padding: 50px 48px;
+/* Progress Topbar (Image 3 Top Bar) */
+.lecture-progress-topbar {
+  background: #ffffff;
   border-bottom: 1px solid var(--primary-border);
+  padding: 12px 48px;
 }
 
-.lecture-banner-inner {
-  max-width: 1400px;
+.progress-bar-inner {
+  max-width: 1300px;
   margin: 0 auto;
-}
-
-.banner-breadcrumbs {
-  font-size: 13px;
-  color: oklch(0.8 0.03 65);
-  margin-bottom: 16px;
   display: flex;
-  gap: 8px;
   align-items: center;
+  gap: 20px;
+  justify-content: space-between;
 }
 
-.banner-breadcrumbs a {
-  color: oklch(0.85 0.03 65);
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.banner-breadcrumbs a:hover {
-  color: var(--accent-gold);
-}
-
-.banner-title {
+.progress-status-badge {
   font-family: var(--font-heading);
-  font-size: 36px;
-  font-weight: 800;
-  color: var(--white);
-  margin: 0 0 12px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--primary-text);
 }
 
-.banner-desc {
-  font-size: 16px;
-  color: oklch(0.85 0.02 65);
-  margin: 0;
-  max-width: 800px;
-  line-height: 1.7;
+.progress-track {
+  flex: 1;
+  max-width: 300px;
+  height: 8px;
+  background: var(--primary-bg);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--primary-border);
 }
 
-/* Container & Back Link */
+.progress-fill {
+  height: 100%;
+  background: #15803d;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+/* Container */
 .lecture-container {
-  max-width: 1400px;
+  max-width: 1350px;
   margin: 0 auto;
   padding: 32px 48px 60px;
-}
-
-.back-link-wrapper {
-  margin-bottom: 24px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.back-link {
-  color: var(--text-muted);
-  font-size: 14px;
-  font-weight: 700;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.back-link:hover {
-  color: var(--accent-color);
 }
 
 /* Content Layout (RTL: Sidebar Right, Video Left) */
 .lecture-content-layout {
   display: flex;
-  gap: 32px;
+  gap: 36px;
   align-items: flex-start;
 }
 
-/* Main Area (Video) */
+/* Main Area */
 .lecture-main-area {
   flex: 1;
   min-width: 0;
@@ -94,63 +68,126 @@
 
 .lecture-main-title {
   font-family: var(--font-heading);
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 800;
   color: var(--primary-text);
-  margin: 0 0 20px;
+  margin: 0 0 12px;
   line-height: 1.4;
+}
+
+.lecture-sub-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.status-pill-completed {
+  background: #5d3a22;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
+.lecture-meta-breadcrumbs {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.lecture-meta-breadcrumbs a {
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.lecture-meta-breadcrumbs a:hover {
+  color: var(--accent-color);
+}
+
+.lecture-meta-breadcrumbs .current {
+  color: var(--primary-text);
+  font-weight: 600;
 }
 
 .lecture-video-box {
   border-radius: 16px;
   overflow: hidden;
   background: #000000;
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.1);
   border: 1px solid var(--primary-border);
 }
 
-.lecture-action-center {
+/* Bottom Action Bar (Matching Image 3) */
+.lecture-bottom-actions {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 16px;
   margin-top: 28px;
 }
 
-.btn-completed {
+.btn-toggle-status {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 12px 36px;
-  border-radius: 10px;
+  gap: 8px;
+  padding: 12px 28px;
+  border-radius: 999px;
   font-family: var(--font-heading);
   font-weight: 700;
-  font-size: 1.05rem;
+  font-size: 14.5px;
   cursor: pointer;
-  transition: all 0.25s ease;
-  background-color: oklch(0.35 0.05 45); /* Rich brown matching screenshot */
+  background-color: #5d3a22;
   color: #ffffff;
   border: none;
+  transition: all 0.25s ease;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
 }
 
-.btn-completed:hover {
-  background-color: oklch(0.3 0.05 45);
+.btn-toggle-status:hover {
+  background-color: #4a2d1a;
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
 }
 
-.btn-completed.completed {
-  background-color: #15803d;
+.btn-toggle-status.is-done {
+  background-color: #4a3424;
+}
+
+.btn-next-lecture {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  border-radius: 999px;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 14.5px;
+  background-color: #a67c52; /* Brown button from Image 3 */
   color: #ffffff;
-  box-shadow: 0 4px 14px rgba(21, 128, 61, 0.3);
+  text-decoration: none;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 14px rgba(166, 124, 82, 0.25);
 }
 
-.btn-completed.completed:hover {
-  background-color: #166534;
+.btn-next-lecture:hover {
+  background-color: #8c643d;
+  transform: translateY(-2px);
+}
+
+.btn-next-lecture.disabled {
+  background-color: var(--primary-border);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 /* Numbered Lessons Playlist Sidebar */
 .lecture-playlist-sidebar {
-  width: 340px;
+  width: 350px;
   flex-shrink: 0;
   position: sticky;
   top: 90px;
@@ -158,28 +195,29 @@
 
 .playlist-card {
   background: var(--white);
-  border: 1px solid var(--primary-border);
-  border-radius: 20px;
+  border: 1.5px solid var(--primary-border);
+  border-radius: 18px;
   padding: 24px 20px;
-  box-shadow: var(--shadow);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.03);
 }
 
 .playlist-category-title {
   font-family: var(--font-heading);
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 800;
   color: var(--primary-text);
   text-align: center;
   margin: 0 0 20px;
+  padding-bottom: 14px;
+  border-bottom: 1.5px solid var(--primary-border);
 }
 
 .playlist-items-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   max-height: 550px;
   overflow-y: auto;
-  padding-left: 4px;
 }
 
 .playlist-item {
@@ -197,13 +235,11 @@
 
 .playlist-item:hover {
   background: #f3eae0;
-  border-color: var(--primary-border);
 }
 
 .playlist-item.active {
   background: #efe2d1;
   border-color: oklch(0.7 0.05 60);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .playlist-item-title {
@@ -220,30 +256,17 @@
   font-weight: 800;
 }
 
-.playlist-item-badge {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
+.playlist-item-check {
+  font-size: 1.25rem;
+  color: #a68b75;
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-family: var(--font-heading);
-  font-size: 14px;
-  font-weight: 700;
-  flex-shrink: 0;
-  border: 1.5px solid oklch(0.65 0.04 60);
-  color: oklch(0.45 0.04 50);
-  background: transparent;
-  transition: all 0.2s;
 }
 
-.playlist-item.active .playlist-item-badge {
-  background: oklch(0.35 0.05 45);
-  color: #ffffff;
-  border-color: oklch(0.35 0.05 45);
+.playlist-item-check.checked {
+  color: #15803d;
 }
 
-/* Responsive */
 @media (max-width: 1024px) {
   .lecture-content-layout {
     flex-direction: column-reverse;
@@ -253,9 +276,6 @@
     position: static;
   }
   .lecture-container {
-    padding: 24px;
-  }
-  .lecture-header-banner {
-    padding: 32px 24px;
+    padding: 24px 16px;
   }
 }
