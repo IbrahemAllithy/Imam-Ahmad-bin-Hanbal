@@ -1,0 +1,125 @@
+.categories-page {
+  background: var(--primary-bg);
+  min-height: 70vh;
+}
+
+.categories-hero {
+  background: #3a2a22; /* Dark brown from screenshot */
+  color: #fff;
+  padding: 60px 4%;
+  border-bottom: 3px solid var(--accent-color);
+}
+
+.categories-hero-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.categories-hero h1 {
+  font-family: 'Cairo', sans-serif;
+  font-size: 32px;
+  font-weight: 800;
+  margin-bottom: 15px;
+  color: #fff;
+}
+
+.categories-hero p {
+  font-size: 16px;
+  color: rgba(255,255,255,0.8);
+  max-width: 700px;
+  line-height: 1.6;
+}
+
+/* Breadcrumb inside hero */
+.categories-hero .list-breadcrumb {
+  color: rgba(255,255,255,0.6);
+  font-size: 13px;
+  font-weight: 600;
+}
+.categories-hero .list-breadcrumb a {
+  color: rgba(255,255,255,0.6);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.categories-hero .list-breadcrumb a:hover {
+  color: #fff;
+}
+.categories-hero .list-breadcrumb .current {
+  color: #fff;
+}
+
+.categories-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 60px 4%;
+}
+
+.categories-content h2 {
+  font-family: 'Cairo', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 30px;
+}
+
+.categories-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.category-card {
+  background: var(--white);
+  border: 1px solid var(--primary-border);
+  border-radius: 12px;
+  padding: 30px 20px;
+  width: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+}
+
+.category-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.06);
+  border-color: var(--accent-color);
+}
+
+.cat-icon-wrapper {
+  background: #f1e7da;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  position: relative;
+}
+
+.cat-dot {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  width: 12px;
+  height: 12px;
+  background: #c39d7b;
+  border-radius: 50%;
+  border: 2px solid var(--white);
+}
+
+.cat-icon {
+  font-size: 26px;
+  color: #6a462b;
+}
+
+.category-card h3 {
+  font-family: 'Tajawal', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-dark);
+}

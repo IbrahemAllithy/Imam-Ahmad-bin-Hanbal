@@ -3,6 +3,7 @@ import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import AdminRoute from './components/AdminRoute';
 import Home from './pages/Home';
+import LectureCategories from './pages/LectureCategories';
 import Lectures from './pages/Lectures';
 import LectureDetail from './pages/LectureDetail';
 import Articles from './pages/Articles';
@@ -24,7 +25,8 @@ const App = () => {
       <main className="main-content">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/lectures" element={<Lectures />} />
+          <Route path="/lectures" element={<LectureCategories />} />
+          <Route path="/lectures/list" element={<Lectures />} />
           <Route path="/lectures/:id" element={<LectureDetail />} />
           <Route path="/articles" element={<Articles />} />
           <Route path="/articles/:id" element={<ArticleDetail />} />

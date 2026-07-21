@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { useFetch } from '../hooks/useFetch';
 import LectureCard from '../components/lectures/LectureCard';
 import Loader from '../components/ui/Loader';
@@ -15,8 +15,17 @@ const categories = [
 ];
 
 const Lectures = () => {
+  const location = useLocation();
   const [category, setCategory] = useState('الكل');
   const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const cat = params.get('category');
+    if (cat) {
+      setCategory(cat);
+    }
+  }, [location.search]);
 
   const params = {
     limit: 12,
@@ -31,7 +40,9 @@ const Lectures = () => {
       <div className="list-breadcrumb">
         <Link to="/">الرئيسية</Link>
         <span>/</span>
-        <span className="current">الدروس</span>
+        <Link to="/lectures">الدروس والدورات</Link>
+        <span>/</span>
+        <span className="current">قائمة الدروس</span>
       </div>
 
       <div className="list-layout">
