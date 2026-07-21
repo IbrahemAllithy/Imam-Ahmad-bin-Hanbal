@@ -62,7 +62,7 @@ const Home = () => {
             <p className="hero-desc">دروس وكتب ومقالات مبوّبة بعناية في العقيدة والفقه والحديث والتفسير، لتيسير العلم الشرعي ونشره للمسلمين في كل مكان.</p>
             <div className="hero-actions">
               <Link to="/lectures" className="btn btn-primary hover-lift">استعرض الدروس</Link>
-              <Link to="/about" className="btn btn-outline hover-lift">تعرّف على الشيخ</Link>
+              <a href="#about" className="btn btn-outline hover-lift">تعرّف على الشيخ</a>
             </div>
           </div>
           <div className="hero-visual animate-fade-in-up delay-200">
@@ -74,21 +74,27 @@ const Home = () => {
       {/* Stats / About Section */}
       <section id="about" className="home-about animate-fade-in-up delay-300">
         <div className="about-inner">
+          <div className="about-intro-section">
+            <h2 className="about-title">تعريف بالشيخ</h2>
+            <h3 className="about-subtitle">أبو عبيدة شعبان بن سليم بن سالم العودة المصري الحنبلي</h3>
+            <ul className="about-bullets">
+              <li>باحث شرعي مصري</li>
+              <li>مشتغل بمجالس السنة</li>
+            </ul>
+          </div>
+          
           <div className="stats-grid">
             <div className="stat-card">
-              <div className="stat-icon"><FiVideo /></div>
-              <div className="stat-num">350+</div>
-              <div className="stat-label">درس مرئي وصوتي</div>
+              <div className="stat-num">15+</div>
+              <div className="stat-label">كتاباً ومؤلفاً</div>
             </div>
             <div className="stat-card">
-              <div className="stat-icon"><FiBook /></div>
-              <div className="stat-num">45</div>
-              <div className="stat-label">كتاب ومؤلف</div>
+              <div className="stat-num">30+</div>
+              <div className="stat-label">مقالاً علمياً</div>
             </div>
             <div className="stat-card">
-              <div className="stat-icon"><FiFileText /></div>
               <div className="stat-num">120+</div>
-              <div className="stat-label">مقال وبحث علمي</div>
+              <div className="stat-label">درساً ومحاضرة</div>
             </div>
           </div>
         </div>
