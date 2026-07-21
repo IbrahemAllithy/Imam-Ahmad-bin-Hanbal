@@ -46,27 +46,27 @@ const Contact = () => {
           )}
 
           <div className="form-group">
-            <label htmlFor="name">الاسم</label>
-            <input id="name" name="name" value={form.name} onChange={handleChange} required maxLength={100} />
+            <label htmlFor="name">الاسم <span style={{ color: '#d32f2f' }}>*</span></label>
+            <input id="name" name="name" value={form.name} onChange={handleChange} required maxLength={100} placeholder="أدخل اسمك الكريم" />
           </div>
 
           <div className="form-group">
-            <label htmlFor="email">البريد الإلكتروني</label>
-            <input id="email" name="email" type="email" value={form.email} onChange={handleChange} required />
+            <label htmlFor="email">البريد الإلكتروني <span style={{ color: '#d32f2f' }}>*</span></label>
+            <input id="email" name="email" type="email" value={form.email} onChange={handleChange} required placeholder="example@mail.com" />
           </div>
 
           <div className="form-group">
             <label htmlFor="subject">الموضوع</label>
-            <input id="subject" name="subject" value={form.subject} onChange={handleChange} maxLength={200} />
+            <input id="subject" name="subject" value={form.subject} onChange={handleChange} maxLength={200} placeholder="عنوان الاستفسار أو الرسالة" />
           </div>
 
           <div className="form-group">
-            <label htmlFor="message">الرسالة</label>
-            <textarea id="message" name="message" rows={6} value={form.message} onChange={handleChange} required maxLength={2000} />
+            <label htmlFor="message">الرسالة <span style={{ color: '#d32f2f' }}>*</span></label>
+            <textarea id="message" name="message" rows={6} value={form.message} onChange={handleChange} required maxLength={2000} placeholder="اكتب رسالتك أو استفسارك هنا..." />
           </div>
 
           <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? 'جاري الإرسال...' : 'إرسال الرسالة'}
+            {loading ? 'جاري إرسال الرسالة...' : 'إرسال الرسالة'}
           </button>
         </form>
       </div>
