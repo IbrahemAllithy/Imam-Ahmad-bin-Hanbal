@@ -12,7 +12,7 @@ const About = () => (
 
     <div className="container about-page">
       <div className="about-intro">
-        <img src={logo} alt="شعار الموقع الرسمي للشيخ شعبان العودة" className="about-logo" />
+        <img src={sheikh} alt="شعار الموقع الرسمي للشيخ شعبان العودة" className="about-logo" style={{ borderRadius: '50%', objectFit: 'cover' }} />
         <p className="about-intro-text">
           هذا الموقع هو المنصة الرسمية التي تُعنى بنشر العلم الشرعي لفضيلة الشيخ شعبان العودة على منهج السلف الصالح.
         </p>
