@@ -374,8 +374,7 @@
 /* --- Latest Section --- */
 .home-latest {
   padding: 80px 4%;
-  background: var(--primary-bg);
-  border-top: 1px solid var(--primary-border);
+  background: var(--primary-bg); /* The light beige background */
 }
 
 .latest-inner {
@@ -387,35 +386,45 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 40px;
-  margin-top: 40px;
+  margin-top: 50px;
 }
 
 .latest-section-col {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  background: transparent;
 }
 
 .latest-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: baseline;
   margin-bottom: 8px;
-  padding-bottom: 12px;
-  border-bottom: 2px solid var(--primary-border);
+  padding-bottom: 16px;
+  border-bottom: 1.5px solid oklch(0.85 0.02 65); /* Thin brownish line */
 }
 
 .latest-header h3 {
   font-family: var(--font-heading);
-  font-size: 20px;
+  font-size: 22px;
+  font-weight: 800;
   color: var(--primary-text);
   margin: 0;
 }
 
 .latest-header a {
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.2s;
+}
+.latest-header a:hover {
   color: var(--accent-color);
-  font-size: 13.5px;
-  font-weight: 600;
 }
 
 .latest-list {
@@ -429,15 +438,16 @@
   gap: 16px;
   padding: 12px;
   border-radius: 12px;
-  background: var(--white);
-  border: 1px solid var(--primary-border);
+  background: transparent;
+  border: 1px solid transparent;
   text-decoration: none;
   transition: all 0.2s;
 }
 
 .latest-item:hover {
+  background: var(--white);
+  border-color: var(--primary-border);
   transform: translateX(-5px);
-  border-color: var(--accent-gold);
   box-shadow: var(--shadow);
 }
 
@@ -446,7 +456,7 @@
   height: 64px;
   border-radius: 8px;
   overflow: hidden;
-  background: var(--primary-bg);
+  background: var(--white);
   flex-shrink: 0;
 }
 
