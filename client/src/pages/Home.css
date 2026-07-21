@@ -171,7 +171,7 @@
   background-color: var(--text-muted);
 }
 
-.stats-grid {
+.home-stats-grid {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;

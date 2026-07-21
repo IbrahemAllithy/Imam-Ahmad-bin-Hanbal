@@ -83,7 +83,7 @@ const Home = () => {
             </ul>
           </div>
           
-          <div className="stats-grid">
+          <div className="home-stats-grid">
             <div className="stat-card">
               <div className="stat-num">15+</div>
               <div className="stat-label">كتاباً ومؤلفاً</div>
