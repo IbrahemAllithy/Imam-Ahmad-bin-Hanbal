@@ -2,10 +2,10 @@ import { Link } from 'react-router-dom';
 import { getYoutubeThumbnail } from '../../utils/helpers';
 import './LectureCard.css';
 
-const LectureCard = ({ lecture }) => {
+const LectureCard = ({ lecture, isCompleted, onOpenModal }) => {
   const accent = '#2563eb';
   return (
-    <Link to={`/lectures/${lecture._id}`} className="lecture-card">
+    <div className="lecture-card" onClick={onOpenModal}>
       <div className="lecture-thumb">
         {lecture.youtubeUrl ? (
           <img
@@ -15,6 +15,11 @@ const LectureCard = ({ lecture }) => {
           />
         ) : (
           <span>صورة الدرس</span>
+        )}
+        {isCompleted && (
+          <div className="completed-badge">
+            تم الإكمال ✓
+          </div>
         )}
       </div>
       <div className="lecture-body">
@@ -28,7 +33,7 @@ const LectureCard = ({ lecture }) => {
           <span>{lecture.duration || '40 د'}</span>
         </div>
       </div>
-    </Link>
+    </div>
   );
 };
 

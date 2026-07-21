@@ -1,85 +1,122 @@
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useFetch } from '../hooks/useFetch';
+import { FiArrowRight, FiCheckCircle } from 'react-icons/fi';
 import VideoPlayer from '../components/lectures/VideoPlayer';
-import LectureCard from '../components/lectures/LectureCard';
 import Loader from '../components/ui/Loader';
-import './ArticleDetail.css';
 import './LectureDetail.css';
 
 const LectureDetail = () => {
   const { id } = useParams();
   const { data, loading, error } = useFetch(`/lectures/${id}`);
 
-  if (loading) return <Loader />;
-  if (error) return <div className="alert alert-error">{error}</div>;
+  const [completed, setCompleted] = useState(false);
 
-  const { data: lecture, related } = data;
-  const accent = '#2563eb';
-  const teacherInitial = lecture.teacher ? lecture.teacher.charAt(0) : 'ش';
-  const teacherName = lecture.teacher || 'الشيخ شعبان العودة';
-  
-  // Extract youtubeId correctly
+  useEffect(() => {
+    if (id) {
+      setCompleted(localStorage.getItem(`completed_lecture_${id}`) === 'true');
+    }
+  }, [id]);
+
+  const toggleCompleted = () => {
+    const nextState = !completed;
+    setCompleted(nextState);
+    localStorage.setItem(`completed_lecture_${id}`, String(nextState));
+  };
+
+  const lecture = data?.data;
+  const related = data?.related || [];
+
+  // Fetch category lessons for sidebar list
+  const categoryName = lecture?.category || '';
+  const { data: catData } = useFetch(
+    categoryName ? `/lectures?category=${encodeURIComponent(categoryName)}` : null
+  );
+
+  if (loading) return <Loader />;
+  if (error || !lecture) return <div className="alert alert-error">{error || 'الدرس غير موجود'}</div>;
+
+  // Extract youtubeId
   let youtubeId = lecture.youtubeId;
   if (!youtubeId && lecture.youtubeUrl) {
-      try {
-        youtubeId = new URL(lecture.youtubeUrl).searchParams.get('v');
-      } catch (e) {
-          // ignore
-      }
+    try {
+      youtubeId = new URL(lecture.youtubeUrl).searchParams.get('v');
+    } catch (e) {
+      // ignore
+    }
   }
 
+  // Numbered lessons list for sidebar
+  const categoryLessons = catData?.data?.length
+    ? catData.data
+    : [lecture, ...related.filter((r) => r._id !== lecture._id)];
+
   return (
-    <div className="article-page-wrapper">
-      <div className="article-breadcrumb">
-        <Link to="/">الرئيسية</Link>
-        <span>/</span>
-        <Link to="/lectures">الدروس</Link>
-        <span>/</span>
-        <span className="current">{lecture.title}</span>
+    <div className="lecture-page-wrapper">
+      {/* Top Banner */}
+      <div className="lecture-header-banner">
+        <div className="lecture-banner-inner">
+          <div className="banner-breadcrumbs">
+            <Link to="/">الرئيسية</Link> <span>/</span> <Link to="/lectures">الدروس والدورات</Link>
+          </div>
+          <h1 className="banner-title">الدروس والدورات</h1>
+          <p className="banner-desc">
+            مكتبة صوتية ومرئية للدروس والدورات العلمية والشرعية للشيخ أبو عبيدة شعبان العودة، مصنّفة بحسب الموضوع.
+          </p>
+        </div>
       </div>
 
-      <div className="article-detail-layout">
-        <div className="lecture-video-container">
-          <VideoPlayer youtubeId={youtubeId} title={lecture.title} />
+      <div className="lecture-container">
+        {/* Back Link */}
+        <div className="back-link-wrapper">
+          <Link to="/lectures" className="back-link">
+            → الرجوع لقائمة الدروس
+          </Link>
         </div>
-        
-        <div className="article-columns">
-          <div className="article-main">
-            <div className="article-cat" style={{ color: accent }}>{lecture.category}</div>
-            <h1 className="article-title">{lecture.title}</h1>
-            <div className="article-meta">
-              <div className="author-avatar" style={{ background: accent }}>{teacherInitial}</div>
-              <span>{teacherName}</span>
-              <span>·</span>
-              <span>{lecture.duration || '40 دقيقة'}</span>
+
+        {/* Content Layout */}
+        <div className="lecture-content-layout">
+          {/* Main Video Section (Left / Center) */}
+          <div className="lecture-main-area">
+            <h2 className="lecture-main-title">{lecture.title}</h2>
+
+            <div className="lecture-video-box">
+              <VideoPlayer youtubeId={youtubeId} title={lecture.title} />
             </div>
-            
-            {lecture.description && (
-              <div className="article-content">
-                <p>{lecture.description}</p>
-              </div>
-            )}
+
+            <div className="lecture-action-center">
+              <button 
+                className={`btn-completed ${completed ? 'completed' : ''}`}
+                onClick={toggleCompleted}
+              >
+                <FiCheckCircle style={{ fontSize: '1.25rem' }} />
+                {completed ? 'تم إكمال الدرس ✓' : 'أكملت الدرس'}
+              </button>
+            </div>
           </div>
-          
-          <aside className="article-sidebar">
-            <div className="author-card">
-              <div className="author-avatar-lg" style={{ background: accent }}>{teacherInitial}</div>
-              <div className="author-name">{teacherName}</div>
-              <div className="author-desc">الموقع الرسمي للشيخ شعبان العودة.</div>
-            </div>
-            
-            {related?.length > 0 && (
-              <div className="related-articles">
-                <div className="related-title">دروس ذات صلة</div>
-                <div className="related-list">
-                  {related.map((ra) => (
-                    <Link key={ra._id} to={`/lectures/${ra._id}`} className="related-link">
-                      {ra.title}
+
+          {/* Numbered Lessons Sidebar (Right side in RTL) */}
+          <aside className="lecture-playlist-sidebar">
+            <div className="playlist-card">
+              <h3 className="playlist-category-title">{lecture.category || 'أقسام الدروس'}</h3>
+              
+              <div className="playlist-items-list">
+                {categoryLessons.map((item, idx) => {
+                  const isCurrent = item._id === lecture._id;
+                  const itemNum = idx + 1;
+                  return (
+                    <Link
+                      key={item._id}
+                      to={`/lectures/${item._id}`}
+                      className={`playlist-item ${isCurrent ? 'active' : ''}`}
+                    >
+                      <div className="playlist-item-title">{item.title}</div>
+                      <div className="playlist-item-badge">{itemNum}</div>
                     </Link>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
-            )}
+            </div>
           </aside>
         </div>
       </div>
