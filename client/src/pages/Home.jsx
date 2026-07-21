@@ -22,14 +22,7 @@ const exploreLinks = [
   { label: 'جميع التصنيفات', icon: <FiList />, href: '/lectures' },
 ];
 
-const categories = [
-  { id: 'aqeedah', name: 'العقيدة', letter: 'ع', count: 42 },
-  { id: 'fiqh', name: 'الفقه', letter: 'ف', count: 65 },
-  { id: 'hadith', name: 'الحديث', letter: 'ح', count: 38 },
-  { id: 'tafsir', name: 'التفسير', letter: 'ت', count: 29 },
-  { id: 'seerah', name: 'السيرة', letter: 'س', count: 21 },
-  { id: 'lugha', name: 'اللغة العربية', letter: 'ل', count: 17 },
-];
+import { lectureCategories as categories } from '../utils/categories';
 
 const announcements = [
   'نسأل الله أن يبارك في علم الشيخ وينفع به الإسلام والمسلمين.',

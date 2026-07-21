@@ -1,18 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useFetch } from '../hooks/useFetch';
+import { lectureCategories as categories } from '../utils/categories';
 import LectureCard from '../components/lectures/LectureCard';
 import Loader from '../components/ui/Loader';
 import './ListPages.css';
-
-const categories = [
-  { id: 'aqeedah', name: 'العقيدة', count: 42 },
-  { id: 'fiqh', name: 'الفقه', count: 65 },
-  { id: 'hadith', name: 'الحديث', count: 38 },
-  { id: 'tafsir', name: 'التفسير', count: 29 },
-  { id: 'seerah', name: 'السيرة', count: 21 },
-  { id: 'lugha', name: 'اللغة العربية', count: 17 },
-];
 
 const Lectures = () => {
   const location = useLocation();

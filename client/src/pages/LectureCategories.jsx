@@ -1,16 +1,7 @@
 import { Link } from 'react-router-dom';
 import { FiBookOpen } from 'react-icons/fi';
+import { lectureCategories as categories } from '../utils/categories';
 import './LectureCategories.css';
-
-const categories = [
-  { id: 'aqeedah', name: 'العقيدة' },
-  { id: 'fiqh', name: 'الفقه' },
-  { id: 'tafsir', name: 'التفسير' },
-  { id: 'hadith', name: 'الحديث' },
-  { id: 'seerah', name: 'السيرة' },
-  { id: 'raqaiq', name: 'الرقائق' },
-  { id: 'lugha', name: 'اللغة العربية' },
-];
 
 const LectureCategories = () => {
   return (
