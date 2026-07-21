@@ -6,7 +6,7 @@ const Footer = () => (
     <div className="footer-grid">
       <div>
         <div className="footer-title">الموقع الرسمي للشيخ شعبان العودة</div>
-        <p className="footer-desc">تابع لمجمع الإمام أحمد، يقدّم دروسًا وكتبًا ومقالات شرعية مبوّبة.</p>
+        <p className="footer-desc">الموقع الرسمي للشيخ شعبان العودة، يقدّم دروسًا وكتبًا ومقالات شرعية مبوّبة.</p>
       </div>
       <div>
         <div className="footer-col-title">الأقسام</div>

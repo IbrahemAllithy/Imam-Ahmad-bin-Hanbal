@@ -49,7 +49,7 @@ const Home = () => {
         <div className="hero-pattern"></div>
         <div className="hero-inner">
           <div className="hero-content animate-fade-in-up">
-            <div className="hero-badge">مجمع الإمام أحمد بن حنبل</div>
+            <div className="hero-badge">الموقع الرسمي</div>
             <h1 className="hero-title">فضيلة الشيخ أبو عبيدة<br />شعبان العودة</h1>
             <p className="hero-desc">دروس وكتب ومقالات مبوّبة بعناية في العقيدة والفقه والحديث والتفسير، لتيسير العلم الشرعي ونشره للمسلمين في كل مكان.</p>
             <div className="hero-actions">

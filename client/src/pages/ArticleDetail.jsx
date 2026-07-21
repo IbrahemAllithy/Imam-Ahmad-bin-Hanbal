@@ -62,7 +62,7 @@ const ArticleDetail = () => {
             <div className="author-card">
               <div className="author-avatar-lg" style={{ background: accent }}>{authorInitial}</div>
               <div className="author-name">{authorName}</div>
-              <div className="author-desc">مجمع الإمام أحمد بن حنبل.</div>
+              <div className="author-desc">الموقع الرسمي للشيخ شعبان العودة.</div>
             </div>
             
             {related?.length > 0 && (

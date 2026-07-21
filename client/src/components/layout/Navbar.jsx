@@ -20,7 +20,7 @@ const Navbar = () => {
     <header className="navbar">
       <div className="navbar-inner">
         <Link to="/" className="navbar-brand">
-          <img src={logo} alt="شعار مجمع الإمام أحمد" className="brand-logo" />
+          <img src={logo} alt="شعار الموقع الرسمي للشيخ شعبان العودة" className="brand-logo" />
           <div className="brand-text">
             <div className="brand-title">الموقع الرسمي للشيخ شعبان العودة</div>
             <div className="brand-subtitle">العلم الشرعي وتعليم القرآن</div>

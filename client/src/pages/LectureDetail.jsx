@@ -65,7 +65,7 @@ const LectureDetail = () => {
             <div className="author-card">
               <div className="author-avatar-lg" style={{ background: accent }}>{teacherInitial}</div>
               <div className="author-name">{teacherName}</div>
-              <div className="author-desc">مجمع الإمام أحمد بن حنبل.</div>
+              <div className="author-desc">الموقع الرسمي للشيخ شعبان العودة.</div>
             </div>
             
             {related?.length > 0 && (

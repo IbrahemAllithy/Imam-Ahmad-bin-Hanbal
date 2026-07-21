@@ -40,7 +40,7 @@ const AdminDashboard = () => {
     <div className="admin-layout">
       <aside className="admin-sidebar">
         <div className="admin-brand">
-          <img src={logo} alt="مجمع الإمام أحمد بن حنبل" className="admin-brand-logo" />
+          <img src={logo} alt="الموقع الرسمي للشيخ شعبان العودة" className="admin-brand-logo" />
           <div>
             <h2>لوحة التحكم</h2>
             <p className="admin-user">{user?.name}</p>

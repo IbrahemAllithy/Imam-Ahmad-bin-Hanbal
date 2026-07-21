@@ -31,7 +31,7 @@ const AdminLogin = () => {
   return (
     <div className="admin-login">
       <form onSubmit={handleSubmit} className="admin-login-form">
-        <img src={logo} alt="مجمع الإمام أحمد بن حنبل" className="admin-login-logo" />
+        <img src={logo} alt="الموقع الرسمي للشيخ شعبان العودة" className="admin-login-logo" />
         <h1>لوحة التحكم</h1>
         <p>تسجيل دخول الأدمن</p>
 
