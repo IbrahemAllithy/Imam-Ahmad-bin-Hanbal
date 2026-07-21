@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useFetch } from '../hooks/useFetch';
 import { lectureCategories as categories } from '../utils/categories';
-import LectureCard from '../components/lectures/LectureCard';
+import SeriesCard from '../components/lectures/SeriesCard';
 import Loader from '../components/ui/Loader';
 import './ListPages.css';
 
@@ -10,7 +10,6 @@ const Lectures = () => {
   const location = useLocation();
   const [category, setCategory] = useState('الكل');
   const [search, setSearch] = useState('');
-  const [completedMap, setCompletedMap] = useState({});
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -20,26 +19,34 @@ const Lectures = () => {
     }
   }, [location.search]);
 
-  // Load completion states from localStorage
-  useEffect(() => {
-    const map = {};
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && key.startsWith('completed_lecture_')) {
-        const id = key.replace('completed_lecture_', '');
-        map[id] = localStorage.getItem(key) === 'true';
-      }
-    }
-    setCompletedMap(map);
-  }, []);
-
   const params = {
-    limit: 12,
+    limit: 50,
     ...(category !== 'الكل' && { category }),
     ...(search && { search }),
   };
 
   const { data, loading, error } = useFetch('/lectures', params, [category, search]);
+
+  // Group lectures by Book/Series name cleanly
+  const bookSeriesGroups = useMemo(() => {
+    if (!data?.data?.length) return [];
+    const groupsMap = {};
+
+    data.data.forEach((lecture) => {
+      const sName = lecture.series || lecture.title.split('—')[0].trim() || 'دروس عامة';
+      if (!groupsMap[sName]) {
+        groupsMap[sName] = {
+          seriesName: sName,
+          category: lecture.category,
+          lessons: [],
+          firstLectureId: lecture._id,
+        };
+      }
+      groupsMap[sName].lessons.push(lecture);
+    });
+
+    return Object.values(groupsMap);
+  }, [data]);
 
   return (
     <div className="list-page-wrapper">
@@ -48,12 +55,12 @@ const Lectures = () => {
         <span>/</span>
         <Link to="/lectures">الدروس والدورات</Link>
         <span>/</span>
-        <span className="current">قائمة الدروس</span>
+        <span className="current">الكتب والدورات الشارحة</span>
       </div>
 
       <div className="list-layout">
         <aside className="list-sidebar">
-          <div className="sidebar-title">{category === 'الكل' ? 'تصفح حسب التصنيف' : category}</div>
+          <div className="sidebar-title">{category === 'الكل' ? 'تصفح حسب العلم' : category}</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <div
               className={`sidebar-item ${category === 'الكل' ? 'active' : ''}`}
@@ -76,13 +83,15 @@ const Lectures = () => {
 
         <div className="list-main">
           <div className="list-header">
-            <h1 className="list-title">{category === 'الكل' ? 'جميع الدروس' : category}</h1>
-            <span className="list-count">{data?.data?.length || 0} دروس</span>
+            <h1 className="list-title">
+              {category === 'الكل' ? 'جميع الكتب والدورات الشارحة' : `كتب ودورات: ${category}`}
+            </h1>
+            <span className="list-count">{bookSeriesGroups.length} كتب ومؤلفات</span>
           </div>
           
           <input
             type="search"
-            placeholder="ابحث في الدروس..."
+            placeholder="ابحث عن كتاب أو شرح معين..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="list-search"
@@ -94,15 +103,17 @@ const Lectures = () => {
           {!loading && !error && (
             <>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '22px' }}>
-                {data?.data?.map((l) => (
-                  <LectureCard 
-                    key={l._id} 
-                    lecture={l} 
-                    isCompleted={completedMap[l._id]} 
+                {bookSeriesGroups.map((group, idx) => (
+                  <SeriesCard
+                    key={idx}
+                    seriesName={group.seriesName}
+                    category={group.category}
+                    lessonsCount={group.lessons.length}
+                    firstLectureId={group.firstLectureId}
                   />
                 ))}
               </div>
-              {!data?.data?.length && <p style={{ color: 'oklch(0.6 0.03 255)' }}>لا توجد دروس مطابقة</p>}
+              {!bookSeriesGroups.length && <p style={{ color: 'oklch(0.6 0.03 255)' }}>لا توجد كتب مطابقة في هذا التصنيف</p>}
             </>
           )}
         </div>
