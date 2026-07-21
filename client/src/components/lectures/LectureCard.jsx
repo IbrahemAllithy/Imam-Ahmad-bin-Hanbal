@@ -1,11 +1,10 @@
 import { Link } from 'react-router-dom';
-import { getYoutubeThumbnail } from '../../utils/helpers';
 import './LectureCard.css';
 
-const LectureCard = ({ lecture, isCompleted, onOpenModal }) => {
+const LectureCard = ({ lecture, isCompleted }) => {
   const accent = '#2563eb';
   return (
-    <div className="lecture-card" onClick={onOpenModal}>
+    <Link to={`/lectures/${lecture._id}`} className="lecture-card">
       <div className="lecture-thumb">
         {lecture.youtubeUrl ? (
           <img
@@ -33,7 +32,7 @@ const LectureCard = ({ lecture, isCompleted, onOpenModal }) => {
           <span>{lecture.duration || '40 د'}</span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 
