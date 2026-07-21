@@ -1,9 +1,17 @@
-import { getYoutubeEmbedUrl } from '../../utils/helpers';
+import { getYoutubeEmbedUrl, extractYoutubeId } from '../../utils/helpers';
 import './VideoPlayer.css';
 
-const VideoPlayer = ({ youtubeId, title }) => {
-  const embedUrl = getYoutubeEmbedUrl(youtubeId);
-  if (!embedUrl) return <p className="alert alert-error">رابط الفيديو غير صالح</p>;
+const VideoPlayer = ({ youtubeId, youtubeUrl, title }) => {
+  const id = youtubeId || extractYoutubeId(youtubeUrl);
+  const embedUrl = getYoutubeEmbedUrl(id);
+  
+  if (!embedUrl) {
+    return (
+      <div style={{ padding: '40px 20px', textAlign: 'center', color: '#ffffff', background: '#1c1917' }}>
+        <p style={{ margin: 0, fontSize: '1.1rem' }}>لم يضف رابط اليوتيوب لهذا الدرس بعد</p>
+      </div>
+    );
+  }
 
   return (
     <div className="video-player">

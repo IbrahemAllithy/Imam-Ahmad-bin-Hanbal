@@ -81,7 +81,7 @@ const LectureDetail = () => {
             <h2 className="lecture-main-title">{lecture.title}</h2>
 
             <div className="lecture-video-box">
-              <VideoPlayer youtubeId={youtubeId} title={lecture.title} />
+              <VideoPlayer youtubeId={youtubeId} youtubeUrl={lecture.youtubeUrl} title={lecture.title} />
             </div>
 
             <div className="lecture-action-center">
