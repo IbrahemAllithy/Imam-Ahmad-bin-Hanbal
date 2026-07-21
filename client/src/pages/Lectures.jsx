@@ -47,7 +47,7 @@ const Lectures = () => {
 
       <div className="list-layout">
         <aside className="list-sidebar">
-          <div className="sidebar-title">تصفّح حسب العلم</div>
+          <div className="sidebar-title">{category === 'الكل' ? 'تصفح حسب التصنيف' : category}</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <div
               className={`sidebar-item ${category === 'الكل' ? 'active' : ''}`}
@@ -70,7 +70,7 @@ const Lectures = () => {
 
         <div className="list-main">
           <div className="list-header">
-            <h1 className="list-title">جميع الدروس</h1>
+            <h1 className="list-title">{category === 'الكل' ? 'جميع الدروس' : category}</h1>
             <span className="list-count">{data?.data?.length || 0} دروس</span>
           </div>
           
