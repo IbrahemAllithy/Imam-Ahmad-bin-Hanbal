@@ -123,12 +123,16 @@
 }
 
 .stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 20px;
 }
 
 .stat-card {
+  flex: 1;
+  min-width: 280px;
+  max-width: 380px;
   background: var(--primary-bg);
   border: 1px solid var(--primary-border);
   border-radius: 16px;

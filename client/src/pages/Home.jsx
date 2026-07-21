@@ -62,7 +62,7 @@ const Home = () => {
             <p className="hero-desc">دروس وكتب ومقالات مبوّبة بعناية في العقيدة والفقه والحديث والتفسير، لتيسير العلم الشرعي ونشره للمسلمين في كل مكان.</p>
             <div className="hero-actions">
               <Link to="/lectures" className="btn btn-primary hover-lift">استعرض الدروس</Link>
-              <a href="#about" className="btn btn-outline hover-lift">تعرّف على الشيخ</a>
+              <Link to="/about" className="btn btn-outline hover-lift">تعرّف على الشيخ</Link>
             </div>
           </div>
           <div className="hero-visual animate-fade-in-up delay-200">
