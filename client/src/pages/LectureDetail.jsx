@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useFetch } from '../hooks/useFetch';
-import { FiArrowRight, FiCheckCircle } from 'react-icons/fi';
+import { FiCheckCircle } from 'react-icons/fi';
 import VideoPlayer from '../components/lectures/VideoPlayer';
 import Loader from '../components/ui/Loader';
 import './LectureDetail.css';
@@ -27,8 +27,9 @@ const LectureDetail = () => {
   const lecture = data?.data;
   const related = data?.related || [];
 
-  // Fetch category lessons for sidebar list
+  // Fetch category/series lessons for sidebar list
   const categoryName = lecture?.category || '';
+  const seriesName = lecture?.series || '';
   const { data: catData } = useFetch(
     categoryName ? `/lectures?category=${encodeURIComponent(categoryName)}` : null
   );
@@ -38,18 +39,19 @@ const LectureDetail = () => {
 
   // Extract youtubeId
   let youtubeId = lecture.youtubeId;
-  if (!youtubeId && lecture.youtubeUrl) {
-    try {
-      youtubeId = new URL(lecture.youtubeUrl).searchParams.get('v');
-    } catch (e) {
-      // ignore
-    }
-  }
 
-  // Numbered lessons list for sidebar
-  const categoryLessons = catData?.data?.length
-    ? catData.data
-    : [lecture, ...related.filter((r) => r._id !== lecture._id)];
+  // Build strictly isolated playlist for THIS BOOK ONLY
+  let playlist = [];
+  if (catData?.data?.length) {
+    playlist = catData.data.filter((item) => !seriesName || item.series === seriesName || item.category === categoryName);
+  }
+  if (!playlist.length) {
+    playlist = [lecture, ...related.filter((r) => r.category === categoryName)];
+  }
+  // Ensure current lecture is present in playlist
+  if (!playlist.some((p) => p._id === lecture._id)) {
+    playlist.unshift(lecture);
+  }
 
   return (
     <div className="lecture-page-wrapper">
@@ -98,10 +100,12 @@ const LectureDetail = () => {
           {/* Numbered Lessons Sidebar (Right side in RTL) */}
           <aside className="lecture-playlist-sidebar">
             <div className="playlist-card">
-              <h3 className="playlist-category-title">{lecture.category || 'أقسام الدروس'}</h3>
+              <h3 className="playlist-category-title">
+                {seriesName || lecture.category || 'فهرس الكتاب'}
+              </h3>
               
               <div className="playlist-items-list">
-                {categoryLessons.map((item, idx) => {
+                {playlist.map((item, idx) => {
                   const isCurrent = item._id === lecture._id;
                   const itemNum = idx + 1;
                   return (
