@@ -1,4 +1,4 @@
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { FiMenu, FiX } from 'react-icons/fi';
 import { sheikh } from '../../assets';
@@ -14,7 +14,17 @@ const links = [
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
-  const navigate = useNavigate();
+  const location = useLocation();
+
+  const isActiveLink = (to) => {
+    if (to === '/') {
+      return location.pathname === '/' && !location.hash;
+    }
+    if (to.startsWith('/#')) {
+      return location.pathname === '/' && location.hash === to.replace('/', '');
+    }
+    return location.pathname.startsWith(to);
+  };
 
   return (
     <header className="navbar">
@@ -30,15 +40,14 @@ const Navbar = () => {
         <nav className={`navbar-links ${open ? 'open' : ''}`}>
           <div className="nav-menu">
             {links.map(({ to, label }) => (
-              <NavLink
+              <Link
                 key={to}
                 to={to}
-                end={to === '/'}
                 onClick={() => setOpen(false)}
-                className={({ isActive }) => (isActive && to !== '/#about' && to !== '/#explore' ? 'nav-item active' : 'nav-item')}
+                className={`nav-item ${isActiveLink(to) ? 'active' : ''}`}
               >
                 {label}
-              </NavLink>
+              </Link>
             ))}
           </div>
           

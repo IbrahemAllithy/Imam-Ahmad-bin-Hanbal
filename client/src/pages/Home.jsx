@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { useFetch } from '../hooks/useFetch';
 import { sheikh, logo } from '../assets';
 import { getStorageUrl } from '../services/api';
@@ -40,6 +41,20 @@ const Home = () => {
   const { data: lectures, loading: l1 } = useFetch('/lectures', { limit: 4 });
   const { data: articles, loading: l2 } = useFetch('/articles', { limit: 4 });
   const { data: books, loading: l3 } = useFetch('/books', { limit: 4 });
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash) {
+      const id = location.hash.replace('#', '');
+      const element = document.getElementById(id);
+      if (element) {
+        // slight delay to ensure render is complete
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      }
+    }
+  }, [location]);
 
   return (
     <div className="home-wrapper">

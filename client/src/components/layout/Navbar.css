@@ -78,6 +78,7 @@
   background: transparent;
   transition: color 0.2s;
   text-decoration: none;
+  outline: none;
 }
 
 .nav-item:hover, .nav-item.active {
