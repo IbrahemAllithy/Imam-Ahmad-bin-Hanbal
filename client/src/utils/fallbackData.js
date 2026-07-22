@@ -29,6 +29,65 @@ export const getFallbackData = (url, params = {}) => {
     return merged.filter((item) => !deletedIds.includes(item._id));
   };
 
+  // Helper for Books merging
+  const getMergedBooks = () => {
+    let customBooks = [];
+    let deletedBookIds = [];
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        customBooks = JSON.parse(localStorage.getItem('custom_admin_books_v2') || '[]');
+        deletedBookIds = JSON.parse(localStorage.getItem('deleted_admin_book_ids_v2') || '[]');
+      }
+    } catch {
+      // fallback
+    }
+
+    const defaultBooks = [
+      {
+        _id: 'bk-1',
+        title: 'كتاب القواعد المثلى في صفات الله وأسمائه الحسنى',
+        author: 'فضيلة الشيخ شعبان العودة',
+        category: 'العقيدة',
+        pages: 50,
+        description: 'نسخة PDF معتمدة ومطابقة لمجالس الشرح والتعليق لفضيلة الشيخ شعبان العودة.',
+        pdfUrl: defaultPdf,
+        createdAt: new Date().toISOString()
+      },
+      {
+        _id: 'bk-2',
+        title: 'كتاب غاية السول في علم الأصول',
+        author: 'فضيلة الشيخ شعبان العودة',
+        category: 'أصول فقه',
+        pages: 85,
+        description: 'متن وشرح كتاب غاية السول في أصول الفقه لفضيلة الشيخ شعبان العودة.',
+        pdfUrl: defaultPdf,
+        createdAt: new Date().toISOString()
+      },
+      {
+        _id: 'bk-3',
+        title: 'كتاب الفقه الميسر — الطهارة والصلاة',
+        author: 'فضيلة الشيخ شعبان العودة',
+        category: 'الفقه',
+        pages: 120,
+        description: 'دراسة فقهية ميسرة بالدليل من الكتاب والسنة.',
+        pdfUrl: defaultPdf,
+        createdAt: new Date().toISOString()
+      }
+    ];
+
+    let merged = [...defaultBooks];
+    customBooks.forEach((cBook) => {
+      const idx = merged.findIndex((m) => m._id === cBook._id);
+      if (idx !== -1) {
+        merged[idx] = { ...merged[idx], ...cBook };
+      } else {
+        merged.unshift(cBook);
+      }
+    });
+
+    return merged.filter((b) => !deletedBookIds.includes(b._id));
+  };
+
   // Handle Admin Stats Overview
   if (url === '/admin/stats') {
     return {
@@ -100,48 +159,38 @@ export const getFallbackData = (url, params = {}) => {
     };
   }
 
-  // Handle Books with Admin Sync
-  if (url.startsWith('/books')) {
-    let customBooks = [];
-    let deletedBookIds = [];
-    try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        customBooks = JSON.parse(localStorage.getItem('custom_admin_books_v2') || '[]');
-        deletedBookIds = JSON.parse(localStorage.getItem('deleted_admin_book_ids_v2') || '[]');
-      }
-    } catch {
-      // fallback
-    }
-
-    const defaultBooks = [
-      {
-        _id: 'bk-1',
-        title: 'كتاب القواعد المثلى في صفات الله وأسمائه الحسنى',
-        author: 'فضيلة الشيخ شعبان العودة',
-        category: 'العقيدة',
-        pages: 50,
-        description: 'نسخة PDF معتمدة ومطابقة لمجالس الشرح والتعليق.',
-        pdfUrl: defaultPdf,
-        createdAt: new Date().toISOString()
-      }
-    ];
-
-    let merged = [...defaultBooks];
-    customBooks.forEach((cBook) => {
-      const idx = merged.findIndex((m) => m._id === cBook._id);
-      if (idx !== -1) {
-        merged[idx] = { ...merged[idx], ...cBook };
-      } else {
-        merged.unshift(cBook);
-      }
-    });
-
-    const finalBooks = merged.filter((b) => !deletedBookIds.includes(b._id));
+  // Handle Single Book View: /books/:id
+  if (url.startsWith('/books/')) {
+    const bookId = url.split('/books/')[1];
+    const allBooks = getMergedBooks();
+    const bookItem = allBooks.find((b) => b._id === bookId) || allBooks[0];
+    const relatedBooks = allBooks.filter((b) => b._id !== bookItem._id);
 
     return {
       success: true,
-      data: finalBooks,
-      pagination: { page: 1, limit: 10, total: finalBooks.length, pages: 1 }
+      data: bookItem,
+      related: relatedBooks,
+    };
+  }
+
+  // Handle Books List View: /books
+  if (url.startsWith('/books')) {
+    const allBooks = getMergedBooks();
+    const cat = params.category;
+    const search = params.search?.toLowerCase();
+
+    let filtered = [...allBooks];
+    if (cat && cat !== 'الكل') {
+      filtered = filtered.filter((b) => b.category === cat || b.category.includes(cat) || cat.includes(b.category));
+    }
+    if (search) {
+      filtered = filtered.filter((b) => b.title.toLowerCase().includes(search) || b.author.toLowerCase().includes(search));
+    }
+
+    return {
+      success: true,
+      data: filtered,
+      pagination: { page: 1, limit: 50, total: filtered.length, pages: 1 }
     };
   }
 
