@@ -1,29 +1,36 @@
-@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap');
-
 .book-page-wrapper {
   direction: rtl;
-  font-family: 'Tajawal', sans-serif;
-  background: oklch(0.16 0.03 255);
+  font-family: var(--font-body);
+  background: var(--primary-bg); /* #f7f1e7 warm beige theme */
+  color: var(--primary-text);
   min-height: 100vh;
+  padding-bottom: 60px;
 }
 
 .book-breadcrumb {
-  padding: 14px 48px;
-  background: oklch(0.14 0.028 255);
-  border-bottom: 1px solid oklch(0.25 0.03 255 / 0.5);
-  font-size: 13px;
-  color: oklch(0.6 0.03 255);
+  padding: 16px 48px;
+  background: #ffffff;
+  border-bottom: 1.5px solid var(--primary-border);
+  font-size: 13.5px;
+  color: var(--text-muted);
   display: flex;
   gap: 8px;
+  align-items: center;
 }
 
 .book-breadcrumb a {
-  color: oklch(0.6 0.03 255);
+  color: var(--text-muted);
   text-decoration: none;
+  transition: color 0.2s;
+}
+
+.book-breadcrumb a:hover {
+  color: var(--accent-color);
 }
 
 .book-breadcrumb .current {
-  color: oklch(0.9 0.01 255);
+  color: var(--primary-text);
+  font-weight: 700;
 }
 
 .book-layout {
@@ -43,14 +50,16 @@
 }
 
 .book-cover-wrapper {
-  aspect-ratio: 2/3;
-  border-radius: 14px;
-  background: repeating-linear-gradient(135deg, oklch(0.26 0.03 255), oklch(0.26 0.03 255) 8px, oklch(0.3 0.03 255) 8px, oklch(0.3 0.03 255) 16px);
+  aspect-ratio: 3/4;
+  border-radius: 18px;
+  background: #ede1d1;
+  border: 1.5px solid var(--primary-border);
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 20px;
   overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
 }
 
 .book-cover-img {
@@ -60,110 +69,201 @@
 }
 
 .book-cover-placeholder {
-  font-family: monospace;
-  font-size: 12px;
-  color: oklch(0.6 0.02 255);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #735d49;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.placeholder-icon {
+  font-size: 32px;
+  color: var(--accent-color);
 }
 
 .book-info-card {
-  background: oklch(0.2 0.032 255);
-  border: 1px solid oklch(0.28 0.03 255);
-  border-radius: 14px;
+  background: #ffffff;
+  border: 1.5px solid var(--primary-border);
+  border-radius: 18px;
   padding: 22px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+}
+
+.info-item {
+  margin-bottom: 14px;
 }
 
 .info-label {
-  font-size: 12px;
-  color: oklch(0.55 0.03 255);
-  margin-bottom: 4px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 3px;
 }
 
 .info-value {
+  font-family: var(--font-heading);
   font-size: 15px;
-  font-weight: 700;
-  color: oklch(0.95 0.01 255);
-  margin-bottom: 16px;
+  font-weight: 800;
+  color: var(--primary-text);
+}
+
+.book-actions-group {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .book-btn-primary {
-  display: block;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   width: 100%;
-  padding: 13px;
-  border-radius: 9px;
+  padding: 12px;
+  border-radius: 10px;
   border: none;
-  color: white;
-  font-weight: 700;
+  background: #5d3a22;
+  color: #ffffff;
+  font-family: var(--font-heading);
+  font-weight: 800;
   font-size: 14.5px;
   cursor: pointer;
-  margin-bottom: 10px;
   text-decoration: none;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(93, 58, 34, 0.15);
+}
+
+.book-btn-primary:hover {
+  background: #462a17;
+  transform: translateY(-2px);
 }
 
 .book-btn-outline {
-  display: block;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   width: 100%;
-  padding: 13px;
-  border-radius: 9px;
-  border: 1px solid oklch(0.4 0.03 255);
-  background: transparent;
-  color: oklch(0.85 0.02 255);
-  font-weight: 600;
-  font-size: 14.5px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1.5px solid var(--primary-border);
+  background: var(--primary-bg);
+  color: var(--primary-text);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 14px;
   cursor: pointer;
   text-decoration: none;
+  transition: all 0.2s;
 }
 
 .book-btn-outline:hover {
-  background: oklch(0.25 0.03 255);
+  background: #e8d9c5;
 }
 
 .book-main-content {
   flex: 1;
+  min-width: 0;
+}
+
+.book-header-box {
+  background: #ffffff;
+  border: 1.5px solid var(--primary-border);
+  border-radius: 20px;
+  padding: 32px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+}
+
+.book-cat-tag {
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 800;
+  color: #a67c52;
+  background: var(--primary-bg);
+  padding: 4px 14px;
+  border-radius: 999px;
+  display: inline-block;
+  border: 1px solid var(--primary-border);
+  margin-bottom: 12px;
 }
 
 .book-title {
-  font-family: 'Amiri', serif;
-  font-size: 32px;
-  color: oklch(0.97 0.01 255);
-  margin: 0 0 20px;
+  font-family: var(--font-heading);
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--primary-text);
+  margin: 0 0 14px;
+  line-height: 1.4;
 }
 
 .book-desc {
   font-size: 15.5px;
-  color: oklch(0.68 0.03 255);
-  line-height: 1.9;
-  margin: 0 0 36px;
+  color: var(--text-muted);
+  line-height: 1.8;
+  margin: 0;
 }
 
 .book-pdf-viewer {
   width: 100%;
-  height: 80vh;
-  border-radius: 14px;
+  height: 750px;
+  border-radius: 20px;
   overflow: hidden;
-  border: 1px solid oklch(0.28 0.03 255);
+  border: 1.5px solid var(--primary-border);
+  background: #ffffff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
   margin-bottom: 36px;
+  display: flex;
+  flex-direction: column;
+}
+
+.viewer-bar {
+  background: #ede1d1;
+  padding: 12px 20px;
+  border-bottom: 1.5px solid var(--primary-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-heading);
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--primary-text);
+}
+
+.viewer-bar a {
+  color: #5d3a22;
+  text-decoration: none;
 }
 
 .book-pdf-viewer iframe {
   width: 100%;
-  height: 100%;
+  flex: 1;
   border: none;
 }
 
-.section-title {
-  font-size: 19px;
-  font-weight: 700;
-  color: oklch(0.95 0.01 255);
-  margin-bottom: 18px;
-  font-family: 'Amiri', serif;
+.related-books-section {
+  background: #ffffff;
+  border: 1.5px solid var(--primary-border);
+  border-radius: 20px;
+  padding: 28px;
 }
 
-@media (max-width: 768px) {
+.section-title {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--primary-text);
+  margin-bottom: 20px;
+}
+
+@media (max-width: 900px) {
   .book-layout {
     flex-direction: column;
-    padding: 24px;
+    padding: 24px 16px;
   }
   
   .book-sidebar {

@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
-import { FiDownload } from 'react-icons/fi';
+import { FiBookOpen, FiDownload, FiBook } from 'react-icons/fi';
 import { useFetch } from '../hooks/useFetch';
 import { getStorageUrl } from '../services/api';
 import BookCard from '../components/books/BookCard';
@@ -13,15 +13,15 @@ const BookDetail = () => {
   if (loading) return <Loader />;
   if (error) return <div className="container alert alert-error">{error}</div>;
 
-  const { data: book, related } = data;
-  const accent = '#2563eb';
+  const { data: book, related } = data || {};
+  if (!book) return <div className="container alert alert-error">لم يتم العثور على الكتاب المطلوب</div>;
 
   return (
     <div className="book-page-wrapper">
       <div className="book-breadcrumb">
         <Link to="/">الرئيسية</Link>
         <span>/</span>
-        <Link to="/books">الكتب</Link>
+        <Link to="/books">المكتبة</Link>
         <span>/</span>
         <span className="current">{book.title}</span>
       </div>
@@ -32,49 +32,67 @@ const BookDetail = () => {
             {book.coverImage ? (
               <img src={getStorageUrl(book.coverImage)} alt={book.title} className="book-cover-img" />
             ) : (
-              <span className="book-cover-placeholder">غلاف الكتاب</span>
+              <div className="book-cover-placeholder">
+                <FiBook className="placeholder-icon" />
+                <span>كتاب شرعي</span>
+              </div>
             )}
           </div>
+
           <div className="book-info-card">
-            <div className="info-label">المؤلف</div>
-            <div className="info-value">{book.author}</div>
+            <div className="info-item">
+              <div className="info-label">المؤلف / الشارح</div>
+              <div className="info-value">{book.author}</div>
+            </div>
             
-            <div className="info-label">القسم</div>
-            <div className="info-value">{book.category}</div>
+            <div className="info-item">
+              <div className="info-label">التصنيف الشرعي</div>
+              <div className="info-value">{book.category}</div>
+            </div>
             
             {book.pages && (
-              <>
+              <div className="info-item">
                 <div className="info-label">عدد الصفحات</div>
                 <div className="info-value">{book.pages} صفحة</div>
-              </>
+              </div>
             )}
 
-            <a 
-              href={getStorageUrl(book.pdfUrl)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="book-btn-primary"
-              style={{ background: accent }}
-            >
-              قراءة الكتاب
-            </a>
-            <a 
-              href={getStorageUrl(book.pdfUrl)}
-              download
-              className="book-btn-outline"
-            >
-              تحميل PDF
-            </a>
+            <div className="book-actions-group">
+              <a 
+                href={getStorageUrl(book.pdfUrl)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="book-btn-primary"
+              >
+                <FiBookOpen /> تصفح وقراءة الكتاب
+              </a>
+              <a 
+                href={getStorageUrl(book.pdfUrl)}
+                download
+                className="book-btn-outline"
+              >
+                <FiDownload /> تحميل ملف PDF
+              </a>
+            </div>
           </div>
         </div>
 
         <div className="book-main-content">
-          <h1 className="book-title">{book.title}</h1>
-          {book.description && (
-            <p className="book-desc">{book.description}</p>
-          )}
+          <div className="book-header-box">
+            <span className="book-cat-tag">{book.category}</span>
+            <h1 className="book-title">{book.title}</h1>
+            {book.description && (
+              <p className="book-desc">{book.description}</p>
+            )}
+          </div>
 
           <div className="book-pdf-viewer">
+            <div className="viewer-bar">
+              <span>قارئ الـ PDF المباشر</span>
+              <a href={getStorageUrl(book.pdfUrl)} target="_blank" rel="noopener noreferrer">
+                فتح بشاشة كاملة ↗
+              </a>
+            </div>
             <iframe
               src={getStorageUrl(book.pdfUrl)}
               title={book.title}
@@ -84,7 +102,7 @@ const BookDetail = () => {
 
           {related?.length > 0 && (
             <div className="related-books-section">
-              <div className="section-title">كتب ذات صلة</div>
+              <h3 className="section-title">كتب ومؤلفات ذات صلة</h3>
               <div className="grid grid-3">
                 {related.map((b) => <BookCard key={b._id} book={b} />)}
               </div>

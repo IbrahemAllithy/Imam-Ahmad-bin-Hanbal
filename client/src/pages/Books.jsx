@@ -6,8 +6,8 @@ import Loader from '../components/ui/Loader';
 import './ListPages.css';
 
 const categories = [
-  { name: 'العقيدة' }, { name: 'الفقه' }, { name: 'الحديث' },
-  { name: 'التفسير' }, { name: 'السيرة' }, { name: 'اللغة العربية' },
+  { name: 'العقيدة' }, { name: 'الفقه' }, { name: 'أصول فقه' }, { name: 'الحديث' },
+  { name: 'التفسير' }, { name: 'السيرة' }, { name: 'آداب طالب العلم' },
 ];
 
 const Books = () => {
@@ -15,7 +15,7 @@ const Books = () => {
   const [search, setSearch] = useState('');
 
   const params = {
-    limit: 16,
+    limit: 50,
     ...(category !== 'الكل' && { category }),
     ...(search && { search }),
   };
@@ -27,15 +27,15 @@ const Books = () => {
       <div className="list-breadcrumb">
         <Link to="/">الرئيسية</Link>
         <span>/</span>
-        <span className="current">الكتب</span>
+        <span className="current">المكتبة</span>
       </div>
 
       <div className="list-layout-full">
-        <h1 className="list-title" style={{ marginBottom: '20px' }}>مكتبة الكتب</h1>
+        <h1 className="list-title" style={{ marginBottom: '20px' }}>المكتبة</h1>
         
         <input
           type="search"
-          placeholder="ابحث في الكتب..."
+          placeholder="ابحث في الكتب والمؤلفات..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="list-search"
@@ -64,10 +64,10 @@ const Books = () => {
         
         {!loading && !error && (
           <>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '24px' }}>
               {data?.data?.map((b) => <BookCard key={b._id} book={b} />)}
             </div>
-            {!data?.data?.length && <p style={{ color: 'oklch(0.6 0.03 255)' }}>لا توجد كتب مطابقة</p>}
+            {!data?.data?.length && <p style={{ color: 'oklch(0.6 0.03 255)', textAlign: 'center', padding: '40px 0' }}>لا توجد كتب مطابقة في المكتبة</p>}
           </>
         )}
       </div>
