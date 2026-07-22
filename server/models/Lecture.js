@@ -1,6 +1,24 @@
 import mongoose from 'mongoose';
 
-const CATEGORIES = ['عقيدة', 'فقه', 'تفسير', 'حديث', 'سيرة', 'آداب', 'عام'];
+const CATEGORIES = [
+  'العقيدة',
+  'الفقه',
+  'أصول فقه',
+  'التفسير',
+  'الحديث',
+  'السيرة',
+  'آداب طالب العلم',
+  'الرقائق',
+  'علوم قرآن',
+  'مصطلح حديث',
+  'عقيدة',
+  'فقه',
+  'تفسير',
+  'حديث',
+  'سيرة',
+  'آداب',
+  'عام'
+];
 
 const lectureSchema = new mongoose.Schema(
   {
@@ -27,7 +45,7 @@ const lectureSchema = new mongoose.Schema(
     series: {
       type: String,
       trim: true,
-      maxlength: [150, 'اسم السلسلة طويل جداً'],
+      maxlength: [150, 'اسم الكتاب أو السلسلة طويل جداً'],
       default: '',
     },
     category: {
@@ -35,6 +53,20 @@ const lectureSchema = new mongoose.Schema(
       enum: CATEGORIES,
       trim: true,
       default: 'عام',
+    },
+    pdfUrl: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    audioUrl: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    quizQuestions: {
+      type: [String],
+      default: [],
     },
   },
   { timestamps: true }
