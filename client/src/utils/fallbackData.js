@@ -3,6 +3,34 @@ export const getFallbackData = (url, params = {}) => {
 
   const defaultPdf = 'https://archive.org/embed/20230616_20230616_1912';
 
+  // Read admin custom lectures & deletions from localStorage if present
+  const getMergedLectures = (defaultList) => {
+    let customItems = [];
+    let deletedIds = [];
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        customItems = JSON.parse(localStorage.getItem('custom_admin_lectures_v2') || '[]');
+        deletedIds = JSON.parse(localStorage.getItem('deleted_admin_lecture_ids_v2') || '[]');
+      }
+    } catch {
+      // fallback
+    }
+
+    // Replace default item if custom item with same _id exists, or prepend new custom items
+    let merged = [...defaultList];
+    customItems.forEach((cItem) => {
+      const idx = merged.findIndex((m) => m._id === cItem._id);
+      if (idx !== -1) {
+        merged[idx] = { ...merged[idx], ...cItem };
+      } else {
+        merged.unshift(cItem);
+      }
+    });
+
+    // Filter out deleted IDs
+    return merged.filter((item) => !deletedIds.includes(item._id));
+  };
+
   // Handle Admin Stats Overview
   if (url === '/admin/stats') {
     return {
@@ -93,7 +121,7 @@ export const getFallbackData = (url, params = {}) => {
     };
   }
 
-  const lecturesDict = [
+  const baseLecturesDict = [
     // --- العقيدة: كتاب القواعد المثلى ---
     {
       _id: 'demo-aqeedah-1',
@@ -249,6 +277,8 @@ export const getFallbackData = (url, params = {}) => {
       audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
     }
   ];
+
+  const lecturesDict = getMergedLectures(baseLecturesDict);
 
   if (url.startsWith('/lectures/')) {
     const id = url.split('/lectures/')[1];
