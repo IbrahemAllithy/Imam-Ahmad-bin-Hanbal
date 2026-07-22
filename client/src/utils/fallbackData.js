@@ -1,8 +1,97 @@
 export const getFallbackData = (url, params = {}) => {
   if (!url) return null;
-  if (url.startsWith('/admin')) return null;
 
   const defaultPdf = 'https://archive.org/embed/20230616_20230616_1912';
+
+  // Handle Admin Stats Overview
+  if (url === '/admin/stats') {
+    return {
+      success: true,
+      data: {
+        counts: { lectures: 6, articles: 4, books: 3, contacts: 2, unreadContacts: 1 },
+        recent: {
+          lectures: [
+            { _id: 'demo-aqeedah-1', title: 'التعليق على كتاب القواعد المثلى — المجلس (1)', category: 'العقيدة', createdAt: new Date().toISOString() },
+            { _id: 'demo-usul-1', title: 'شرح كتاب غاية السول في علم الأصول — المجلس (1)', category: 'أصول فقه', createdAt: new Date().toISOString() }
+          ],
+          articles: [
+            { _id: 'art-1', title: 'منهج الطالب الشرعي في تحصيل العلم', category: 'توجيهات', createdAt: new Date().toISOString() }
+          ],
+          books: [
+            { _id: 'bk-1', title: 'كتاب القواعد المثلى في صفات الله وأسمائه الحسنى', author: 'الشيخ ابن عثيمين - بشرح الشيخ شعبان العودة', createdAt: new Date().toISOString() }
+          ],
+          contacts: [
+            { _id: 'c-1', name: 'إبراهيم الليثي', subject: 'استفسار حول دورة القواعد المثلى', read: false, createdAt: new Date().toISOString() }
+          ]
+        }
+      }
+    };
+  }
+
+  // Handle Admin Contacts list
+  if (url.startsWith('/contacts')) {
+    return {
+      success: true,
+      data: [
+        {
+          _id: 'c-1',
+          name: 'إبراهيم الليثي',
+          email: 'user@example.com',
+          subject: 'استفسار حول دورة القواعد المثلى',
+          message: 'السلام عليكم ورحمة الله، كيف يمكنني الحصول على تفريغ مجالس كتاب القواعد المثلى؟ وجزاكم الله خيراً.',
+          read: false,
+          createdAt: new Date().toISOString()
+        },
+        {
+          _id: 'c-2',
+          name: 'أحمد محمود',
+          email: 'ahmed@example.com',
+          subject: 'شكر وتقدير للشيخ شعبان العودة',
+          message: 'جزاكم الله كل خير على هذه الدورة المباركة في أصول الفقه.',
+          read: true,
+          createdAt: new Date().toISOString()
+        }
+      ],
+      pagination: { page: 1, limit: 10, total: 2, pages: 1 }
+    };
+  }
+
+  // Handle Articles
+  if (url.startsWith('/articles')) {
+    return {
+      success: true,
+      data: [
+        {
+          _id: 'art-1',
+          title: 'منهج الطالب الشرعي في تحصيل العلم',
+          category: 'توجيهات',
+          summary: 'توجيهات مباركة لفضيلة الشيخ شعبان العودة في كيفية تحصيل العلم الشرعي وتدوين الفوائد.',
+          content: 'الحمد لله والصلاة والسلام على رسول الله... أما بعد: فإن طلب العلم من أفضل القربات...',
+          createdAt: new Date().toISOString()
+        }
+      ],
+      pagination: { page: 1, limit: 10, total: 1, pages: 1 }
+    };
+  }
+
+  // Handle Books
+  if (url.startsWith('/books')) {
+    return {
+      success: true,
+      data: [
+        {
+          _id: 'bk-1',
+          title: 'كتاب القواعد المثلى في صفات الله وأسمائه الحسنى',
+          author: 'فضيلة الشيخ شعبان العودة',
+          category: 'العقيدة',
+          description: 'نسخة PDF معتمدة ومطابقة لمجالس الشرح والتعليق.',
+          pdfUrl: defaultPdf,
+          createdAt: new Date().toISOString()
+        }
+      ],
+      pagination: { page: 1, limit: 10, total: 1, pages: 1 }
+    };
+  }
 
   const lecturesDict = [
     // --- العقيدة: كتاب القواعد المثلى ---
