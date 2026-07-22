@@ -16,7 +16,6 @@ export const getFallbackData = (url, params = {}) => {
       // fallback
     }
 
-    // Replace default item if custom item with same _id exists, or prepend new custom items
     let merged = [...defaultList];
     customItems.forEach((cItem) => {
       const idx = merged.findIndex((m) => m._id === cItem._id);
@@ -27,7 +26,6 @@ export const getFallbackData = (url, params = {}) => {
       }
     });
 
-    // Filter out deleted IDs
     return merged.filter((item) => !deletedIds.includes(item._id));
   };
 
@@ -102,22 +100,48 @@ export const getFallbackData = (url, params = {}) => {
     };
   }
 
-  // Handle Books
+  // Handle Books with Admin Sync
   if (url.startsWith('/books')) {
+    let customBooks = [];
+    let deletedBookIds = [];
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        customBooks = JSON.parse(localStorage.getItem('custom_admin_books_v2') || '[]');
+        deletedBookIds = JSON.parse(localStorage.getItem('deleted_admin_book_ids_v2') || '[]');
+      }
+    } catch {
+      // fallback
+    }
+
+    const defaultBooks = [
+      {
+        _id: 'bk-1',
+        title: 'كتاب القواعد المثلى في صفات الله وأسمائه الحسنى',
+        author: 'فضيلة الشيخ شعبان العودة',
+        category: 'العقيدة',
+        pages: 50,
+        description: 'نسخة PDF معتمدة ومطابقة لمجالس الشرح والتعليق.',
+        pdfUrl: defaultPdf,
+        createdAt: new Date().toISOString()
+      }
+    ];
+
+    let merged = [...defaultBooks];
+    customBooks.forEach((cBook) => {
+      const idx = merged.findIndex((m) => m._id === cBook._id);
+      if (idx !== -1) {
+        merged[idx] = { ...merged[idx], ...cBook };
+      } else {
+        merged.unshift(cBook);
+      }
+    });
+
+    const finalBooks = merged.filter((b) => !deletedBookIds.includes(b._id));
+
     return {
       success: true,
-      data: [
-        {
-          _id: 'bk-1',
-          title: 'كتاب القواعد المثلى في صفات الله وأسمائه الحسنى',
-          author: 'فضيلة الشيخ شعبان العودة',
-          category: 'العقيدة',
-          description: 'نسخة PDF معتمدة ومطابقة لمجالس الشرح والتعليق.',
-          pdfUrl: defaultPdf,
-          createdAt: new Date().toISOString()
-        }
-      ],
-      pagination: { page: 1, limit: 10, total: 1, pages: 1 }
+      data: finalBooks,
+      pagination: { page: 1, limit: 10, total: finalBooks.length, pages: 1 }
     };
   }
 
