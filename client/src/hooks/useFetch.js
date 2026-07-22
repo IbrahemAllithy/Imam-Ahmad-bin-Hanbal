@@ -1,6 +1,38 @@
 import { useState, useEffect, useCallback } from 'react';
 import api from '../services/api';
-import { getFallbackData } from '../utils/fallbackData';
+import {
+  getFallbackData,
+  mergeLocalBooks,
+  mergeLocalLectures,
+} from '../utils/fallbackData';
+
+const applyLocalOverlays = (url, res) => {
+  if (!res?.data || !Array.isArray(res.data)) return res;
+
+  if (url.startsWith('/lectures')) {
+    const merged = mergeLocalLectures(res.data);
+    return {
+      ...res,
+      data: merged,
+      pagination: res.pagination
+        ? { ...res.pagination, total: merged.length }
+        : res.pagination,
+    };
+  }
+
+  if (url.startsWith('/books')) {
+    const merged = mergeLocalBooks(res.data);
+    return {
+      ...res,
+      data: merged,
+      pagination: res.pagination
+        ? { ...res.pagination, total: merged.length }
+        : res.pagination,
+    };
+  }
+
+  return res;
+};
 
 export const useFetch = (url, params = {}, deps = []) => {
   const [data, setData] = useState(null);
@@ -17,13 +49,12 @@ export const useFetch = (url, params = {}, deps = []) => {
     try {
       const { data: res } = await api.get(url, { params });
       if (res && res.data) {
-        setData(res);
+        setData(applyLocalOverlays(url, res));
       } else {
         const fallback = getFallbackData(url, params);
         setData(fallback);
       }
     } catch (err) {
-      // If API fails or is offline, use rich fallback data gracefully
       const fallback = getFallbackData(url, params);
       if (fallback) {
         setData(fallback);

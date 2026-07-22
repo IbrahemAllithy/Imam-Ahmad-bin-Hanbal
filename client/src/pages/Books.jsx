@@ -1,16 +1,14 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useFetch } from '../hooks/useFetch';
+import { useSiteSettings } from '../context/SiteSettingsContext';
 import BookCard from '../components/books/BookCard';
 import Loader from '../components/ui/Loader';
 import './ListPages.css';
 
-const categories = [
-  { name: 'العقيدة' }, { name: 'الفقه' }, { name: 'أصول فقه' }, { name: 'الحديث' },
-  { name: 'التفسير' }, { name: 'السيرة' }, { name: 'آداب طالب العلم' },
-];
-
 const Books = () => {
+  const { settings } = useSiteSettings();
+  const categories = settings.categories || [];
   const [category, setCategory] = useState('الكل');
   const [search, setSearch] = useState('');
 

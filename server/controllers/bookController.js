@@ -57,18 +57,21 @@ export const getBook = async (req, res, next) => {
 
 export const createBook = async (req, res, next) => {
   try {
-    if (!req.files?.pdf?.[0]) {
-      return next(new AppError('ملف PDF مطلوب', 400));
+    const data = { ...req.body };
+
+    if (req.files?.pdf?.[0]) {
+      data.pdfUrl = `/storage/pdfs/${req.files.pdf[0].filename}`;
+    } else if (req.body.pdfUrl) {
+      data.pdfUrl = req.body.pdfUrl;
+    } else {
+      return next(new AppError('ملف PDF أو رابط القراءة مطلوب', 400));
     }
 
-    const data = {
-      ...req.body,
-      pdfUrl: `/storage/pdfs/${req.files.pdf[0].filename}`,
-    };
-
-    if (req.files.coverImage?.[0]) {
+    if (req.files?.coverImage?.[0]) {
       data.coverImage = `/storage/covers/${req.files.coverImage[0].filename}`;
     }
+
+    if (data.pages) data.pages = Number(data.pages) || 1;
 
     const book = await Book.create(data);
     res.status(201).json({ success: true, data: book });
@@ -88,6 +91,9 @@ export const updateBook = async (req, res, next) => {
     }
     if (req.files?.coverImage?.[0]) {
       updates.coverImage = `/storage/covers/${req.files.coverImage[0].filename}`;
+    }
+    if (updates.pages !== undefined) {
+      updates.pages = Number(updates.pages) || 1;
     }
 
     const book = await Book.findByIdAndUpdate(req.params.id, updates, {

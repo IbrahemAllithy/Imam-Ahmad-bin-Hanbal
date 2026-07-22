@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useFetch } from '../../hooks/useFetch';
+import { useSiteSettings } from '../../context/SiteSettingsContext';
 import api from '../../services/api';
-import { CATEGORIES } from '../../utils/helpers';
 import Loader from '../../components/ui/Loader';
 import './Admin.css';
 
@@ -9,12 +9,17 @@ const emptyArticle = { title: '', content: '', excerpt: '', category: 'عام' }
 
 const AdminArticles = () => {
   const { data, loading, refetch } = useFetch('/articles', { limit: 50 });
+  const { categoryNames } = useSiteSettings();
   const [form, setForm] = useState(emptyArticle);
   const [cover, setCover] = useState(null);
   const [editId, setEditId] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  const categories = categoryNames.length
+    ? categoryNames
+    : ['عقيدة', 'فقه', 'تفسير', 'حديث', 'سيرة', 'آداب', 'عام'];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -86,7 +91,7 @@ const AdminArticles = () => {
           <div className="form-group">
             <label>التصنيف</label>
             <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
-              {CATEGORIES.filter((c) => c !== 'الكل').map((c) => (
+              {categories.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>

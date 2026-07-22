@@ -1,12 +1,14 @@
 import { Link } from 'react-router-dom';
 import { FiBookOpen, FiBookmark, FiChevronLeft } from 'react-icons/fi';
-import { lectureCategories as categories } from '../utils/categories';
+import { useSiteSettings } from '../context/SiteSettingsContext';
 import './LectureCategories.css';
 
 const LectureCategories = () => {
+  const { settings } = useSiteSettings();
+  const categories = settings.categories || [];
+
   return (
     <div className="categories-page">
-      {/* Hero Banner */}
       <div className="categories-hero">
         <div className="categories-hero-inner">
           <div className="list-breadcrumb" style={{ marginBottom: '15px' }}>
@@ -21,7 +23,6 @@ const LectureCategories = () => {
         </div>
       </div>
 
-      {/* Main Science Category Cards Grid */}
       <div className="categories-content">
         <div className="categories-section-header">
           <h2>العلوم والعلوم الشرعية المتاحة</h2>
@@ -32,7 +33,7 @@ const LectureCategories = () => {
           {categories.map((c) => (
             <Link
               to={`/lectures/list?category=${encodeURIComponent(c.name)}`}
-              key={c.id}
+              key={c.id || c.name}
               className="category-card-modern"
             >
               <div className="cat-card-top">

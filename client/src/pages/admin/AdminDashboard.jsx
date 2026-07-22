@@ -9,13 +9,15 @@ import {
   FiMail,
   FiExternalLink,
   FiLogOut,
+  FiSettings,
 } from 'react-icons/fi';
-import { logo } from '../../assets';
+import { useSiteSettings } from '../../context/SiteSettingsContext';
 import AdminOverview from './AdminOverview';
 import AdminLectures from './AdminLectures';
 import AdminArticles from './AdminArticles';
 import AdminBooks from './AdminBooks';
 import AdminContacts from './AdminContacts';
+import AdminSettings from './AdminSettings';
 import './Admin.css';
 
 const NAV_ITEMS = [
@@ -24,11 +26,13 @@ const NAV_ITEMS = [
   { id: 'articles', label: 'المقالات', icon: FiFileText },
   { id: 'books', label: 'الكتب', icon: FiBook },
   { id: 'contacts', label: 'الرسائل', icon: FiMail },
+  { id: 'settings', label: 'إعدادات الموقع', icon: FiSettings },
 ];
 
 const AdminDashboard = () => {
   const [tab, setTab] = useState('overview');
   const { user, logout } = useAuth();
+  const { logoImage, settings } = useSiteSettings();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -40,7 +44,7 @@ const AdminDashboard = () => {
     <div className="admin-layout">
       <aside className="admin-sidebar">
         <div className="admin-brand">
-          <img src={logo} alt="الموقع الرسمي للشيخ شعبان العودة" className="admin-brand-logo" />
+          <img src={logoImage} alt={settings.branding.siteName} className="admin-brand-logo" />
           <div>
             <h2>لوحة التحكم</h2>
             <p className="admin-user">{user?.name}</p>
@@ -76,6 +80,7 @@ const AdminDashboard = () => {
         {tab === 'articles' && <AdminArticles />}
         {tab === 'books' && <AdminBooks />}
         {tab === 'contacts' && <AdminContacts />}
+        {tab === 'settings' && <AdminSettings />}
       </main>
     </div>
   );

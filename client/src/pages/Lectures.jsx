@@ -1,13 +1,15 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useFetch } from '../hooks/useFetch';
-import { lectureCategories as categories } from '../utils/categories';
+import { useSiteSettings } from '../context/SiteSettingsContext';
 import { FiCheckCircle, FiChevronDown, FiSearch } from 'react-icons/fi';
 import Loader from '../components/ui/Loader';
 import './ListPages.css';
 
 const Lectures = () => {
   const location = useLocation();
+  const { settings } = useSiteSettings();
+  const categories = settings.categories || [];
   const [category, setCategory] = useState('الكل');
   const [search, setSearch] = useState('');
   const [completedMap, setCompletedMap] = useState({});
@@ -124,7 +126,7 @@ const Lectures = () => {
             >
               <option value="الكل">عرض الكل</option>
               {categories.map((c) => (
-                <option key={c.id} value={c.name}>
+                <option key={c.id || c.name} value={c.name}>
                   {c.name}
                 </option>
               ))}

@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useFetch } from '../../hooks/useFetch';
+import { useSiteSettings } from '../../context/SiteSettingsContext';
 import api from '../../services/api';
 import { extractYoutubeId, getYoutubeEmbedUrl } from '../../utils/helpers';
 import Loader from '../../components/ui/Loader';
@@ -20,34 +21,41 @@ const emptyLecture = {
 const STORAGE_CUSTOM_KEY = 'custom_admin_lectures_v2';
 const STORAGE_DELETED_KEY = 'deleted_admin_lecture_ids_v2';
 
+const saveLocalLecture = (payload, editId) => {
+  let customItems = JSON.parse(localStorage.getItem(STORAGE_CUSTOM_KEY) || '[]');
+  if (editId) {
+    customItems = customItems.map((item) => (item._id === editId ? { ...item, ...payload } : item));
+    if (!customItems.some((c) => c._id === editId)) customItems.push(payload);
+  } else {
+    customItems.unshift(payload);
+  }
+  localStorage.setItem(STORAGE_CUSTOM_KEY, JSON.stringify(customItems));
+};
+
+const deleteLocalLecture = (id) => {
+  let deletedIds = JSON.parse(localStorage.getItem(STORAGE_DELETED_KEY) || '[]');
+  if (!deletedIds.includes(id)) {
+    deletedIds.push(id);
+    localStorage.setItem(STORAGE_DELETED_KEY, JSON.stringify(deletedIds));
+  }
+  let customItems = JSON.parse(localStorage.getItem(STORAGE_CUSTOM_KEY) || '[]');
+  customItems = customItems.filter((c) => c._id !== id);
+  localStorage.setItem(STORAGE_CUSTOM_KEY, JSON.stringify(customItems));
+};
+
 const AdminLectures = () => {
-  const { data: initialData, loading } = useFetch('/lectures', { limit: 100 });
-  const [lecturesList, setLecturesList] = useState([]);
+  const { data, loading, refetch } = useFetch('/lectures', { limit: 100 });
+  const { categoryNames } = useSiteSettings();
   const [form, setForm] = useState(emptyLecture);
   const [editId, setEditId] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  // Sync initialData with localStorage
-  useEffect(() => {
-    let customItems = [];
-    let deletedIds = [];
-    try {
-      customItems = JSON.parse(localStorage.getItem(STORAGE_CUSTOM_KEY) || '[]');
-      deletedIds = JSON.parse(localStorage.getItem(STORAGE_DELETED_KEY) || '[]');
-    } catch {
-      // fallback
-    }
-
-    const baseData = initialData?.data || [];
-    // Merge base data with custom items, filtering out deleted ones
-    const combined = [...customItems, ...baseData.filter((b) => !customItems.some((c) => c._id === b._id))];
-    const finalFiltered = combined.filter((item) => !deletedIds.includes(item._id));
-
-    setLecturesList(finalFiltered);
-  }, [initialData]);
-
+  const lecturesList = data?.data || [];
+  const categories = categoryNames.length
+    ? categoryNames
+    : ['العقيدة', 'الفقه', 'أصول فقه', 'التفسير', 'الحديث', 'السيرة', 'آداب طالب العلم', 'الرقائق', 'علوم قرآن', 'عام'];
   const previewId = extractYoutubeId(form.youtubeUrl);
 
   const handleSubmit = async (e) => {
@@ -60,59 +68,55 @@ const AdminLectures = () => {
       ? form.quizQuestionsText.split('\n').map((q) => q.trim()).filter(Boolean)
       : [];
 
-    const youtubeId = previewId || 'sadd8pipy3o';
+    const youtubeId = previewId;
+    if (!youtubeId) {
+      setError('رابط اليوتيوب غير صالح');
+      setSubmitting(false);
+      return;
+    }
 
     const payload = {
-      _id: editId || `custom-lecture-${Date.now()}`,
       title: form.title,
       category: form.category,
       series: form.series || form.title.split('—')[0].trim(),
       youtubeUrl: form.youtubeUrl,
       youtubeId,
-      pdfUrl: form.pdfUrl || 'https://archive.org/embed/20230616_20230616_1912',
-      audioUrl: form.audioUrl,
-      description: form.description,
+      pdfUrl: form.pdfUrl || '',
+      audioUrl: form.audioUrl || '',
+      description: form.description || '',
       quizQuestions,
     };
 
-    // Save locally to localStorage so edits & additions take effect INSTANTLY
     try {
-      let customItems = JSON.parse(localStorage.getItem(STORAGE_CUSTOM_KEY) || '[]');
       if (editId) {
-        customItems = customItems.map((item) => (item._id === editId ? { ...item, ...payload } : item));
-        // If not in customItems yet, add it
-        if (!customItems.some((c) => c._id === editId)) {
-          customItems.push(payload);
-        }
+        await api.put(`/lectures/${editId}`, payload);
+        setSuccess('تم تحديث الدرس على السيرفر ✓');
       } else {
-        customItems.unshift(payload);
+        await api.post('/lectures', payload);
+        setSuccess('تم إضافة الدرس على السيرفر ✓');
       }
-      localStorage.setItem(STORAGE_CUSTOM_KEY, JSON.stringify(customItems));
-
-      // Update state immediately
-      setLecturesList((prev) => {
-        if (editId) {
-          return prev.map((item) => (item._id === editId ? payload : item));
-        }
-        return [payload, ...prev];
-      });
-
-      // Try API request in background
-      try {
-        if (editId) {
-          await api.put(`/lectures/${editId}`, payload);
-        } else {
-          await api.post('/lectures', payload);
-        }
-      } catch {
-        // Safe fallback
-      }
-
-      setSuccess(editId ? 'تم تحديث الدرس بنجاح ✓' : 'تم إضافة الدرس بنجاح ✓');
       setForm(emptyLecture);
       setEditId(null);
+      refetch();
     } catch (err) {
-      setError('حدث خطأ أثناء حفظ البيانات');
+      const localPayload = {
+        ...payload,
+        _id: editId || `custom-lecture-${Date.now()}`,
+      };
+      saveLocalLecture(localPayload, editId);
+      setSuccess(
+        editId
+          ? 'تم حفظ التعديل محلياً (السيرفر غير متصل أو جلسة تجريبية)'
+          : 'تم إضافة الدرس محلياً (السيرفر غير متصل أو جلسة تجريبية)'
+      );
+      setForm(emptyLecture);
+      setEditId(null);
+      refetch();
+      if (!err.response) {
+        setError('');
+      } else if (err.response?.status !== 401) {
+        setError(err.response?.data?.message || '');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -122,7 +126,7 @@ const AdminLectures = () => {
     setEditId(lecture._id);
     setForm({
       title: lecture.title || '',
-      category: lecture.category || 'العقيدة',
+      category: lecture.category || categories[0] || 'العقيدة',
       series: lecture.series || '',
       youtubeUrl: lecture.youtubeUrl || '',
       pdfUrl: lecture.pdfUrl || '',
@@ -137,28 +141,14 @@ const AdminLectures = () => {
 
   const handleDelete = async (id) => {
     if (!window.confirm('هل أنت متأكد من حذف هذا الدرس؟')) return;
-
     try {
-      let deletedIds = JSON.parse(localStorage.getItem(STORAGE_DELETED_KEY) || '[]');
-      if (!deletedIds.includes(id)) {
-        deletedIds.push(id);
-        localStorage.setItem(STORAGE_DELETED_KEY, JSON.stringify(deletedIds));
-      }
-
-      let customItems = JSON.parse(localStorage.getItem(STORAGE_CUSTOM_KEY) || '[]');
-      customItems = customItems.filter((c) => c._id !== id);
-      localStorage.setItem(STORAGE_CUSTOM_KEY, JSON.stringify(customItems));
-
-      setLecturesList((prev) => prev.filter((item) => item._id !== id));
-      setSuccess('تم حذف الدرس بنجاح ✓');
-
-      try {
-        await api.delete(`/lectures/${id}`);
-      } catch {
-        // Safe fallback
-      }
-    } catch (err) {
-      setError('فشل حذف الدرس');
+      await api.delete(`/lectures/${id}`);
+      setSuccess('تم حذف الدرس ✓');
+      refetch();
+    } catch {
+      deleteLocalLecture(id);
+      setSuccess('تم الحذف محلياً (السيرفر غير متصل أو جلسة تجريبية)');
+      refetch();
     }
   };
 
@@ -167,11 +157,10 @@ const AdminLectures = () => {
       <div className="admin-page-header">
         <div>
           <h2>إدارة الدروس والكتب والدورات</h2>
-          <p>إضافة وتعديل وحذف الدروس والكتب وسلاسل الشروح بسهولة تامة</p>
+          <p>إضافة وتعديل وحذف الدروس والكتب وسلاسل الشروح</p>
         </div>
       </div>
 
-      {/* Form Card */}
       <form onSubmit={handleSubmit} className="admin-form-card">
         <h3 className="form-card-title">
           {editId ? <><FiEdit2 /> تعديل الدرس الحالي</> : <><FiPlus /> إضافة درس جديد</>}
@@ -206,7 +195,7 @@ const AdminLectures = () => {
               value={form.category}
               onChange={(e) => setForm({ ...form, category: e.target.value })}
             >
-              {['العقيدة', 'الفقه', 'أصول فقه', 'التفسير', 'الحديث', 'السيرة', 'آداب طالب العلم', 'الرقائق', 'علوم قرآن', 'عام'].map((c) => (
+              {categories.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
@@ -279,7 +268,6 @@ const AdminLectures = () => {
         </div>
       </form>
 
-      {/* Lectures List */}
       <div className="admin-list-section">
         <div className="list-section-header">
           <h3>قائمة الدروس المتاحة ({lecturesList.length})</h3>
@@ -302,18 +290,10 @@ const AdminLectures = () => {
                 </p>
 
                 <div className="card-actions-footer">
-                  <button
-                    type="button"
-                    className="btn-card-edit"
-                    onClick={() => handleEdit(item)}
-                  >
+                  <button type="button" className="btn-card-edit" onClick={() => handleEdit(item)}>
                     <FiEdit2 /> تعديل
                   </button>
-                  <button
-                    type="button"
-                    className="btn-card-delete"
-                    onClick={() => handleDelete(item._id)}
-                  >
+                  <button type="button" className="btn-card-delete" onClick={() => handleDelete(item._id)}>
                     <FiTrash2 /> حذف
                   </button>
                 </div>

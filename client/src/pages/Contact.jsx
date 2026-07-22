@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import api from '../services/api';
+import { useSiteSettings } from '../context/SiteSettingsContext';
 import './Contact.css';
 
 const Contact = () => {
+  const { settings } = useSiteSettings();
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
   const [status, setStatus] = useState({ type: '', message: '' });
   const [loading, setLoading] = useState(false);
@@ -34,8 +36,8 @@ const Contact = () => {
     <>
       <div className="page-header">
         <div className="container">
-          <h1>تواصل معنا</h1>
-          <p>نسعد باستقبال استفساراتكم ومقترحاتكم</p>
+          <h1>{settings.contactPage?.headerTitle || 'تواصل معنا'}</h1>
+          <p>{settings.contactPage?.headerSubtitle || 'نسعد باستقبال استفساراتكم ومقترحاتكم'}</p>
         </div>
       </div>
 

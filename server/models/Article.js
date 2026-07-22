@@ -23,7 +23,8 @@ const articleSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: CATEGORIES,
+      trim: true,
+      maxlength: [100, 'التصنيف طويل جداً'],
       default: 'عام',
     },
     coverImage: {

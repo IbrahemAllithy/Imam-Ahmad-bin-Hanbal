@@ -1,47 +1,63 @@
+export const mergeLocalLectures = (defaultList = []) => {
+  let customItems = [];
+  let deletedIds = [];
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      customItems = JSON.parse(localStorage.getItem('custom_admin_lectures_v2') || '[]');
+      deletedIds = JSON.parse(localStorage.getItem('deleted_admin_lecture_ids_v2') || '[]');
+    }
+  } catch {
+    // ignore
+  }
+
+  let merged = [...defaultList];
+  customItems.forEach((cItem) => {
+    const idx = merged.findIndex((m) => m._id === cItem._id);
+    if (idx !== -1) {
+      merged[idx] = { ...merged[idx], ...cItem };
+    } else {
+      merged.unshift(cItem);
+    }
+  });
+
+  return merged.filter((item) => !deletedIds.includes(item._id));
+};
+
+export const mergeLocalBooks = (defaultList = []) => {
+  let customBooks = [];
+  let deletedBookIds = [];
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      customBooks = JSON.parse(localStorage.getItem('custom_admin_books_v2') || '[]');
+      deletedBookIds = JSON.parse(localStorage.getItem('deleted_admin_book_ids_v2') || '[]');
+    }
+  } catch {
+    // ignore
+  }
+
+  let merged = [...defaultList];
+  customBooks.forEach((cBook) => {
+    const idx = merged.findIndex((m) => m._id === cBook._id);
+    if (idx !== -1) {
+      merged[idx] = { ...merged[idx], ...cBook };
+    } else {
+      merged.unshift(cBook);
+    }
+  });
+
+  return merged.filter((b) => !deletedBookIds.includes(b._id));
+};
+
 export const getFallbackData = (url, params = {}) => {
   if (!url) return null;
 
   const defaultPdf = 'https://archive.org/embed/20230616_20230616_1912';
 
   // Read admin custom lectures & deletions from localStorage if present
-  const getMergedLectures = (defaultList) => {
-    let customItems = [];
-    let deletedIds = [];
-    try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        customItems = JSON.parse(localStorage.getItem('custom_admin_lectures_v2') || '[]');
-        deletedIds = JSON.parse(localStorage.getItem('deleted_admin_lecture_ids_v2') || '[]');
-      }
-    } catch {
-      // fallback
-    }
-
-    let merged = [...defaultList];
-    customItems.forEach((cItem) => {
-      const idx = merged.findIndex((m) => m._id === cItem._id);
-      if (idx !== -1) {
-        merged[idx] = { ...merged[idx], ...cItem };
-      } else {
-        merged.unshift(cItem);
-      }
-    });
-
-    return merged.filter((item) => !deletedIds.includes(item._id));
-  };
+  const getMergedLectures = (defaultList) => mergeLocalLectures(defaultList);
 
   // Helper for Books merging
   const getMergedBooks = () => {
-    let customBooks = [];
-    let deletedBookIds = [];
-    try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        customBooks = JSON.parse(localStorage.getItem('custom_admin_books_v2') || '[]');
-        deletedBookIds = JSON.parse(localStorage.getItem('deleted_admin_book_ids_v2') || '[]');
-      }
-    } catch {
-      // fallback
-    }
-
     const defaultBooks = [
       {
         _id: 'bk-1',
@@ -75,17 +91,7 @@ export const getFallbackData = (url, params = {}) => {
       }
     ];
 
-    let merged = [...defaultBooks];
-    customBooks.forEach((cBook) => {
-      const idx = merged.findIndex((m) => m._id === cBook._id);
-      if (idx !== -1) {
-        merged[idx] = { ...merged[idx], ...cBook };
-      } else {
-        merged.unshift(cBook);
-      }
-    });
-
-    return merged.filter((b) => !deletedBookIds.includes(b._id));
+    return mergeLocalBooks(defaultBooks);
   };
 
   // Handle Admin Stats Overview

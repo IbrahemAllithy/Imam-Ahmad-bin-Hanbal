@@ -68,20 +68,40 @@ export const uploadBookFiles = multer({
   { name: 'coverImage', maxCount: 1 },
 ]);
 
+const imageFileFilter = (_req, file, cb) => {
+  const ext = path.extname(file.originalname).toLowerCase();
+  if (!['.jpg', '.jpeg', '.png', '.webp'].includes(ext)) {
+    return cb(new AppError('الصورة يجب أن تكون jpg أو png أو webp', 400));
+  }
+  if (!ALLOWED_IMAGES.includes(file.mimetype)) {
+    return cb(new AppError('نوع الصورة غير مدعوم', 400));
+  }
+  cb(null, true);
+};
+
 export const uploadArticleCover = multer({
   storage,
-  fileFilter: (_req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    if (!['.jpg', '.jpeg', '.png', '.webp'].includes(ext)) {
-      return cb(new AppError('صورة الغلاف يجب أن تكون jpg أو png أو webp', 400));
-    }
-    if (!ALLOWED_IMAGES.includes(file.mimetype)) {
-      return cb(new AppError('نوع صورة الغلاف غير مدعوم', 400));
-    }
-    cb(null, true);
-  },
+  fileFilter: imageFileFilter,
   limits: { fileSize: 2 * 1024 * 1024 },
 }).single('coverImage');
+
+const brandingStorage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, COVER_DIR),
+  filename: (_req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    const safeExt = ['.jpg', '.jpeg', '.png', '.webp'].includes(ext) ? ext : '.jpg';
+    cb(null, `${uuidv4()}${safeExt}`);
+  },
+});
+
+export const uploadBrandingImages = multer({
+  storage: brandingStorage,
+  fileFilter: imageFileFilter,
+  limits: { fileSize: 3 * 1024 * 1024, files: 2 },
+}).fields([
+  { name: 'logo', maxCount: 1 },
+  { name: 'sheikhImage', maxCount: 1 },
+]);
 
 export const validateMagicBytes = async (req, _res, next) => {
   try {
@@ -92,6 +112,12 @@ export const validateMagicBytes = async (req, _res, next) => {
     }
     if (req.files?.coverImage?.[0]) {
       checks.push({ file: req.files.coverImage[0], allowed: ALLOWED_IMAGES, label: 'صورة' });
+    }
+    if (req.files?.logo?.[0]) {
+      checks.push({ file: req.files.logo[0], allowed: ALLOWED_IMAGES, label: 'الشعار' });
+    }
+    if (req.files?.sheikhImage?.[0]) {
+      checks.push({ file: req.files.sheikhImage[0], allowed: ALLOWED_IMAGES, label: 'صورة الشيخ' });
     }
     if (req.file) {
       checks.push({ file: req.file, allowed: ALLOWED_IMAGES, label: 'صورة' });

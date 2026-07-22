@@ -22,6 +22,7 @@ import articleRoutes from './routes/articleRoutes.js';
 import bookRoutes from './routes/bookRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import settingsRoutes from './routes/settingsRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -117,6 +118,7 @@ app.use('/api/articles', articleRoutes);
 app.use('/api/books', bookRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/settings', settingsRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

@@ -1,8 +1,5 @@
 import { body, param, query, validationResult } from 'express-validator';
 import { extractYoutubeId } from '../utils/youtube.js';
-import { LECTURE_CATEGORIES } from '../models/Lecture.js';
-import { ARTICLE_CATEGORIES } from '../models/Article.js';
-import { BOOK_CATEGORIES } from '../models/Book.js';
 
 export const validate = (req, res, next) => {
   const errors = validationResult(req);
@@ -12,8 +9,6 @@ export const validate = (req, res, next) => {
   }
   next();
 };
-
-const categories = [...new Set([...LECTURE_CATEGORIES, ...ARTICLE_CATEGORIES, ...BOOK_CATEGORIES])];
 
 export const loginValidation = [
   body('email').trim().isEmail().withMessage('صيغة البريد الإلكتروني غير صحيحة'),
@@ -33,7 +28,7 @@ export const lectureValidation = [
     }),
   body('description').optional().trim().isLength({ max: 5000 }).withMessage('الوصف طويل جداً'),
   body('series').optional().trim().isLength({ max: 150 }).withMessage('اسم السلسلة طويل جداً'),
-  body('category').optional().isIn(categories).withMessage('التصنيف غير صالح'),
+  body('category').optional().trim().isLength({ max: 100 }).withMessage('التصنيف طويل جداً'),
   validate,
 ];
 
@@ -41,7 +36,7 @@ export const articleValidation = [
   body('title').trim().notEmpty().withMessage('عنوان المقال مطلوب').isLength({ max: 200 }).withMessage('العنوان طويل جداً'),
   body('content').trim().notEmpty().withMessage('محتوى المقال مطلوب').isLength({ max: 50000 }).withMessage('المحتوى طويل جداً'),
   body('excerpt').optional().trim().isLength({ max: 500 }).withMessage('المقتطف طويل جداً'),
-  body('category').optional().isIn(categories).withMessage('التصنيف غير صالح'),
+  body('category').optional().trim().isLength({ max: 100 }).withMessage('التصنيف طويل جداً'),
   validate,
 ];
 
@@ -50,7 +45,8 @@ export const bookValidation = [
   body('author').trim().notEmpty().withMessage('اسم المؤلف مطلوب').isLength({ max: 150 }).withMessage('اسم المؤلف طويل جداً'),
   body('description').optional().trim().isLength({ max: 5000 }).withMessage('الوصف طويل جداً'),
   body('pages').optional().isInt({ min: 1 }).withMessage('عدد الصفحات غير صالح'),
-  body('category').optional().isIn(categories).withMessage('التصنيف غير صالح'),
+  body('category').optional().trim().isLength({ max: 100 }).withMessage('التصنيف طويل جداً'),
+  body('pdfUrl').optional().trim().isLength({ max: 2000 }).withMessage('رابط PDF طويل جداً'),
   validate,
 ];
 
@@ -70,7 +66,7 @@ export const mongoIdParam = [
 export const listQueryValidation = [
   query('page').optional().isInt({ min: 1 }).withMessage('رقم الصفحة غير صالح'),
   query('limit').optional().isInt({ min: 1, max: 50 }).withMessage('حد العرض غير صالح'),
-  query('category').optional().isIn(categories).withMessage('التصنيف غير صالح'),
+  query('category').optional().trim().isLength({ max: 100 }).withMessage('التصنيف غير صالح'),
   query('search').optional().trim().isLength({ max: 100 }).withMessage('نص البحث طويل جداً'),
   validate,
 ];

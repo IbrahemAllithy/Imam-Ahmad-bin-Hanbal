@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useFetch } from '../../hooks/useFetch';
+import { useSiteSettings } from '../../context/SiteSettingsContext';
 import api from '../../services/api';
 import Loader from '../../components/ui/Loader';
 import { FiEdit2, FiTrash2, FiBookOpen, FiPlus, FiCheck, FiDownload } from 'react-icons/fi';
@@ -10,39 +11,48 @@ const emptyBook = {
   author: 'فضيلة الشيخ شعبان العودة',
   category: 'العقيدة',
   pages: 50,
-  pdfUrl: 'https://archive.org/embed/20230616_20230616_1912',
+  pdfUrl: '',
   description: '',
 };
 
 const STORAGE_BOOKS_KEY = 'custom_admin_books_v2';
 const STORAGE_DELETED_BOOKS_KEY = 'deleted_admin_book_ids_v2';
 
+const saveLocalBook = (payload, editId) => {
+  let customItems = JSON.parse(localStorage.getItem(STORAGE_BOOKS_KEY) || '[]');
+  if (editId) {
+    customItems = customItems.map((item) => (item._id === editId ? { ...item, ...payload } : item));
+    if (!customItems.some((c) => c._id === editId)) customItems.push(payload);
+  } else {
+    customItems.unshift(payload);
+  }
+  localStorage.setItem(STORAGE_BOOKS_KEY, JSON.stringify(customItems));
+};
+
+const deleteLocalBook = (id) => {
+  let deletedIds = JSON.parse(localStorage.getItem(STORAGE_DELETED_BOOKS_KEY) || '[]');
+  if (!deletedIds.includes(id)) {
+    deletedIds.push(id);
+    localStorage.setItem(STORAGE_DELETED_BOOKS_KEY, JSON.stringify(deletedIds));
+  }
+  let customItems = JSON.parse(localStorage.getItem(STORAGE_BOOKS_KEY) || '[]');
+  customItems = customItems.filter((c) => c._id !== id);
+  localStorage.setItem(STORAGE_BOOKS_KEY, JSON.stringify(customItems));
+};
+
 const AdminBooks = () => {
-  const { data: initialData, loading } = useFetch('/books', { limit: 100 });
-  const [booksList, setBooksList] = useState([]);
+  const { data, loading, refetch } = useFetch('/books', { limit: 100 });
+  const { categoryNames } = useSiteSettings();
   const [form, setForm] = useState(emptyBook);
   const [editId, setEditId] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  // Sync initialData with localStorage
-  useEffect(() => {
-    let customItems = [];
-    let deletedIds = [];
-    try {
-      customItems = JSON.parse(localStorage.getItem(STORAGE_BOOKS_KEY) || '[]');
-      deletedIds = JSON.parse(localStorage.getItem(STORAGE_DELETED_BOOKS_KEY) || '[]');
-    } catch {
-      // fallback
-    }
-
-    const baseData = initialData?.data || [];
-    const combined = [...customItems, ...baseData.filter((b) => !customItems.some((c) => c._id === b._id))];
-    const finalFiltered = combined.filter((item) => !deletedIds.includes(item._id));
-
-    setBooksList(finalFiltered);
-  }, [initialData]);
+  const booksList = data?.data || [];
+  const categories = categoryNames.length
+    ? categoryNames
+    : ['العقيدة', 'الفقه', 'أصول فقه', 'التفسير', 'الحديث', 'السيرة', 'آداب طالب العلم', 'عام'];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -51,53 +61,46 @@ const AdminBooks = () => {
     setSubmitting(true);
 
     const payload = {
-      _id: editId || `custom-book-${Date.now()}`,
       title: form.title,
       author: form.author || 'فضيلة الشيخ شعبان العودة',
       category: form.category,
       pages: Number(form.pages) || 50,
-      pdfUrl: form.pdfUrl || 'https://archive.org/embed/20230616_20230616_1912',
-      description: form.description,
-      createdAt: new Date().toISOString(),
+      pdfUrl: form.pdfUrl,
+      description: form.description || '',
     };
 
     try {
-      let customItems = JSON.parse(localStorage.getItem(STORAGE_BOOKS_KEY) || '[]');
+      const formData = new FormData();
+      Object.entries(payload).forEach(([k, v]) => formData.append(k, v));
+
       if (editId) {
-        customItems = customItems.map((item) => (item._id === editId ? { ...item, ...payload } : item));
-        if (!customItems.some((c) => c._id === editId)) {
-          customItems.push(payload);
-        }
+        await api.put(`/books/${editId}`, formData);
+        setSuccess('تم تحديث الكتاب على السيرفر ✓');
       } else {
-        customItems.unshift(payload);
+        await api.post('/books', formData);
+        setSuccess('تم إضافة الكتاب على السيرفر ✓');
       }
-      localStorage.setItem(STORAGE_BOOKS_KEY, JSON.stringify(customItems));
-
-      setBooksList((prev) => {
-        if (editId) {
-          return prev.map((item) => (item._id === editId ? payload : item));
-        }
-        return [payload, ...prev];
-      });
-
-      // Try API request in background
-      try {
-        const formData = new FormData();
-        Object.entries(payload).forEach(([k, v]) => formData.append(k, v));
-        if (editId) {
-          await api.put(`/books/${editId}`, formData);
-        } else {
-          await api.post('/books', formData);
-        }
-      } catch {
-        // Safe fallback
-      }
-
-      setSuccess(editId ? 'تم تحديث بيانات الكتاب بنجاح ✓' : 'تم إضافة الكتاب بنجاح ✓');
       setForm(emptyBook);
       setEditId(null);
+      refetch();
     } catch (err) {
-      setError('حدث خطأ أثناء حفظ الكتاب');
+      const localPayload = {
+        ...payload,
+        _id: editId || `custom-book-${Date.now()}`,
+        createdAt: new Date().toISOString(),
+      };
+      saveLocalBook(localPayload, editId);
+      setSuccess(
+        editId
+          ? 'تم حفظ التعديل محلياً (السيرفر غير متصل أو جلسة تجريبية)'
+          : 'تم إضافة الكتاب محلياً (السيرفر غير متصل أو جلسة تجريبية)'
+      );
+      setForm(emptyBook);
+      setEditId(null);
+      refetch();
+      if (err.response?.status && err.response.status !== 401) {
+        setError(err.response?.data?.message || '');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -108,9 +111,9 @@ const AdminBooks = () => {
     setForm({
       title: book.title || '',
       author: book.author || 'فضيلة الشيخ شعبان العودة',
-      category: book.category || 'العقيدة',
+      category: book.category || categories[0] || 'العقيدة',
       pages: book.pages || 50,
-      pdfUrl: book.pdfUrl || 'https://archive.org/embed/20230616_20230616_1912',
+      pdfUrl: book.pdfUrl || '',
       description: book.description || '',
     });
     window.scrollTo({ top: 120, behavior: 'smooth' });
@@ -118,28 +121,14 @@ const AdminBooks = () => {
 
   const handleDelete = async (id) => {
     if (!window.confirm('هل أنت متأكد من حذف هذا الكتاب؟')) return;
-
     try {
-      let deletedIds = JSON.parse(localStorage.getItem(STORAGE_DELETED_BOOKS_KEY) || '[]');
-      if (!deletedIds.includes(id)) {
-        deletedIds.push(id);
-        localStorage.setItem(STORAGE_DELETED_BOOKS_KEY, JSON.stringify(deletedIds));
-      }
-
-      let customItems = JSON.parse(localStorage.getItem(STORAGE_BOOKS_KEY) || '[]');
-      customItems = customItems.filter((c) => c._id !== id);
-      localStorage.setItem(STORAGE_BOOKS_KEY, JSON.stringify(customItems));
-
-      setBooksList((prev) => prev.filter((item) => item._id !== id));
-      setSuccess('تم حذف الكتاب بنجاح ✓');
-
-      try {
-        await api.delete(`/books/${id}`);
-      } catch {
-        // Safe fallback
-      }
-    } catch (err) {
-      setError('فشل حذف الكتاب');
+      await api.delete(`/books/${id}`);
+      setSuccess('تم حذف الكتاب ✓');
+      refetch();
+    } catch {
+      deleteLocalBook(id);
+      setSuccess('تم الحذف محلياً (السيرفر غير متصل أو جلسة تجريبية)');
+      refetch();
     }
   };
 
@@ -152,7 +141,6 @@ const AdminBooks = () => {
         </div>
       </div>
 
-      {/* Form Card */}
       <form onSubmit={handleSubmit} className="admin-form-card">
         <h3 className="form-card-title">
           {editId ? <><FiEdit2 /> تعديل الكتاب الحالي</> : <><FiPlus /> إضافة كتاب جديد للمكتبة</>}
@@ -178,7 +166,6 @@ const AdminBooks = () => {
               value={form.author}
               onChange={(e) => setForm({ ...form, author: e.target.value })}
               required
-              placeholder="مثال: فضيلة الشيخ شعبان العودة"
             />
           </div>
 
@@ -188,7 +175,7 @@ const AdminBooks = () => {
               value={form.category}
               onChange={(e) => setForm({ ...form, category: e.target.value })}
             >
-              {['العقيدة', 'الفقه', 'أصول فقه', 'التفسير', 'الحديث', 'السيرة', 'آداب طالب العلم', 'عام'].map((c) => (
+              {categories.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
@@ -206,12 +193,12 @@ const AdminBooks = () => {
         </div>
 
         <div className="form-group" style={{ marginTop: '16px' }}>
-          <label>رابط القراءة والتصفح PDF (مثال: رابط Archive.org التفاعلي) *</label>
+          <label>رابط القراءة والتصفح PDF *</label>
           <input
             value={form.pdfUrl}
             onChange={(e) => setForm({ ...form, pdfUrl: e.target.value })}
             required
-            placeholder="https://archive.org/embed/20230616_20230616_1912"
+            placeholder="https://archive.org/embed/..."
           />
         </div>
 
@@ -244,7 +231,6 @@ const AdminBooks = () => {
         </div>
       </form>
 
-      {/* Books List Grid */}
       <div className="admin-list-section">
         <div className="list-section-header">
           <h3>كتب ومؤلفات المكتبة ({booksList.length})</h3>
@@ -267,18 +253,10 @@ const AdminBooks = () => {
                 </p>
 
                 <div className="card-actions-footer">
-                  <button
-                    type="button"
-                    className="btn-card-edit"
-                    onClick={() => handleEdit(item)}
-                  >
+                  <button type="button" className="btn-card-edit" onClick={() => handleEdit(item)}>
                     <FiEdit2 /> تعديل
                   </button>
-                  <button
-                    type="button"
-                    className="btn-card-delete"
-                    onClick={() => handleDelete(item._id)}
-                  >
+                  <button type="button" className="btn-card-delete" onClick={() => handleDelete(item._id)}>
                     <FiTrash2 /> حذف
                   </button>
                 </div>

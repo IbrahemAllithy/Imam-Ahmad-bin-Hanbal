@@ -801,3 +801,61 @@
   }
 }
 
+/* Site Settings Admin */
+.settings-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.settings-tabs button {
+  border: 1.5px solid var(--primary-border);
+  background: var(--white);
+  color: var(--primary-text);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.settings-tabs button.active {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  color: #fff;
+}
+
+.settings-subtitle {
+  margin: 24px 0 12px;
+  font-family: var(--font-heading);
+  font-size: 16px;
+  color: var(--primary-text);
+}
+
+.settings-hint {
+  color: var(--text-muted);
+  margin-bottom: 14px;
+  font-size: 14px;
+}
+
+.settings-preview-img {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-top: 10px;
+  border: 1px solid var(--primary-border);
+}
+
+.settings-inline-row {
+  align-items: end;
+  margin-bottom: 10px;
+}
+
+.settings-inline-row .btn-card-delete {
+  margin-bottom: 2px;
+  height: 42px;
+}
+

@@ -1,6 +1,21 @@
 import mongoose from 'mongoose';
 
-const CATEGORIES = ['عقيدة', 'فقه', 'تفسير', 'حديث', 'سيرة', 'آداب', 'عام'];
+const CATEGORIES = [
+  'عقيدة',
+  'فقه',
+  'تفسير',
+  'حديث',
+  'سيرة',
+  'آداب',
+  'عام',
+  'العقيدة',
+  'الفقه',
+  'أصول فقه',
+  'التفسير',
+  'الحديث',
+  'السيرة',
+  'آداب طالب العلم',
+];
 
 const bookSchema = new mongoose.Schema(
   {
@@ -37,7 +52,8 @@ const bookSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: CATEGORIES,
+      trim: true,
+      maxlength: [100, 'التصنيف طويل جداً'],
       default: 'عام',
     },
   },
