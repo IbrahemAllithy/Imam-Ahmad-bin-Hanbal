@@ -1,8 +1,8 @@
 export const getFallbackData = (url, params = {}) => {
   if (!url) return null;
-  // Admin endpoints are authenticated and must surface real errors —
-  // never mask a failed admin request with public demo data.
   if (url.startsWith('/admin')) return null;
+
+  const defaultPdf = 'https://archive.org/embed/20230616_20230616_1912';
 
   const lecturesDict = [
     // --- العقيدة: كتاب القواعد المثلى ---
@@ -16,6 +16,17 @@ export const getFallbackData = (url, params = {}) => {
       teacher: 'الشيخ شعبان العودة',
       duration: '45 دقيقة',
       description: 'المجلس الأول من شرح والتعليق على كتاب القواعد المثلى لفضيلة الشيخ شعبان العودة.',
+      pdfUrl: defaultPdf,
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+      quizQuestions: [
+        'ما معنى الأسماء الحسنى والصفات العلا؟',
+        'اذكر ثلاثة من قواعد أسماء الله الحسنى.',
+        'ما الفرق بين الاسم والصفة في حق الله تعالى؟'
+      ],
+      studentQuestions: [
+        { id: 1, text: 'هل يمكن الاستماع للدرس بدون فيديو؟', answer: 'نعم، مشغل الصوت المباشر موجود أسفل الفيديو.' },
+        { id: 2, text: 'كيف أستطيع قراءة الكتاب ومتابعة الشرح؟', answer: 'نافذة الكتاب PDF تجدها مباشرة بجوار فيديو الشرح.' }
+      ]
     },
     {
       _id: 'demo-aqeedah-2',
@@ -27,6 +38,10 @@ export const getFallbackData = (url, params = {}) => {
       teacher: 'الشيخ شعبان العودة',
       duration: '48 دقيقة',
       description: 'المجلس الثاني من التعليق على كتاب القواعد المثلى.',
+      pdfUrl: defaultPdf,
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+      quizQuestions: ['ما القاعدة الثانية في صفات الله تعالى؟'],
+      studentQuestions: []
     },
     {
       _id: 'demo-aqeedah-3',
@@ -38,6 +53,10 @@ export const getFallbackData = (url, params = {}) => {
       teacher: 'الشيخ شعبان العودة',
       duration: '50 دقيقة',
       description: 'المجلس الثالث من التعليق على كتاب القواعد المثلى.',
+      pdfUrl: defaultPdf,
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+      quizQuestions: ['ما حكم الإلحاد في أسماء الله وصفاته؟'],
+      studentQuestions: []
     },
 
     // --- أصول الفقه: كتاب غاية السول ---
@@ -51,6 +70,8 @@ export const getFallbackData = (url, params = {}) => {
       teacher: 'الشيخ شعبان العودة',
       duration: '45 دقيقة',
       description: 'شرح منهج كتاب غاية السول في علم الأصول لفضيلة الشيخ شعبان العودة.',
+      pdfUrl: defaultPdf,
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
     },
     {
       _id: 'demo-usul-2',
@@ -62,6 +83,8 @@ export const getFallbackData = (url, params = {}) => {
       teacher: 'الشيخ شعبان العودة',
       duration: '42 دقيقة',
       description: 'المجلس الثاني من شرح كتاب غاية السول في علم الأصول.',
+      pdfUrl: defaultPdf,
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
     },
 
     // --- الفقه ---
@@ -75,6 +98,8 @@ export const getFallbackData = (url, params = {}) => {
       teacher: 'الشيخ شعبان العودة',
       duration: '45 دقيقة',
       description: 'شرح لفضيلة الشيخ شعبان العودة في علم الفقه.',
+      pdfUrl: defaultPdf,
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
     },
     {
       _id: 'demo-fiqh-2',
@@ -86,6 +111,8 @@ export const getFallbackData = (url, params = {}) => {
       teacher: 'الشيخ شعبان العودة',
       duration: '40 دقيقة',
       description: 'المجلس الثاني من شرح كتاب الفقه.',
+      pdfUrl: defaultPdf,
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
     },
 
     // --- السيرة ---
@@ -99,6 +126,8 @@ export const getFallbackData = (url, params = {}) => {
       teacher: 'الشيخ شعبان العودة',
       duration: '40 دقيقة',
       description: 'دروس السيرة النبوية لفضيلة الشيخ شعبان العودة.',
+      pdfUrl: defaultPdf,
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
     },
 
     // --- آداب طالب العلم ---
@@ -112,6 +141,8 @@ export const getFallbackData = (url, params = {}) => {
       teacher: 'الشيخ شعبان العودة',
       duration: '35 دقيقة',
       description: 'شرح وتوجيهات في آداب طالب العلم لفضيلة الشيخ شعبان العودة.',
+      pdfUrl: defaultPdf,
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
     },
 
     // --- الحديث ---
@@ -125,15 +156,15 @@ export const getFallbackData = (url, params = {}) => {
       teacher: 'الشيخ شعبان العودة',
       duration: '50 دقيقة',
       description: 'شرح لفضيلة الشيخ شعبان العودة في علم الحديث.',
+      pdfUrl: defaultPdf,
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
     }
   ];
 
-  // Handle single lecture view (/lectures/:id)
   if (url.startsWith('/lectures/')) {
     const id = url.split('/lectures/')[1];
     const item = lecturesDict.find((l) => l._id === id) || lecturesDict[0];
     
-    // Strictly filter related/playlist items to SAME SERIES or SAME CATEGORY only
     const sameSeries = lecturesDict.filter((l) => l.series === item.series && l._id !== item._id);
     const sameCategory = lecturesDict.filter((l) => l.category === item.category && l._id !== item._id);
     const related = sameSeries.length ? sameSeries : sameCategory;
@@ -145,7 +176,6 @@ export const getFallbackData = (url, params = {}) => {
     };
   }
 
-  // Handle lectures list (/lectures)
   if (url.startsWith('/lectures')) {
     const cat = params.category;
 
@@ -165,6 +195,7 @@ export const getFallbackData = (url, params = {}) => {
           series: `كتاب ${cat || 'العلم الشرعي'}`,
           teacher: 'الشيخ شعبان العودة',
           duration: '40 دقيقة',
+          pdfUrl: defaultPdf,
         }
       ],
       pagination: { page: 1, limit: 12, total: filtered.length || 1, pages: 1 }
