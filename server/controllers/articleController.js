@@ -1,5 +1,6 @@
 import Article from '../models/Article.js';
 import AppError from '../utils/AppError.js';
+import { removeStorageFile } from '../utils/storage.js';
 
 const buildFilter = (query) => {
   const filter = {};
@@ -74,6 +75,7 @@ export const createArticle = async (req, res, next) => {
 export const updateArticle = async (req, res, next) => {
   try {
     const updates = { ...req.body };
+    const previous = req.file ? await Article.findById(req.params.id) : null;
     if (req.file) {
       updates.coverImage = `/storage/covers/${req.file.filename}`;
     }
@@ -83,6 +85,7 @@ export const updateArticle = async (req, res, next) => {
       runValidators: true,
     });
     if (!article) return next(new AppError('المقال غير موجود', 404));
+    if (previous?.coverImage) removeStorageFile(previous.coverImage);
 
     res.json({ success: true, data: article });
   } catch (err) {
@@ -94,6 +97,7 @@ export const deleteArticle = async (req, res, next) => {
   try {
     const article = await Article.findByIdAndDelete(req.params.id);
     if (!article) return next(new AppError('المقال غير موجود', 404));
+    removeStorageFile(article.coverImage);
     res.json({ success: true, message: 'تم حذف المقال' });
   } catch (err) {
     next(err);

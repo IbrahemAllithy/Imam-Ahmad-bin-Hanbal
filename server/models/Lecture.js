@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 
+const CATEGORIES = ['عقيدة', 'فقه', 'تفسير', 'حديث', 'سيرة', 'آداب', 'عام'];
+
 const lectureSchema = new mongoose.Schema(
   {
     title: {
@@ -30,6 +32,7 @@ const lectureSchema = new mongoose.Schema(
     },
     category: {
       type: String,
+      enum: CATEGORIES,
       trim: true,
       default: 'عام',
     },
@@ -42,4 +45,5 @@ lectureSchema.index({ series: 1 });
 
 const Lecture = mongoose.model('Lecture', lectureSchema);
 
+export { CATEGORIES as LECTURE_CATEGORIES };
 export default Lecture;

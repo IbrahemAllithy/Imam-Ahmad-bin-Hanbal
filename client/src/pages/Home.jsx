@@ -175,7 +175,7 @@ const Home = () => {
                 {!l1 && lectures?.data?.map((ls) => (
                   <Link to={`/lectures/${ls._id}`} key={ls._id} className="latest-item">
                     <div className="latest-thumb">
-                       {ls.youtubeUrl && <img src={`https://img.youtube.com/vi/${new URL(ls.youtubeUrl).searchParams.get('v')}/mqdefault.jpg`} alt="" />}
+                       {ls.youtubeId && <img src={`https://img.youtube.com/vi/${ls.youtubeId}/mqdefault.jpg`} alt="" />}
                     </div>
                     <div className="latest-info">
                       <div className="latest-title">{ls.title}</div>
@@ -213,7 +213,7 @@ const Home = () => {
                 {!l2 && articles?.data?.map((ar) => (
                   <Link to={`/articles/${ar._id}`} key={ar._id} className="latest-item">
                     <div className="latest-thumb">
-                       {ar.image && <img src={getStorageUrl(ar.image)} alt="" />}
+                       {ar.coverImage && <img src={getStorageUrl(ar.coverImage)} alt="" />}
                     </div>
                     <div className="latest-info">
                       <div className="latest-title">{ar.title}</div>

@@ -1,5 +1,6 @@
 import Book from '../models/Book.js';
 import AppError from '../utils/AppError.js';
+import { removeStorageFile } from '../utils/storage.js';
 
 const buildFilter = (query) => {
   const filter = {};
@@ -79,6 +80,8 @@ export const createBook = async (req, res, next) => {
 export const updateBook = async (req, res, next) => {
   try {
     const updates = { ...req.body };
+    const needsPrevious = req.files?.pdf?.[0] || req.files?.coverImage?.[0];
+    const previous = needsPrevious ? await Book.findById(req.params.id) : null;
 
     if (req.files?.pdf?.[0]) {
       updates.pdfUrl = `/storage/pdfs/${req.files.pdf[0].filename}`;
@@ -93,6 +96,9 @@ export const updateBook = async (req, res, next) => {
     });
     if (!book) return next(new AppError('الكتاب غير موجود', 404));
 
+    if (previous && req.files?.pdf?.[0]) removeStorageFile(previous.pdfUrl);
+    if (previous && req.files?.coverImage?.[0]) removeStorageFile(previous.coverImage);
+
     res.json({ success: true, data: book });
   } catch (err) {
     next(err);
@@ -103,6 +109,8 @@ export const deleteBook = async (req, res, next) => {
   try {
     const book = await Book.findByIdAndDelete(req.params.id);
     if (!book) return next(new AppError('الكتاب غير موجود', 404));
+    removeStorageFile(book.pdfUrl);
+    removeStorageFile(book.coverImage);
     res.json({ success: true, message: 'تم حذف الكتاب' });
   } catch (err) {
     next(err);

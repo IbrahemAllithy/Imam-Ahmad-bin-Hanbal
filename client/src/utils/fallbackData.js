@@ -1,5 +1,8 @@
 export const getFallbackData = (url, params = {}) => {
   if (!url) return null;
+  // Admin endpoints are authenticated and must surface real errors —
+  // never mask a failed admin request with public demo data.
+  if (url.startsWith('/admin')) return null;
 
   const lecturesDict = [
     // --- العقيدة: كتاب القواعد المثلى ---

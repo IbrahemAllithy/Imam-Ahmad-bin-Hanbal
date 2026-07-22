@@ -25,6 +25,7 @@ const CourseDetail = () => {
   }, []);
 
   if (loading) return <Loader />;
+  if (error) return <div className="alert alert-error">{error}</div>;
 
   // Filter lessons belonging to this course/series
   const courseLessons = data?.data?.filter((l) => {
