@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
@@ -16,17 +17,31 @@ import Contact from './pages/Contact';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 
+const ScrollToTop = () => {
+  const { pathname, search } = useLocation();
+
+  useEffect(() => {
+    if (!window.location.hash) {
+      window.scrollTo(0, 0);
+    }
+  }, [pathname, search]);
+
+  return null;
+};
+
 const App = () => {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
 
   return (
     <div className="app">
+      <ScrollToTop />
       {!isAdmin && <Navbar />}
       <main className="main-content">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/lectures" element={<LectureCategories />} />
+          <Route path="/lectures" element={<Lectures />} />
+          <Route path="/lectures/categories" element={<LectureCategories />} />
           <Route path="/lectures/list" element={<Lectures />} />
           <Route path="/courses/:seriesName" element={<CourseDetail />} />
           <Route path="/lectures/:id" element={<LectureDetail />} />

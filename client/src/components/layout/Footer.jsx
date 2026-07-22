@@ -11,12 +11,12 @@ const Footer = () => (
       <div>
         <div className="footer-col-title">الأقسام</div>
         <div className="footer-links">
-          <Link to="/lectures">العقيدة</Link>
-          <Link to="/lectures">الفقه</Link>
-          <Link to="/lectures">الحديث</Link>
-          <Link to="/lectures">التفسير</Link>
-          <Link to="/lectures">السيرة</Link>
-          <Link to="/lectures">اللغة العربية</Link>
+          <Link to={`/lectures?category=${encodeURIComponent('العقيدة')}`}>العقيدة</Link>
+          <Link to={`/lectures?category=${encodeURIComponent('الفقه')}`}>الفقه</Link>
+          <Link to={`/lectures?category=${encodeURIComponent('الحديث')}`}>الحديث</Link>
+          <Link to={`/lectures?category=${encodeURIComponent('التفسير')}`}>التفسير</Link>
+          <Link to={`/lectures?category=${encodeURIComponent('السيرة')}`}>السيرة</Link>
+          <Link to={`/lectures?category=${encodeURIComponent('اللغة العربية')}`}>اللغة العربية</Link>
         </div>
       </div>
       <div>

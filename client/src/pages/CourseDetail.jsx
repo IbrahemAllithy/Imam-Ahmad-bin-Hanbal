@@ -42,7 +42,7 @@ const CourseDetail = () => {
     <div className="course-detail-page">
       {/* Back Link */}
       <div className="course-detail-top">
-        <Link to="/lectures/list" className="back-link">
+        <Link to="/lectures" className="back-link">
           <FiChevronRight /> الرجوع لقائمة الدورات
         </Link>
       </div>

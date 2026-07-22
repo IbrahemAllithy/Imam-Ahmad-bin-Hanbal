@@ -22,7 +22,7 @@ const LectureCategories = () => {
         <h2>تصفح الدروس حسب التصنيف</h2>
         <div className="categories-grid">
           {categories.map((c) => (
-            <Link to={`/lectures/list?category=${c.name}`} key={c.id} className="category-card">
+            <Link to={`/lectures?category=${encodeURIComponent(c.name)}`} key={c.id} className="category-card">
               <div className="cat-icon-wrapper">
                 <FiBookOpen className="cat-icon" />
                 <div className="cat-dot"></div>

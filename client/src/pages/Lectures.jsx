@@ -17,6 +17,8 @@ const Lectures = () => {
     const cat = params.get('category');
     if (cat) {
       setCategory(cat);
+    } else {
+      setCategory('الكل');
     }
   }, [location.search]);
 

@@ -90,7 +90,7 @@ const LectureDetail = () => {
             <div className="lecture-sub-meta">
               {isCurrentDone && <span className="status-pill-completed">مكتمل</span>}
               <div className="lecture-meta-breadcrumbs">
-                <Link to="/lectures/list">الدروس</Link>
+                <Link to="/lectures">الدروس</Link>
                 <span>&gt;</span>
                 <Link to={`/courses/${encodeURIComponent(seriesName || categoryName)}`}>
                   {seriesName || categoryName}
