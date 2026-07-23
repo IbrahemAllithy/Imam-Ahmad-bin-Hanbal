@@ -64,8 +64,7 @@ export const SiteSettingsProvider = ({ children }) => {
         applySettings(data.data);
       }
     } catch {
-      const local = readLocalSettings();
-      if (local) applySettings(local);
+      // Keep defaults / last known settings when offline — do not invent local "published" edits
     } finally {
       setLoading(false);
     }
@@ -98,21 +97,9 @@ export const SiteSettingsProvider = ({ children }) => {
       if (files.logo) formData.append('logo', files.logo);
       if (files.sheikhImage) formData.append('sheikhImage', files.sheikhImage);
 
-      try {
-        const { data } = await api.put('/settings', formData);
-        const saved = applySettings(data.data);
-        return { success: true, data: saved, source: 'api' };
-      } catch (err) {
-        const saved = applySettings(nextSettings);
-        return {
-          success: true,
-          data: saved,
-          source: 'local',
-          message:
-            err.response?.data?.message ||
-            'تم الحفظ محلياً (الخادم غير متصل أو جلسة الأدمن تجريبية)',
-        };
-      }
+      const { data } = await api.put('/settings', formData);
+      const saved = applySettings(data.data);
+      return { success: true, data: saved, source: 'api' };
     },
     [applySettings]
   );

@@ -33,7 +33,7 @@ const AdminLogin = () => {
       <form onSubmit={handleSubmit} className="admin-login-form">
         <img src={logo} alt="الموقع الرسمي للشيخ شعبان العودة" className="admin-login-logo" />
         <h1>لوحة التحكم</h1>
-        <p>تسجيل دخول الأدمن</p>
+        <p>تسجيل دخول الأدمن (حساب السيرفر الحقيقي)</p>
 
         {error && <div className="alert alert-error">{error}</div>}
 
@@ -50,6 +50,9 @@ const AdminLogin = () => {
         <button type="submit" className="btn btn-primary" disabled={loading}>
           {loading ? 'جاري الدخول...' : 'دخول'}
         </button>
+        <p style={{ marginTop: '1rem', fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center' }}>
+          إن لم يكن لديك أدمن: من مجلد server نفّذ <code>npm run seed:admin</code>
+        </p>
       </form>
     </div>
   );

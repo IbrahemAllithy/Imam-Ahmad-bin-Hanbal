@@ -56,8 +56,8 @@ const AdminSettings = () => {
       setSheikhFile(null);
       setSuccess(
         result.source === 'api'
-          ? 'تم حفظ إعدادات الموقع بنجاح ✓'
-          : result.message || 'تم الحفظ محلياً ✓'
+          ? 'تم حفظ الإعدادات على السيرفر وظهرت في صفحات العرض ✓'
+          : result.message || 'تم الحفظ'
       );
     } catch (err) {
       setError(err.response?.data?.message || 'فشل حفظ الإعدادات');

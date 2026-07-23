@@ -1,37 +1,20 @@
 import { useState, useEffect, useCallback } from 'react';
 import api from '../services/api';
-import {
-  getFallbackData,
-  mergeLocalBooks,
-  mergeLocalLectures,
-} from '../utils/fallbackData';
+import { getFallbackData } from '../utils/fallbackData';
 
-const applyLocalOverlays = (url, res) => {
-  if (!res?.data || !Array.isArray(res.data)) return res;
+const LOCAL_CONTENT_KEYS = [
+  'custom_admin_lectures_v2',
+  'deleted_admin_lecture_ids_v2',
+  'custom_admin_books_v2',
+  'deleted_admin_book_ids_v2',
+];
 
-  if (url.startsWith('/lectures')) {
-    const merged = mergeLocalLectures(res.data);
-    return {
-      ...res,
-      data: merged,
-      pagination: res.pagination
-        ? { ...res.pagination, total: merged.length }
-        : res.pagination,
-    };
+const clearStaleLocalContent = () => {
+  try {
+    LOCAL_CONTENT_KEYS.forEach((key) => localStorage.removeItem(key));
+  } catch {
+    // ignore
   }
-
-  if (url.startsWith('/books')) {
-    const merged = mergeLocalBooks(res.data);
-    return {
-      ...res,
-      data: merged,
-      pagination: res.pagination
-        ? { ...res.pagination, total: merged.length }
-        : res.pagination,
-    };
-  }
-
-  return res;
 };
 
 export const useFetch = (url, params = {}, deps = []) => {
@@ -48,18 +31,35 @@ export const useFetch = (url, params = {}, deps = []) => {
     setError(null);
     try {
       const { data: res } = await api.get(url, { params });
-      if (res && res.data) {
-        setData(applyLocalOverlays(url, res));
+      if (res && res.data !== undefined) {
+        // Successful API = source of truth for public display
+        if (url.startsWith('/lectures') || url.startsWith('/books')) {
+          clearStaleLocalContent();
+        }
+        setData(res);
       } else {
-        const fallback = getFallbackData(url, params);
-        setData(fallback);
+        setError('لم يتم العثور على بيانات');
       }
     } catch (err) {
-      const fallback = getFallbackData(url, params);
-      if (fallback) {
-        setData(fallback);
+      const status = err.response?.status;
+      // Only use demo fallback when the server is unreachable
+      const offline = !err.response;
+      if (offline) {
+        const fallback = getFallbackData(url, params);
+        if (fallback) {
+          setData(fallback);
+          setError(null);
+        } else {
+          setError(err.response?.data?.message || 'حدث خطأ أثناء جلب البيانات');
+        }
       } else {
-        setError(err.response?.data?.message || 'حدث خطأ أثناء جلب البيانات');
+        setError(
+          err.response?.data?.message ||
+            (status === 401
+              ? 'يجب تسجيل الدخول بحساب إدارة حقيقي'
+              : 'حدث خطأ أثناء جلب البيانات')
+        );
+        setData(null);
       }
     } finally {
       setLoading(false);

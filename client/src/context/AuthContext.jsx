@@ -34,15 +34,12 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   const checkAuth = useCallback(async () => {
+    // Clear legacy fake admin sessions — they cannot publish to the public site
     const demoUser = sessionStorage.getItem('demo_admin_user');
-    if (demoUser) {
-      try {
-        setUser(JSON.parse(demoUser));
-      } catch {
-        setUser({ name: 'مدير النظام', email: 'admin@example.com', role: 'admin', isEmailVerified: true });
-      }
-      setLoading(false);
-      return;
+    const token = sessionStorage.getItem('accessToken');
+    if (demoUser || (token && String(token).startsWith('demo_'))) {
+      sessionStorage.removeItem('demo_admin_user');
+      sessionStorage.removeItem('accessToken');
     }
 
     const localSession = sessionStorage.getItem(LOCAL_SESSION_KEY);
@@ -62,8 +59,8 @@ export const AuthProvider = ({ children }) => {
       }
     }
 
-    const token = sessionStorage.getItem('accessToken');
-    if (!token || token.startsWith('demo_') || token.startsWith('local_')) {
+    const accessToken = sessionStorage.getItem('accessToken');
+    if (!accessToken || accessToken.startsWith('demo_') || accessToken.startsWith('local_')) {
       setLoading(false);
       return;
     }
@@ -92,24 +89,7 @@ export const AuthProvider = ({ children }) => {
     const { requireAdmin = false } = options;
     const normalizedEmail = (email || '').trim().toLowerCase();
 
-    if (
-      requireAdmin &&
-      (normalizedEmail === 'admin@example.com' || normalizedEmail === 'admin') &&
-      password === 'admin123'
-    ) {
-      const adminUser = {
-        name: 'الشيخ شعبان العودة (مدير النظام)',
-        email: 'admin@example.com',
-        role: 'admin',
-        isEmailVerified: true,
-      };
-      sessionStorage.setItem('demo_admin_user', JSON.stringify(adminUser));
-      sessionStorage.setItem('accessToken', 'demo_access_token_123');
-      sessionStorage.removeItem(LOCAL_SESSION_KEY);
-      setUser(adminUser);
-      return { success: true, user: adminUser };
-    }
-
+    // Always authenticate against the server so admin writes get a real JWT
     try {
       const { data } = await api.post('/auth/login', {
         email: normalizedEmail,
@@ -128,21 +108,16 @@ export const AuthProvider = ({ children }) => {
       setUser(data.user);
       return data;
     } catch (err) {
-      if (
-        requireAdmin &&
-        (normalizedEmail === 'admin@example.com' || normalizedEmail === 'admin') &&
-        password === 'admin123'
-      ) {
-        const adminUser = {
-          name: 'الشيخ شعبان العودة (مدير النظام)',
-          email: 'admin@example.com',
-          role: 'admin',
-          isEmailVerified: true,
+      if (requireAdmin) {
+        throw {
+          response: {
+            data: {
+              message:
+                err.response?.data?.message ||
+                'تعذر دخول الأدمن. تأكد من تشغيل السيرفر وإنشاء الأدمن عبر: npm run seed:admin',
+            },
+          },
         };
-        sessionStorage.setItem('demo_admin_user', JSON.stringify(adminUser));
-        sessionStorage.setItem('accessToken', 'demo_access_token_123');
-        setUser(adminUser);
-        return { success: true, user: adminUser };
       }
 
       // Preserve API verification / validation errors

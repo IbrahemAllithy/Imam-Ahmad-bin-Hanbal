@@ -18,33 +18,8 @@ const emptyLecture = {
   quizQuestionsText: '',
 };
 
-const STORAGE_CUSTOM_KEY = 'custom_admin_lectures_v2';
-const STORAGE_DELETED_KEY = 'deleted_admin_lecture_ids_v2';
-
-const saveLocalLecture = (payload, editId) => {
-  let customItems = JSON.parse(localStorage.getItem(STORAGE_CUSTOM_KEY) || '[]');
-  if (editId) {
-    customItems = customItems.map((item) => (item._id === editId ? { ...item, ...payload } : item));
-    if (!customItems.some((c) => c._id === editId)) customItems.push(payload);
-  } else {
-    customItems.unshift(payload);
-  }
-  localStorage.setItem(STORAGE_CUSTOM_KEY, JSON.stringify(customItems));
-};
-
-const deleteLocalLecture = (id) => {
-  let deletedIds = JSON.parse(localStorage.getItem(STORAGE_DELETED_KEY) || '[]');
-  if (!deletedIds.includes(id)) {
-    deletedIds.push(id);
-    localStorage.setItem(STORAGE_DELETED_KEY, JSON.stringify(deletedIds));
-  }
-  let customItems = JSON.parse(localStorage.getItem(STORAGE_CUSTOM_KEY) || '[]');
-  customItems = customItems.filter((c) => c._id !== id);
-  localStorage.setItem(STORAGE_CUSTOM_KEY, JSON.stringify(customItems));
-};
-
 const AdminLectures = () => {
-  const { data, loading, refetch } = useFetch('/lectures', { limit: 100 });
+  const { data, loading, error: fetchError, refetch } = useFetch('/lectures', { limit: 100 });
   const { categoryNames } = useSiteSettings();
   const [form, setForm] = useState(emptyLecture);
   const [editId, setEditId] = useState(null);
@@ -90,33 +65,21 @@ const AdminLectures = () => {
     try {
       if (editId) {
         await api.put(`/lectures/${editId}`, payload);
-        setSuccess('تم تحديث الدرس على السيرفر ✓');
+        setSuccess('تم تحديث الدرس — يظهر الآن في صفحات العرض ✓');
       } else {
         await api.post('/lectures', payload);
-        setSuccess('تم إضافة الدرس على السيرفر ✓');
+        setSuccess('تم إضافة الدرس — يظهر الآن في صفحات العرض ✓');
       }
       setForm(emptyLecture);
       setEditId(null);
       refetch();
     } catch (err) {
-      const localPayload = {
-        ...payload,
-        _id: editId || `custom-lecture-${Date.now()}`,
-      };
-      saveLocalLecture(localPayload, editId);
-      setSuccess(
-        editId
-          ? 'تم حفظ التعديل محلياً (السيرفر غير متصل أو جلسة تجريبية)'
-          : 'تم إضافة الدرس محلياً (السيرفر غير متصل أو جلسة تجريبية)'
+      setError(
+        err.response?.data?.message ||
+          (err.response?.status === 401
+            ? 'انتهت الجلسة — سجّل دخول الأدمن بحساب حقيقي من السيرفر'
+            : 'فشل الحفظ على السيرفر — لم يتم نشر التعديل للزوار')
       );
-      setForm(emptyLecture);
-      setEditId(null);
-      refetch();
-      if (!err.response) {
-        setError('');
-      } else if (err.response?.status !== 401) {
-        setError(err.response?.data?.message || '');
-      }
     } finally {
       setSubmitting(false);
     }
@@ -141,14 +104,13 @@ const AdminLectures = () => {
 
   const handleDelete = async (id) => {
     if (!window.confirm('هل أنت متأكد من حذف هذا الدرس؟')) return;
+    setError('');
     try {
       await api.delete(`/lectures/${id}`);
-      setSuccess('تم حذف الدرس ✓');
+      setSuccess('تم حذف الدرس من الموقع ✓');
       refetch();
-    } catch {
-      deleteLocalLecture(id);
-      setSuccess('تم الحذف محلياً (السيرفر غير متصل أو جلسة تجريبية)');
-      refetch();
+    } catch (err) {
+      setError(err.response?.data?.message || 'فشل الحذف على السيرفر');
     }
   };
 
@@ -157,7 +119,7 @@ const AdminLectures = () => {
       <div className="admin-page-header">
         <div>
           <h2>إدارة الدروس والكتب والدورات</h2>
-          <p>إضافة وتعديل وحذف الدروس والكتب وسلاسل الشروح</p>
+          <p>أي إضافة أو تعديل يُحفظ على السيرفر ويظهر مباشرة للزوار</p>
         </div>
       </div>
 
@@ -166,7 +128,9 @@ const AdminLectures = () => {
           {editId ? <><FiEdit2 /> تعديل الدرس الحالي</> : <><FiPlus /> إضافة درس جديد</>}
         </h3>
 
-        {error && <div className="alert alert-error">{error}</div>}
+        {(error || fetchError) && (
+          <div className="alert alert-error">{error || fetchError}</div>
+        )}
         {success && <div className="alert alert-success">{success}</div>}
 
         <div className="form-grid">
@@ -251,7 +215,7 @@ const AdminLectures = () => {
 
         <div className="form-actions-bar">
           <button type="submit" className="btn-admin-submit" disabled={submitting}>
-            <FiCheck /> {editId ? 'حفظ التعديلات' : 'إضافة الدرس والدورة'}
+            <FiCheck /> {editId ? 'حفظ ونشر التعديلات' : 'إضافة ونشر الدرس'}
           </button>
           {editId && (
             <button
