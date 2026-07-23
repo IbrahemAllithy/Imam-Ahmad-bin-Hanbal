@@ -12,6 +12,7 @@ import {
   FiSettings,
   FiUsers,
   FiMessageCircle,
+  FiSend,
 } from 'react-icons/fi';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import AdminOverview from './AdminOverview';
@@ -22,16 +23,18 @@ import AdminContacts from './AdminContacts';
 import AdminSettings from './AdminSettings';
 import AdminStudents from './AdminStudents';
 import AdminQuestions from './AdminQuestions';
+import AdminBroadcast from './AdminBroadcast';
 import './Admin.css';
 
 const NAV_ITEMS = [
   { id: 'overview', label: 'الرئيسية', icon: FiHome },
+  { id: 'broadcast', label: 'الرسائل الجماعية', icon: FiSend },
   { id: 'lectures', label: 'المحاضرات', icon: FiVideo },
   { id: 'articles', label: 'المقالات', icon: FiFileText },
   { id: 'books', label: 'الكتب', icon: FiBook },
   { id: 'students', label: 'الطلاب', icon: FiUsers },
   { id: 'questions', label: 'أسئلة الدروس', icon: FiMessageCircle },
-  { id: 'contacts', label: 'الرسائل', icon: FiMail },
+  { id: 'contacts', label: 'رسائل الزوار', icon: FiMail },
   { id: 'settings', label: 'إعدادات الموقع', icon: FiSettings },
 ];
 
@@ -82,6 +85,7 @@ const AdminDashboard = () => {
 
       <main className="admin-main">
         {tab === 'overview' && <AdminOverview onNavigate={setTab} />}
+        {tab === 'broadcast' && <AdminBroadcast />}
         {tab === 'lectures' && <AdminLectures />}
         {tab === 'articles' && <AdminArticles />}
         {tab === 'books' && <AdminBooks />}
