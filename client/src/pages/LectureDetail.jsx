@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useFetch } from '../hooks/useFetch';
+import { useLectures } from '../hooks/useLectures';
 import useProgress from '../hooks/useProgress';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
@@ -48,9 +49,9 @@ const LectureDetail = () => {
   const seriesName = lecture?.series || '';
   const categoryName = lecture?.category || '';
 
-  const { data: seriesData } = useFetch(
-    seriesName ? '/lectures' : null,
-    seriesName ? { series: seriesName, limit: 100 } : {}
+  const { data: seriesData } = useLectures(
+    seriesName ? { series: seriesName } : {},
+    Boolean(seriesName)
   );
 
   const playlist = useMemo(() => {

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useFetch } from '../hooks/useFetch';
+import { useLectures } from '../hooks/useLectures';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { useSiteSettings } from '../context/SiteSettingsContext';
 import { FiCheckCircle, FiChevronDown, FiSearch } from 'react-icons/fi';
@@ -40,12 +40,11 @@ const Lectures = () => {
   }, []);
 
   const params = {
-    limit: 100,
     ...(category !== 'الكل' && { category }),
     ...(debouncedSearch && { search: debouncedSearch }),
   };
 
-  const { data, loading, error } = useFetch('/lectures', params);
+  const { data, loading, error } = useLectures(params);
 
   // Group lectures into Course/Series Bars
   const coursesList = useMemo(() => {

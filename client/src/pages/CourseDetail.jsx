@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useFetch } from '../hooks/useFetch';
+import { useLectures } from '../hooks/useLectures';
 import useProgress from '../hooks/useProgress';
 import { useAuth } from '../context/AuthContext';
 import { FiCheckCircle, FiHelpCircle, FiChevronRight, FiAward } from 'react-icons/fi';
@@ -21,9 +21,8 @@ const CourseDetail = () => {
   const { isStudent, isAdmin } = useAuth();
   const { isCompleted, progressPercent, isLoggedIn } = useProgress();
 
-  const { data, loading, error } = useFetch('/lectures', {
+  const { data, loading, error } = useLectures({
     series: decodedSeries,
-    limit: 100,
   });
 
   const courseLessons = useMemo(() => {

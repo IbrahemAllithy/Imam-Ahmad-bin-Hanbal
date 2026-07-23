@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom';
 import { FiCompass, FiChevronLeft } from 'react-icons/fi';
 import { useFetch } from '../hooks/useFetch';
+import { useLectures } from '../hooks/useLectures';
 import Loader from '../components/ui/Loader';
 import './PlatformPages.css';
 
 const StartHere = () => {
   const { data: seriesData, loading: seriesLoading } = useFetch('/lectures/series/list');
-  const { data: lecturesData, loading: lecturesLoading } = useFetch('/lectures', { limit: 100 });
+  const { data: lecturesData, loading: lecturesLoading } = useLectures();
 
   const loading = seriesLoading || lecturesLoading;
 
