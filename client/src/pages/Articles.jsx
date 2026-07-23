@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useFetch } from '../hooks/useFetch';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import ArticleCard from '../components/articles/ArticleCard';
-import Loader from '../components/ui/Loader';
+import SkeletonGrid from '../components/ui/Skeleton';
 import './ListPages.css';
 
 const Articles = () => {
@@ -40,7 +40,7 @@ const Articles = () => {
           className="list-search"
         />
 
-        {loading && <Loader />}
+        {loading && <SkeletonGrid count={4} />}
         {error && <div className="alert alert-error">{error}</div>}
         
         {!loading && !error && (

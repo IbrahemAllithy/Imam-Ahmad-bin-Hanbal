@@ -4,7 +4,7 @@ import { useFetch } from '../hooks/useFetch';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { useSiteSettings } from '../context/SiteSettingsContext';
 import BookCard from '../components/books/BookCard';
-import Loader from '../components/ui/Loader';
+import SkeletonGrid from '../components/ui/Skeleton';
 import './ListPages.css';
 
 const Books = () => {
@@ -59,7 +59,7 @@ const Books = () => {
           ))}
         </div>
 
-        {loading && <Loader />}
+        {loading && <SkeletonGrid count={6} />}
         {error && <div className="alert alert-error">{error}</div>}
         
         {!loading && !error && (
