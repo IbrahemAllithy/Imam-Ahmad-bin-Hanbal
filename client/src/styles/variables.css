@@ -31,3 +31,26 @@
   --max-width: 1200px;
   --header-height: 74px;
 }
+
+[data-theme='dark'] {
+  --primary-bg: #141619;
+  --primary-card: #1c2026;
+  --primary-border: #2e3540;
+  
+  --primary-text: #e6ded3;
+  --primary-text-muted: #b5a999;
+  
+  --accent-color: #c8a96e;
+  --accent-hover: #dbbe85;
+  --accent-gold: #c8a96e;
+  
+  --text-dark: #f0e8dc;
+  --text-muted: #aaa093;
+  --white: #1c2026;
+  
+  --gray-light: #252b34;
+  --gray-dark: #0f1113;
+  
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --shadow-hover: 0 6px 24px rgba(0, 0, 0, 0.6);
+}

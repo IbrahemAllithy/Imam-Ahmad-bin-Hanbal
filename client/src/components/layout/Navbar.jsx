@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { FiMenu, FiX, FiBell, FiAward } from 'react-icons/fi';
+import { FiMenu, FiX, FiBell, FiAward, FiSun, FiMoon } from 'react-icons/fi';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
@@ -9,12 +9,22 @@ import './Navbar.css';
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
   const location = useLocation();
   const navigate = useNavigate();
   const { settings, sheikhImage } = useSiteSettings();
   const { user, logout, isStudent, isAdmin } = useAuth();
   const links = settings.navbar?.links || [];
   const { siteName, siteSubtitle } = settings.branding || {};
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
 
   const hasRealSession =
     user &&
@@ -71,8 +81,20 @@ const Navbar = () => {
     navigate('/');
   };
 
+  const themeBtn = (
+    <button
+      type="button"
+      className="theme-toggle-btn"
+      onClick={toggleTheme}
+      title={theme === 'dark' ? 'الوضع النهارية' : 'الوضع الليلي'}
+    >
+      {theme === 'dark' ? <FiSun /> : <FiMoon />}
+    </button>
+  );
+
   const authActions = user ? (
     <>
+      {themeBtn}
       {(isStudent || isAdmin) && (
         <Link to="/certificates" className="btn-login desktop-only" onClick={() => setOpen(false)} title="شهاداتي">
           <FiAward style={{ verticalAlign: 'middle' }} />
@@ -105,6 +127,7 @@ const Navbar = () => {
     </>
   ) : (
     <>
+      {themeBtn}
       <Link to="/login" className="btn-login" onClick={() => setOpen(false)}>
         دخول
       </Link>
