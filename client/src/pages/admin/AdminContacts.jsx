@@ -2,9 +2,12 @@ import { useState } from 'react';
 import { useFetch } from '../../hooks/useFetch';
 import api from '../../services/api';
 import { formatDate } from '../../utils/helpers';
+import { useSiteSettings } from '../../context/SiteSettingsContext';
 import Loader from '../../components/ui/Loader';
 
 const AdminContacts = () => {
+  const { settings } = useSiteSettings();
+  const contactEmail = settings.footer?.email || 'shbanalwdt48@gmail.com';
   const { data, loading, refetch } = useFetch('/contact');
   const [selected, setSelected] = useState(null);
   const [error, setError] = useState('');
@@ -50,6 +53,27 @@ const AdminContacts = () => {
       </div>
 
       {error && <div className="alert alert-error">{error}</div>}
+
+      <div
+        style={{
+          marginBottom: '1rem',
+          padding: '0.75rem 1rem',
+          background: 'linear-gradient(135deg, #f9f5ed, #fdf8ef)',
+          border: '1px solid #e8dfd0',
+          borderRadius: 10,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          flexWrap: 'wrap',
+        }}
+      >
+        <span style={{ fontSize: '1.1rem' }}>📧</span>
+        <span style={{ color: '#6b4f2c', fontWeight: 600 }}>البريد المستقبِل:</span>
+        <a href={`mailto:${contactEmail}`} style={{ color: '#6b4f2c', fontWeight: 700 }}>
+          {contactEmail}
+        </a>
+        <span style={{ color: '#999', fontSize: '0.85rem' }}>— رسائل النموذج تصل هنا تلقائياً</span>
+      </div>
 
       {loading ? <Loader /> : (
         <div className="contacts-layout">

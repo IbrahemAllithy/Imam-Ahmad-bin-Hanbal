@@ -1,24 +1,35 @@
+import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import AppError from '../utils/AppError.js';
 import logger from '../utils/logger.js';
-import { validateEmailIdentity, validatePersonName, normalizeEmail } from '../utils/emailValidation.js';
+import {
+  validateEmailIdentity,
+  validatePersonName,
+  normalizeEmail,
+  isStrictEmailFormat,
+} from '../utils/emailValidation.js';
 import {
   generateOtp,
   hashOtp,
   otpExpiresAt,
   sendVerificationEmail,
+  sendPasswordResetEmail,
 } from '../utils/mailer.js';
 
 const ACCESS_EXPIRY = '15m';
 const REFRESH_EXPIRY = '7d';
 const REFRESH_COOKIE = 'refreshToken';
+const RESET_TTL_MS = 60 * 60 * 1000;
+const GENERIC_LOGIN_FAIL = 'بيانات الدخول غير صحيحة';
 
 const signAccessToken = (userId) =>
   jwt.sign({ id: userId }, process.env.JWT_ACCESS_SECRET, { expiresIn: ACCESS_EXPIRY });
 
 const signRefreshToken = (userId) =>
   jwt.sign({ id: userId }, process.env.JWT_REFRESH_SECRET, { expiresIn: REFRESH_EXPIRY });
+
+const hashToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
 
 const cookieOptions = {
   httpOnly: true,
@@ -28,9 +39,11 @@ const cookieOptions = {
   path: '/api/auth',
 };
 
-const issueTokens = (user, res) => {
+const issueTokens = async (user, res) => {
   const accessToken = signAccessToken(user._id);
   const refreshToken = signRefreshToken(user._id);
+  user.refreshTokenHash = hashToken(refreshToken);
+  await user.save({ validateBeforeSave: false });
   res.cookie(REFRESH_COOKIE, refreshToken, cookieOptions);
   return accessToken;
 };
@@ -69,7 +82,6 @@ export const register = async (req, res, next) => {
       if (exists.isEmailVerified) {
         return next(new AppError('هذا البريد الإلكتروني مسجّل مسبقاً', 409, 'email'));
       }
-      // Allow re-registering unverified accounts with fresh data + OTP
       exists.name = nameCheck.name;
       exists.password = password;
       exists.phone = phone;
@@ -123,14 +135,14 @@ export const verifyEmail = async (req, res, next) => {
     }
 
     const user = await User.findOne({ email }).select(
-      '+emailVerificationOTP +emailVerificationExpires +password'
+      '+emailVerificationOTP +emailVerificationExpires +password +refreshTokenHash'
     );
     if (!user) {
       return next(new AppError('لا يوجد حساب مرتبط بهذا البريد', 404, 'email'));
     }
 
     if (user.isEmailVerified) {
-      const accessToken = issueTokens(user, res);
+      const accessToken = await issueTokens(user, res);
       return res.json({
         success: true,
         message: 'الحساب مفعّل مسبقاً',
@@ -156,7 +168,7 @@ export const verifyEmail = async (req, res, next) => {
     user.emailVerificationExpires = null;
     await user.save({ validateBeforeSave: false });
 
-    const accessToken = issueTokens(user, res);
+    const accessToken = await issueTokens(user, res);
 
     res.json({
       success: true,
@@ -202,15 +214,14 @@ export const login = async (req, res, next) => {
     const email = normalizeEmail(req.body.email);
     const { password } = req.body;
 
-    const formatCheck = await validateEmailIdentity(email);
-    if (!formatCheck.ok) {
-      return next(new AppError(formatCheck.message, 400, 'email'));
+    if (!email || !isStrictEmailFormat(email)) {
+      return next(new AppError('صيغة البريد الإلكتروني غير صحيحة', 400, 'email'));
     }
 
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ email }).select('+password +refreshTokenHash');
     if (!user) {
       logger.security('محاولة دخول فاشلة — مستخدم غير موجود', { email });
-      return next(new AppError('هذا البريد الإلكتروني غير مسجّل في الموقع', 401, 'email'));
+      return next(new AppError(GENERIC_LOGIN_FAIL, 401));
     }
 
     if (user.role === 'student' && !user.isEmailVerified) {
@@ -226,7 +237,7 @@ export const login = async (req, res, next) => {
     if (user.isLocked) {
       logger.security('محاولة دخول على حساب مقفل', { email });
       return next(
-        new AppError('الحساب مقفل مؤقتاً بسبب محاولات فاشلة — حاول لاحقاً', 401, 'email')
+        new AppError('الحساب مقفل مؤقتاً بسبب محاولات فاشلة — حاول لاحقاً', 401)
       );
     }
 
@@ -234,12 +245,12 @@ export const login = async (req, res, next) => {
     if (!isMatch) {
       await user.incrementFailedAttempts();
       logger.security('محاولة دخول فاشلة — كلمة مرور خاطئة', { email });
-      return next(new AppError('كلمة المرور غير صحيحة', 401, 'password'));
+      return next(new AppError(GENERIC_LOGIN_FAIL, 401));
     }
 
     await user.resetFailedAttempts();
 
-    const accessToken = issueTokens(user, res);
+    const accessToken = await issueTokens(user, res);
 
     res.json({
       success: true,
@@ -257,14 +268,19 @@ export const refresh = async (req, res, next) => {
     if (!token) return next(new AppError('انتهت الجلسة — يرجى تسجيل الدخول', 401));
 
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-    const user = await User.findById(decoded.id);
+    const user = await User.findById(decoded.id).select('+refreshTokenHash');
     if (!user) return next(new AppError('المستخدم غير موجود', 401));
+
+    if (!user.refreshTokenHash || user.refreshTokenHash !== hashToken(token)) {
+      res.clearCookie(REFRESH_COOKIE, cookieOptions);
+      return next(new AppError('انتهت الجلسة — يرجى تسجيل الدخول', 401));
+    }
 
     if (user.role === 'student' && !user.isEmailVerified) {
       return next(new AppError('الحساب غير مفعّل', 403));
     }
 
-    const accessToken = signAccessToken(user._id);
+    const accessToken = await issueTokens(user, res);
     res.json({ success: true, accessToken });
   } catch {
     res.clearCookie(REFRESH_COOKIE, cookieOptions);
@@ -272,9 +288,100 @@ export const refresh = async (req, res, next) => {
   }
 };
 
-export const logout = (_req, res) => {
-  res.clearCookie(REFRESH_COOKIE, cookieOptions);
-  res.json({ success: true, message: 'تم تسجيل الخروج بنجاح' });
+export const logout = async (req, res, next) => {
+  try {
+    const token = req.cookies[REFRESH_COOKIE];
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+        const user = await User.findById(decoded.id).select('+refreshTokenHash');
+        if (user) {
+          user.refreshTokenHash = null;
+          await user.save({ validateBeforeSave: false });
+        }
+      } catch {
+        // ignore invalid cookie
+      }
+    }
+    res.clearCookie(REFRESH_COOKIE, cookieOptions);
+    res.json({ success: true, message: 'تم تسجيل الخروج بنجاح' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const forgotPassword = async (req, res, next) => {
+  try {
+    const email = normalizeEmail(req.body.email);
+    if (!email || !isStrictEmailFormat(email)) {
+      return next(new AppError('صيغة البريد الإلكتروني غير صحيحة', 400, 'email'));
+    }
+
+    const user = await User.findOne({ email });
+    const okMessage = 'إن وُجد حساب بهذا البريد فستصلك رسالة لإعادة تعيين كلمة المرور.';
+
+    if (!user) {
+      return res.json({ success: true, message: okMessage });
+    }
+
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    user.passwordResetToken = hashToken(rawToken);
+    user.passwordResetExpires = new Date(Date.now() + RESET_TTL_MS);
+    await user.save({ validateBeforeSave: false });
+
+    try {
+      await sendPasswordResetEmail({
+        to: user.email,
+        name: user.name,
+        token: rawToken,
+      });
+    } catch (err) {
+      user.passwordResetToken = null;
+      user.passwordResetExpires = null;
+      await user.save({ validateBeforeSave: false });
+      return next(err);
+    }
+
+    res.json({ success: true, message: okMessage });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const resetPassword = async (req, res, next) => {
+  try {
+    const { token, password } = req.body;
+    if (!token || !password) {
+      return next(new AppError('الرمز وكلمة المرور الجديدة مطلوبان', 400));
+    }
+    if (String(password).length < 8) {
+      return next(new AppError('كلمة المرور يجب أن تكون 8 أحرف على الأقل', 400, 'password'));
+    }
+
+    const user = await User.findOne({
+      passwordResetToken: hashToken(String(token)),
+      passwordResetExpires: { $gt: new Date() },
+    }).select('+passwordResetToken +passwordResetExpires +refreshTokenHash');
+
+    if (!user) {
+      return next(new AppError('رابط إعادة التعيين غير صالح أو منتهٍ', 400));
+    }
+
+    user.password = password;
+    user.passwordResetToken = null;
+    user.passwordResetExpires = null;
+    user.refreshTokenHash = null;
+    user.failedLoginAttempts = 0;
+    user.lockUntil = null;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'تم تحديث كلمة المرور بنجاح — يمكنك تسجيل الدخول الآن',
+    });
+  } catch (err) {
+    next(err);
+  }
 };
 
 export const getMe = async (req, res) => {

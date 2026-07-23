@@ -42,6 +42,19 @@ const Navbar = () => {
     return () => clearInterval(interval);
   }, [hasRealSession, user?.id]);
 
+  useEffect(() => {
+    setOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKey = (e) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
+
   const isActiveLink = (to) => {
     if (to === '/') {
       return location.pathname === '/' && !location.hash;
@@ -117,7 +130,7 @@ const Navbar = () => {
           </div>
         </Link>
 
-        <nav className={`navbar-links ${open ? 'open' : ''}`}>
+        <nav id="main-nav-menu" className={`navbar-links ${open ? 'open' : ''}`}>
           <div className="nav-menu">
             {extraLinks.map(({ to, label }) => (
               <Link
@@ -146,7 +159,13 @@ const Navbar = () => {
 
         <div className="navbar-actions desktop-only">{authActions}</div>
 
-        <button className="navbar-toggle" onClick={() => setOpen(!open)} aria-label="القائمة">
+        <button
+          className="navbar-toggle"
+          onClick={() => setOpen(!open)}
+          aria-label="القائمة"
+          aria-expanded={open}
+          aria-controls="main-nav-menu"
+        >
           {open ? <FiX /> : <FiMenu />}
         </button>
       </div>

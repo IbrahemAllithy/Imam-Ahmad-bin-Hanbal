@@ -1,31 +1,39 @@
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import AdminRoute from './components/AdminRoute';
-import Home from './pages/Home';
-import LectureCategories from './pages/LectureCategories';
-import Lectures from './pages/Lectures';
-import LectureDetail from './pages/LectureDetail';
-import CourseDetail from './pages/CourseDetail';
-import Articles from './pages/Articles';
-import ArticleDetail from './pages/ArticleDetail';
-import Books from './pages/Books';
-import BookDetail from './pages/BookDetail';
-import About from './pages/About';
-import Contact from './pages/Contact';
-import Register from './pages/Register';
-import Login from './pages/Login';
-import VerifyEmail from './pages/VerifyEmail';
-import Account from './pages/Account';
-import Certificates from './pages/Certificates';
-import CertificateView from './pages/CertificateView';
-import Notifications from './pages/Notifications';
-import Search from './pages/Search';
-import StartHere from './pages/StartHere';
-import AdminLogin from './pages/admin/AdminLogin';
-import AdminDashboard from './pages/admin/AdminDashboard';
+import ProtectedRoute from './components/ProtectedRoute';
+import Loader from './components/ui/Loader';
 
+/* ── Lazy-loaded pages ─────────────────────────────────── */
+const Home = lazy(() => import('./pages/Home'));
+const LectureCategories = lazy(() => import('./pages/LectureCategories'));
+const Lectures = lazy(() => import('./pages/Lectures'));
+const LectureDetail = lazy(() => import('./pages/LectureDetail'));
+const CourseDetail = lazy(() => import('./pages/CourseDetail'));
+const Articles = lazy(() => import('./pages/Articles'));
+const ArticleDetail = lazy(() => import('./pages/ArticleDetail'));
+const Books = lazy(() => import('./pages/Books'));
+const BookDetail = lazy(() => import('./pages/BookDetail'));
+const About = lazy(() => import('./pages/About'));
+const Contact = lazy(() => import('./pages/Contact'));
+const Register = lazy(() => import('./pages/Register'));
+const Login = lazy(() => import('./pages/Login'));
+const VerifyEmail = lazy(() => import('./pages/VerifyEmail'));
+const Account = lazy(() => import('./pages/Account'));
+const Certificates = lazy(() => import('./pages/Certificates'));
+const CertificateView = lazy(() => import('./pages/CertificateView'));
+const Notifications = lazy(() => import('./pages/Notifications'));
+const Search = lazy(() => import('./pages/Search'));
+const StartHere = lazy(() => import('./pages/StartHere'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+
+/* ── Scroll to top on navigation ───────────────────────── */
 const ScrollToTop = () => {
   const { pathname, search } = useLocation();
 
@@ -38,6 +46,7 @@ const ScrollToTop = () => {
   return null;
 };
 
+/* ── App ───────────────────────────────────────────────── */
 const App = () => {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
@@ -47,38 +56,52 @@ const App = () => {
       <ScrollToTop />
       {!isAdmin && <Navbar />}
       <main className="main-content">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/lectures" element={<Lectures />} />
-          <Route path="/lectures/categories" element={<LectureCategories />} />
-          <Route path="/lectures/list" element={<Lectures />} />
-          <Route path="/courses/:seriesName" element={<CourseDetail />} />
-          <Route path="/lectures/:id" element={<LectureDetail />} />
-          <Route path="/articles" element={<Articles />} />
-          <Route path="/articles/:id" element={<ArticleDetail />} />
-          <Route path="/books" element={<Books />} />
-          <Route path="/books/:id" element={<BookDetail />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/verify-email" element={<VerifyEmail />} />
-          <Route path="/account" element={<Account />} />
-          <Route path="/certificates" element={<Certificates />} />
-          <Route path="/certificates/:id" element={<CertificateView />} />
-          <Route path="/notifications" element={<Notifications />} />
-          <Route path="/search" element={<Search />} />
-          <Route path="/start" element={<StartHere />} />
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route
-            path="/admin"
-            element={
-              <AdminRoute>
-                <AdminDashboard />
-              </AdminRoute>
-            }
-          />
-        </Routes>
+        <Suspense fallback={<Loader />}>
+          <Routes>
+            {/* ── Public pages ────────────────────────── */}
+            <Route path="/" element={<Home />} />
+            <Route path="/lectures" element={<Lectures />} />
+            <Route path="/lectures/categories" element={<LectureCategories />} />
+            <Route path="/lectures/list" element={<Lectures />} />
+            <Route path="/courses/:seriesName" element={<CourseDetail />} />
+            <Route path="/lectures/:id" element={<LectureDetail />} />
+            <Route path="/articles" element={<Articles />} />
+            <Route path="/articles/:id" element={<ArticleDetail />} />
+            <Route path="/books" element={<Books />} />
+            <Route path="/books/:id" element={<BookDetail />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/search" element={<Search />} />
+            <Route path="/start" element={<StartHere />} />
+
+            {/* ── Auth pages (guest only) ─────────────── */}
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/verify-email" element={<VerifyEmail />} />
+
+            {/* ── Protected student pages ─────────────── */}
+            <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
+            <Route path="/certificates" element={<ProtectedRoute><Certificates /></ProtectedRoute>} />
+            <Route path="/certificates/:id" element={<ProtectedRoute><CertificateView /></ProtectedRoute>} />
+            <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+
+            {/* ── Admin pages ─────────────────────────── */}
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route
+              path="/admin"
+              element={
+                <AdminRoute>
+                  <AdminDashboard />
+                </AdminRoute>
+              }
+            />
+
+            {/* ── 404 catch-all ───────────────────────── */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
       </main>
       {!isAdmin && <Footer />}
     </div>

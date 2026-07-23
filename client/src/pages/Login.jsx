@@ -125,6 +125,10 @@ const Login = () => {
           </button>
 
           <p className="auth-switch">
+            <Link to="/forgot-password">نسيت كلمة المرور؟</Link>
+          </p>
+
+          <p className="auth-switch">
             ليس لديك حساب؟ <Link to="/register">سجّل حساباً جديداً</Link>
           </p>
         </form>

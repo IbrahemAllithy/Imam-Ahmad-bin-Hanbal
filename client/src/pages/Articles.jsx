@@ -1,19 +1,21 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useFetch } from '../hooks/useFetch';
+import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import ArticleCard from '../components/articles/ArticleCard';
 import Loader from '../components/ui/Loader';
 import './ListPages.css';
 
 const Articles = () => {
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebouncedValue(search, 400);
 
   const params = {
     limit: 15,
-    ...(search && { search }),
+    ...(debouncedSearch && { search: debouncedSearch }),
   };
 
-  const { data, loading, error } = useFetch('/articles', params, [search]);
+  const { data, loading, error } = useFetch('/articles', params, [debouncedSearch]);
 
   const articles = data?.data || [];
   const firstArticle = articles.length > 0 ? articles[0] : null;

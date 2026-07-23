@@ -82,7 +82,7 @@ export const DEFAULT_SITE_SETTINGS = {
     title: 'الموقع الرسمي للشيخ شعبان العودة',
     description:
       'الموقع الرسمي للشيخ شعبان العودة، يقدّم دروسًا وكتبًا ومقالات شرعية مبوّبة.',
-    email: 'info@imam-ahmad.com',
+    email: 'shbanalwdt48@gmail.com',
     socialLinks: [
       { label: 'تويتر / X', url: '' },
       { label: 'تيليجرام', url: '' },

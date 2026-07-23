@@ -2,65 +2,33 @@ import { createContext, useContext, useState, useEffect, useCallback } from 'rea
 import api from '../services/api';
 
 const AuthContext = createContext(null);
-const LOCAL_STUDENTS_KEY = 'registered_students_v1';
-const LOCAL_SESSION_KEY = 'student_session_v1';
 const PENDING_VERIFY_KEY = 'pending_email_verify_v1';
 
-const readLocalStudents = () => {
+/** Clear legacy offline-auth keys that bypassed real JWT sessions */
+const clearLegacyAuth = () => {
   try {
-    return JSON.parse(localStorage.getItem(LOCAL_STUDENTS_KEY) || '[]');
+    sessionStorage.removeItem('demo_admin_user');
+    sessionStorage.removeItem('student_session_v1');
+    localStorage.removeItem('registered_students_v1');
+    const token = sessionStorage.getItem('accessToken');
+    if (token && (token.startsWith('demo_') || token.startsWith('local_'))) {
+      sessionStorage.removeItem('accessToken');
+    }
   } catch {
-    return [];
+    // ignore
   }
 };
-
-const writeLocalStudents = (students) => {
-  localStorage.setItem(LOCAL_STUDENTS_KEY, JSON.stringify(students));
-};
-
-const toPublicUser = (user) => ({
-  id: user.id || user._id,
-  name: user.name,
-  email: user.email,
-  phone: user.phone || '',
-  country: user.country || '',
-  role: user.role || 'student',
-  isEmailVerified: Boolean(user.isEmailVerified),
-  createdAt: user.createdAt,
-});
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const checkAuth = useCallback(async () => {
-    // Clear legacy fake admin sessions — they cannot publish to the public site
-    const demoUser = sessionStorage.getItem('demo_admin_user');
-    const token = sessionStorage.getItem('accessToken');
-    if (demoUser || (token && String(token).startsWith('demo_'))) {
-      sessionStorage.removeItem('demo_admin_user');
-      sessionStorage.removeItem('accessToken');
-    }
-
-    const localSession = sessionStorage.getItem(LOCAL_SESSION_KEY);
-    if (localSession) {
-      try {
-        const parsed = JSON.parse(localSession);
-        if (parsed.role === 'student' && !parsed.isEmailVerified) {
-          sessionStorage.removeItem(LOCAL_SESSION_KEY);
-          sessionStorage.removeItem('accessToken');
-        } else {
-          setUser(parsed);
-          setLoading(false);
-          return;
-        }
-      } catch {
-        sessionStorage.removeItem(LOCAL_SESSION_KEY);
-      }
-    }
+    clearLegacyAuth();
 
     const accessToken = sessionStorage.getItem('accessToken');
-    if (!accessToken || accessToken.startsWith('demo_') || accessToken.startsWith('local_')) {
+    if (!accessToken) {
+      setUser(null);
       setLoading(false);
       return;
     }
@@ -89,7 +57,6 @@ export const AuthProvider = ({ children }) => {
     const { requireAdmin = false } = options;
     const normalizedEmail = (email || '').trim().toLowerCase();
 
-    // Always authenticate against the server so admin writes get a real JWT
     try {
       const { data } = await api.post('/auth/login', {
         email: normalizedEmail,
@@ -103,8 +70,7 @@ export const AuthProvider = ({ children }) => {
       }
 
       sessionStorage.setItem('accessToken', data.accessToken);
-      sessionStorage.removeItem('demo_admin_user');
-      sessionStorage.removeItem(LOCAL_SESSION_KEY);
+      clearLegacyAuth();
       setUser(data.user);
       return data;
     } catch (err) {
@@ -119,55 +85,6 @@ export const AuthProvider = ({ children }) => {
           },
         };
       }
-
-      // Preserve API verification / validation errors
-      if (err.response?.data?.field || err.response?.status === 403) {
-        throw err;
-      }
-
-      if (!requireAdmin) {
-        const localStudents = readLocalStudents();
-        const emailExists = localStudents.find((s) => s.email === normalizedEmail);
-        if (emailExists) {
-          if (!emailExists.isEmailVerified) {
-            throw {
-              response: {
-                data: {
-                  message: 'يجب تفعيل البريد الإلكتروني أولاً عبر رمز التأكيد',
-                  field: 'email',
-                  requiresVerification: true,
-                  email: normalizedEmail,
-                },
-              },
-            };
-          }
-          if (emailExists.password === password) {
-            const publicUser = toPublicUser({ ...emailExists, role: 'student' });
-            sessionStorage.setItem(LOCAL_SESSION_KEY, JSON.stringify(publicUser));
-            sessionStorage.setItem('accessToken', `local_${emailExists.id}`);
-            sessionStorage.removeItem('demo_admin_user');
-            setUser(publicUser);
-            return { success: true, user: publicUser, source: 'local' };
-          }
-          throw {
-            response: {
-              data: { message: 'كلمة المرور غير صحيحة', field: 'password' },
-            },
-          };
-        }
-
-        if (!err.response || err.response.status >= 500) {
-          throw {
-            response: {
-              data: {
-                message: 'هذا البريد الإلكتروني غير مسجّل في الموقع',
-                field: 'email',
-              },
-            },
-          };
-        }
-      }
-
       throw err;
     }
   };
@@ -184,10 +101,8 @@ export const AuthProvider = ({ children }) => {
 
     const { data } = await api.post('/auth/register', payload);
 
-    // Never auto-login before email verification
     sessionStorage.removeItem('accessToken');
-    sessionStorage.removeItem(LOCAL_SESSION_KEY);
-    sessionStorage.removeItem('demo_admin_user');
+    clearLegacyAuth();
     setUser(null);
 
     if (data.requiresVerification) {
@@ -211,8 +126,7 @@ export const AuthProvider = ({ children }) => {
 
     sessionStorage.setItem('accessToken', data.accessToken);
     sessionStorage.removeItem(PENDING_VERIFY_KEY);
-    sessionStorage.removeItem('demo_admin_user');
-    sessionStorage.removeItem(LOCAL_SESSION_KEY);
+    clearLegacyAuth();
     setUser(data.user);
     return data;
   };
@@ -234,8 +148,7 @@ export const AuthProvider = ({ children }) => {
       // ignore
     } finally {
       sessionStorage.removeItem('accessToken');
-      sessionStorage.removeItem('demo_admin_user');
-      sessionStorage.removeItem(LOCAL_SESSION_KEY);
+      clearLegacyAuth();
       setUser(null);
     }
   };
@@ -268,4 +181,4 @@ export const useAuth = () => {
   return ctx;
 };
 
-export { LOCAL_STUDENTS_KEY, PENDING_VERIFY_KEY };
+export { PENDING_VERIFY_KEY };

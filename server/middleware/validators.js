@@ -23,7 +23,11 @@ export const registerValidation = [
     .isLength({ min: 8 })
     .withMessage('كلمة المرور يجب أن تكون 8 أحرف على الأقل')
     .isLength({ max: 128 })
-    .withMessage('كلمة المرور طويلة جداً'),
+    .withMessage('كلمة المرور طويلة جداً')
+    .matches(/[a-zA-Z]/)
+    .withMessage('كلمة المرور يجب أن تحتوي على حرف إنجليزي واحد على الأقل')
+    .matches(/\d/)
+    .withMessage('كلمة المرور يجب أن تحتوي على رقم واحد على الأقل'),
   body('phone').optional({ checkFalsy: true }).trim().isLength({ max: 30 }).withMessage('رقم الهاتف طويل جداً'),
   body('country').optional({ checkFalsy: true }).trim().isLength({ max: 80 }).withMessage('اسم الدولة طويل جداً'),
   validate,

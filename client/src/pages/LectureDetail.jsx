@@ -36,6 +36,7 @@ const LectureDetail = () => {
   const [quizAnswers, setQuizAnswers] = useState({});
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [quizScore, setQuizScore] = useState(null);
+  const [quizPassed, setQuizPassed] = useState(false);
   const [loginHint, setLoginHint] = useState('');
   const [questionText, setQuestionText] = useState('');
   const [myQuestions, setMyQuestions] = useState([]);
@@ -81,7 +82,17 @@ const LectureDetail = () => {
     setQuizAnswers({});
     setQuizSubmitted(false);
     setQuizScore(null);
+    setQuizPassed(false);
   }, [id]);
+
+  useEffect(() => {
+    if (!showQuizModal) return undefined;
+    const onKey = (e) => {
+      if (e.key === 'Escape') setShowQuizModal(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [showQuizModal]);
 
   useEffect(() => {
     if (!canAskQuestion || !id) return;
@@ -104,9 +115,16 @@ const LectureDetail = () => {
       setLoginHint('');
       return;
     }
+    if (hasMcqQuiz) {
+      setShowQuizModal(true);
+      setLoginHint('أكمل الاختبار واجتزه بنسبة 60% على الأقل قبل إكمال الدرس.');
+      return;
+    }
     const result = await markComplete(id);
     if (result?.needsLogin) {
       setLoginHint('سجّل دخولك لحفظ التقدم على حسابك — التقدم محفوظ مؤقتاً على هذا الجهاز.');
+    } else if (result?.success === false) {
+      setLoginHint(result.message || 'تعذر حفظ التقدم');
     }
   };
 
@@ -116,21 +134,42 @@ const LectureDetail = () => {
       quizAnswers[idx] === undefined ? -1 : Number(quizAnswers[idx])
     );
 
+    const token = sessionStorage.getItem('accessToken');
+    if (!token || token.startsWith('local_') || token.startsWith('demo_')) {
+      setLoginHint('سجّل دخولك لتصحيح الاختبار وحفظ الدرجة على حسابك.');
+      return;
+    }
+
     try {
       const { data } = await api.post(`/lectures/${id}/quiz`, { answers });
       setQuizScore(data.data.score);
+      setQuizPassed(Boolean(data.data.passed));
       setQuizSubmitted(true);
+      if (!data.data.passed) {
+        setLoginHint(
+          `درجتك ${data.data.score}% — المطلوب ${data.data.passScore || 60}% على الأقل لإكمال الدرس.`
+        );
+      } else {
+        setLoginHint('');
+      }
     } catch (err) {
       setLoginHint(err.response?.data?.message || 'تعذر تصحيح الاختبار');
     }
   };
 
   const handleSaveWithQuiz = async () => {
+    if (quizScore == null || quizScore < 60) {
+      setLoginHint('يجب اجتياز الاختبار بنسبة 60% على الأقل قبل إكمال الدرس.');
+      return;
+    }
     const result = await markComplete(id, quizScore);
     if (result?.needsLogin) {
       setLoginHint('سجّل دخولك لحفظ نتيجة الاختبار والتقدم على حسابك.');
+    } else if (result?.success === false) {
+      setLoginHint(result.message || 'تعذر حفظ التقدم');
     } else if (result?.success) {
       setShowQuizModal(false);
+      setLoginHint('');
     }
   };
 
@@ -386,6 +425,20 @@ const LectureDetail = () => {
           </p>
         )}
 
+        {!isCurrentDone && hasMcqQuiz && (
+          <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
+            لإكمال هذا الدرس يجب اجتياز الاختبار بنسبة 60% على الأقل.
+          </p>
+        )}
+
+        {!canAskQuestion && (
+          <p style={{ textAlign: 'center', marginBottom: '1rem' }}>
+            <Link to="/login" style={{ fontWeight: 700, color: 'var(--accent-color)' }}>
+              سجّل دخولك لحفظ تقدمك والحصول على الشهادة
+            </Link>
+          </p>
+        )}
+
         <div className="sketch-bottom-action">
           <button
             type="button"
@@ -410,18 +463,28 @@ const LectureDetail = () => {
       </div>
 
       {showQuizModal && (
-        <div className="sketch-modal-overlay" onClick={() => setShowQuizModal(false)}>
-          <div className="sketch-modal-content" onClick={(e) => e.stopPropagation()}>
-            <h3>أسئلة واختبار الدرس</h3>
+        <div
+          className="sketch-modal-overlay"
+          onClick={() => setShowQuizModal(false)}
+          role="presentation"
+        >
+          <div
+            className="sketch-modal-content"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="quiz-dialog-title"
+          >
+            <h3 id="quiz-dialog-title">أسئلة واختبار الدرس</h3>
             <p className="sketch-modal-sub">اختبر معلوماتك وفهمك لمحتوى هذا المجلس المبارك:</p>
 
             {hasMcqQuiz ? (
               <div className="quiz-mcq-list" style={{ textAlign: 'right' }}>
                 {lecture.quizItems.map((item, idx) => (
-                  <div key={idx} style={{ marginBottom: '1.25rem' }}>
-                    <p style={{ fontWeight: 700, marginBottom: '0.5rem' }}>
+                  <fieldset key={idx} style={{ marginBottom: '1.25rem', border: 0, padding: 0 }}>
+                    <legend style={{ fontWeight: 700, marginBottom: '0.5rem' }}>
                       {idx + 1}. {item.question}
-                    </p>
+                    </legend>
                     {(item.options || []).map((opt, oIdx) => (
                       <label
                         key={oIdx}
@@ -445,7 +508,7 @@ const LectureDetail = () => {
                         {opt}
                       </label>
                     ))}
-                  </div>
+                  </fieldset>
                 ))}
 
                 {!quizSubmitted ? (
@@ -456,12 +519,13 @@ const LectureDetail = () => {
                   <div>
                     <p style={{ fontWeight: 700, color: 'var(--primary-text)' }}>
                       نتيجتك: {quizScore}%
+                      {quizPassed ? ' — ناجح' : ' — لم تجتز بعد'}
                     </p>
                     <button
                       type="button"
                       className="btn-quiz-start"
                       onClick={handleSaveWithQuiz}
-                      disabled={syncing}
+                      disabled={syncing || !quizPassed}
                       style={{ marginTop: '0.75rem' }}
                     >
                       حفظ النتيجة وإكمال الدرس

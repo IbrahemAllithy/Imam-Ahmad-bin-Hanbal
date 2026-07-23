@@ -42,6 +42,28 @@ const Contact = () => {
       </div>
 
       <div className="container contact-page">
+        {settings.footer?.email && (
+          <div
+            className="contact-email-banner"
+            style={{
+              marginBottom: '1.5rem',
+              padding: '1rem 1.25rem',
+              background: 'var(--white, #fff)',
+              border: '1px solid var(--primary-border, #e8dfd0)',
+              borderRadius: 12,
+              textAlign: 'center',
+            }}
+          >
+            <p style={{ margin: 0, color: 'var(--text-muted)' }}>البريد الرسمي للتواصل</p>
+            <a
+              href={`mailto:${settings.footer.email}`}
+              style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--accent-color, #6b4f2c)' }}
+            >
+              {settings.footer.email}
+            </a>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="contact-form">
           {status.message && (
             <div className={`alert alert-${status.type}`}>{status.message}</div>

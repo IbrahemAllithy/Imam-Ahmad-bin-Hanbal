@@ -38,7 +38,9 @@ const Footer = () => {
         <div>
           <div className="footer-col-title">تواصل معنا</div>
           <div className="footer-contact">
-            {footer.email && <span>{footer.email}</span>}
+            {footer.email && (
+              <a href={`mailto:${footer.email}`}>{footer.email}</a>
+            )}
             {(footer.socialLinks || []).map((link) =>
               link.url ? (
                 <a key={link.label} href={link.url} target="_blank" rel="noreferrer">

@@ -13,22 +13,29 @@ const seedAdmin = async () => {
 
   await connectDB();
 
-  const exists = await User.findOne({ email: ADMIN_EMAIL.toLowerCase() });
-  if (exists) {
-    console.log('ℹ️  حساب الأدمن موجود مسبقاً');
-    await mongoose.disconnect();
-    return;
+  const email = ADMIN_EMAIL.toLowerCase().trim();
+  let admin = await User.findOne({ email }).select('+password');
+
+  if (admin) {
+    admin.name = ADMIN_NAME || admin.name || 'مدير الموقع';
+    admin.role = 'admin';
+    admin.isEmailVerified = true;
+    admin.password = ADMIN_PASSWORD; // pre-save hook hashes it
+    admin.failedLoginAttempts = 0;
+    admin.lockUntil = undefined;
+    await admin.save();
+    console.log('✅ تم تحديث حساب الأدمن وكلمة المرور من .env');
+  } else {
+    await User.create({
+      name: ADMIN_NAME || 'مدير الموقع',
+      email,
+      password: ADMIN_PASSWORD,
+      role: 'admin',
+      isEmailVerified: true,
+    });
+    console.log('✅ تم إنشاء حساب الأدمن بنجاح');
   }
 
-  await User.create({
-    name: ADMIN_NAME || 'مدير الموقع',
-    email: ADMIN_EMAIL,
-    password: ADMIN_PASSWORD,
-    role: 'admin',
-    isEmailVerified: true,
-  });
-
-  console.log('✅ تم إنشاء حساب الأدمن بنجاح');
   await mongoose.disconnect();
 };
 

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import logger from '../utils/logger.js';
 
 const connectDB = async () => {
   const uri = process.env.MONGODB_URI;
@@ -7,7 +8,7 @@ const connectDB = async () => {
   }
 
   await mongoose.connect(uri);
-  console.log('✅ MongoDB متصل');
+  logger.info('MongoDB متصل بنجاح');
 };
 
 export default connectDB;

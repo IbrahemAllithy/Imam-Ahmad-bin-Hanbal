@@ -58,7 +58,11 @@ const CourseDetail = () => {
 
         {!isLoggedIn && (
           <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
-            سجّل دخولك لحفظ التقدم على حسابك
+            التقدم على هذا الجهاز مؤقت. سجّل دخولك لحفظه على حسابك والحصول على الشهادات والتنبيهات.
+            {' '}
+            <Link to="/login" style={{ fontWeight: 700, color: 'var(--accent-color)' }}>
+              سجّل دخولك لحفظ تقدمك
+            </Link>
           </p>
         )}
 

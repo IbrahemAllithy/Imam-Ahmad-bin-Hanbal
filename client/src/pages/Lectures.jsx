@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useFetch } from '../hooks/useFetch';
+import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { useSiteSettings } from '../context/SiteSettingsContext';
 import { FiCheckCircle, FiChevronDown, FiSearch } from 'react-icons/fi';
 import Loader from '../components/ui/Loader';
@@ -12,6 +13,7 @@ const Lectures = () => {
   const categories = settings.categories || [];
   const [category, setCategory] = useState('الكل');
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebouncedValue(search, 400);
   const [completedMap, setCompletedMap] = useState({});
 
   useEffect(() => {
@@ -40,10 +42,10 @@ const Lectures = () => {
   const params = {
     limit: 100,
     ...(category !== 'الكل' && { category }),
-    ...(search && { search }),
+    ...(debouncedSearch && { search: debouncedSearch }),
   };
 
-  const { data, loading, error } = useFetch('/lectures', params, [category, search]);
+  const { data, loading, error } = useFetch('/lectures', params, [category, debouncedSearch]);
 
   // Group lectures into Course/Series Bars
   const coursesList = useMemo(() => {

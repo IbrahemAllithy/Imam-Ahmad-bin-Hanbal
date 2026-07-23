@@ -19,6 +19,7 @@ const AdminQuestions = () => {
   const [replies, setReplies] = useState({});
   const [submitting, setSubmitting] = useState(null);
   const [success, setSuccess] = useState('');
+  const [actionError, setActionError] = useState('');
 
   const questions = data?.data || [];
 
@@ -27,6 +28,7 @@ const AdminQuestions = () => {
     if (!adminReply) return;
     setSubmitting(qId);
     setSuccess('');
+    setActionError('');
     try {
       await api.patch(`/lesson-questions/admin/${qId}`, {
         adminReply,
@@ -36,8 +38,7 @@ const AdminQuestions = () => {
       setReplies((prev) => ({ ...prev, [qId]: '' }));
       refetch();
     } catch (err) {
-      setSuccess('');
-      alert(err.response?.data?.message || 'فشل إرسال الرد');
+      setActionError(err.response?.data?.message || 'فشل إرسال الرد');
     } finally {
       setSubmitting(null);
     }
@@ -72,6 +73,7 @@ const AdminQuestions = () => {
       </div>
 
       {error && <div className="alert alert-error">{error}</div>}
+      {actionError && <div className="alert alert-error">{actionError}</div>}
       {success && <div className="alert alert-success">{success}</div>}
 
       {loading ? (

@@ -18,6 +18,7 @@ const Register = () => {
   const [fieldErrors, setFieldErrors] = useState({});
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (user?.role === 'student' && user?.isEmailVerified !== false) {
@@ -110,6 +111,7 @@ const Register = () => {
               maxLength={100}
               placeholder="مثال: أحمد محمد"
               className={fieldErrors.name ? 'input-error' : ''}
+              aria-invalid={Boolean(fieldErrors.name)}
             />
             {fieldErrors.name && <span className="field-error">{fieldErrors.name}</span>}
           </div>
@@ -124,6 +126,7 @@ const Register = () => {
               onChange={handleChange}
               placeholder="بريدك الشخصي مثل name@gmail.com"
               className={fieldErrors.email ? 'input-error' : ''}
+              aria-invalid={Boolean(fieldErrors.email)}
             />
             {fieldErrors.email && <span className="field-error">{fieldErrors.email}</span>}
           </div>
@@ -141,16 +144,28 @@ const Register = () => {
 
           <div className="form-group">
             <label htmlFor="password">كلمة المرور *</label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              value={form.password}
-              onChange={handleChange}
-              minLength={8}
-              placeholder="8 أحرف على الأقل"
-              className={fieldErrors.password ? 'input-error' : ''}
-            />
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                value={form.password}
+                onChange={handleChange}
+                minLength={8}
+                placeholder="8 أحرف على الأقل"
+                className={fieldErrors.password ? 'input-error' : ''}
+                aria-invalid={Boolean(fieldErrors.password)}
+                style={{ flex: 1 }}
+              />
+              <button
+                type="button"
+                className="btn btn-outline"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
+              >
+                {showPassword ? 'إخفاء' : 'إظهار'}
+              </button>
+            </div>
             {fieldErrors.password && <span className="field-error">{fieldErrors.password}</span>}
           </div>
 
@@ -159,11 +174,12 @@ const Register = () => {
             <input
               id="confirmPassword"
               name="confirmPassword"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               value={form.confirmPassword}
               onChange={handleChange}
               minLength={8}
               className={fieldErrors.confirmPassword ? 'input-error' : ''}
+              aria-invalid={Boolean(fieldErrors.confirmPassword)}
             />
             {fieldErrors.confirmPassword && (
               <span className="field-error">{fieldErrors.confirmPassword}</span>

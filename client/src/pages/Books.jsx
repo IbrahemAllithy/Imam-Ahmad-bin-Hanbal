@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useFetch } from '../hooks/useFetch';
+import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { useSiteSettings } from '../context/SiteSettingsContext';
 import BookCard from '../components/books/BookCard';
 import Loader from '../components/ui/Loader';
@@ -11,14 +12,15 @@ const Books = () => {
   const categories = settings.categories || [];
   const [category, setCategory] = useState('الكل');
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebouncedValue(search, 400);
 
   const params = {
     limit: 50,
     ...(category !== 'الكل' && { category }),
-    ...(search && { search }),
+    ...(debouncedSearch && { search: debouncedSearch }),
   };
 
-  const { data, loading, error } = useFetch('/books', params, [category, search]);
+  const { data, loading, error } = useFetch('/books', params, [category, debouncedSearch]);
 
   return (
     <div className="list-page-wrapper">

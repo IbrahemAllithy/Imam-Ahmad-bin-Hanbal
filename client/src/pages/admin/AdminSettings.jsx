@@ -425,8 +425,16 @@ const AdminSettings = () => {
                 <input value={form.footer.title} onChange={(e) => updatePath('footer.title', e.target.value)} />
               </div>
               <div className="form-group">
-                <label>البريد</label>
-                <input value={form.footer.email} onChange={(e) => updatePath('footer.email', e.target.value)} />
+                <label>البريد الرسمي للتواصل</label>
+                <input
+                  type="email"
+                  value={form.footer.email}
+                  onChange={(e) => updatePath('footer.email', e.target.value)}
+                  placeholder="shbanalwdt48@gmail.com"
+                />
+                <small style={{ color: 'var(--text-muted)' }}>
+                  يظهر في الفوتر وصفحة التواصل، وتُرسل إليه رسائل نموذج التواصل
+                </small>
               </div>
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                 <label>وصف الفوتر</label>
@@ -541,6 +549,18 @@ const AdminSettings = () => {
 
         {section === 'contact' && (
           <div className="form-grid">
+            <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+              <label>البريد الإلكتروني لاستقبال الرسائل</label>
+              <input
+                type="email"
+                value={form.footer.email}
+                onChange={(e) => updatePath('footer.email', e.target.value)}
+                placeholder="shbanalwdt48@gmail.com"
+              />
+              <small style={{ color: 'var(--text-muted)', display: 'block', marginTop: 4 }}>
+                📧 يظهر في الفوتر وصفحة التواصل، وتُرسل إليه رسائل نموذج التواصل تلقائياً عبر البريد
+              </small>
+            </div>
             <div className="form-group">
               <label>عنوان صفحة التواصل</label>
               <input

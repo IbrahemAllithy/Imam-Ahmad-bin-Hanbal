@@ -69,9 +69,12 @@ const Certificates = () => {
               </Link>
             ))
           ) : (
-            <p className="platform-empty">
-              لم تحصل على شهادات بعد. أكمل جميع دروس إحدى الدورات للحصول على شهادة.
-            </p>
+            <div className="platform-empty" style={{ textAlign: 'center' }}>
+              <p>لم تحصل على شهادات بعد. أكمل جميع دروس إحدى الدورات (مع اجتياز الاختبارات إن وُجدت).</p>
+              <Link to="/start" className="btn btn-primary" style={{ marginTop: '1rem', display: 'inline-block' }}>
+                تابع دورتك من هنا
+              </Link>
+            </div>
           )}
         </div>
       </div>

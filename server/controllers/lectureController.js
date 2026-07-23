@@ -139,10 +139,11 @@ export const gradeLectureQuiz = async (req, res, next) => {
     });
 
     const score = Math.round((correct / items.length) * 100);
+    const passScore = 60;
 
     res.json({
       success: true,
-      data: { score, correct, total: items.length },
+      data: { score, correct, total: items.length, passed: score >= passScore, passScore },
     });
   } catch (err) {
     next(err);

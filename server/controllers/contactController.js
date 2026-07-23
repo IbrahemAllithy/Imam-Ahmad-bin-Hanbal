@@ -1,9 +1,36 @@
 import Contact from '../models/Contact.js';
+import SiteSettings from '../models/SiteSettings.js';
 import AppError from '../utils/AppError.js';
+import { sendContactNotificationEmail } from '../utils/mailer.js';
+import logger from '../utils/logger.js';
 
 export const submitContact = async (req, res, next) => {
   try {
     const contact = await Contact.create(req.body);
+
+    // Notify the public contact email (site settings) without blocking the visitor
+    try {
+      const settings = await SiteSettings.getSingleton();
+      const to =
+        process.env.CONTACT_EMAIL ||
+        settings.footer?.email ||
+        process.env.SMTP_USER;
+
+      if (to) {
+        sendContactNotificationEmail({
+          to,
+          name: contact.name,
+          email: contact.email,
+          subject: contact.subject,
+          message: contact.message,
+        }).catch((err) =>
+          logger.error('فشل إشعار بريد التواصل', { error: err.message })
+        );
+      }
+    } catch (err) {
+      logger.error('تعذر قراءة إعدادات بريد التواصل', { error: err.message });
+    }
+
     res.status(201).json({
       success: true,
       message: 'تم إرسال رسالتك بنجاح — جزاك الله خيراً',

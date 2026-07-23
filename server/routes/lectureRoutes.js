@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import rateLimit from 'express-rate-limit';
 import {
   getLectures,
   getLecture,
@@ -17,10 +18,30 @@ import {
 
 const router = Router();
 
+const quizLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: process.env.NODE_ENV === 'production' ? 40 : 120,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (_req, res) => {
+    res.status(429).json({
+      success: false,
+      message: 'تجاوزت عدد محاولات الاختبار — حاول لاحقاً',
+    });
+  },
+});
+
 router.get('/', optionalAuth, listQueryValidation, getLectures);
 router.get('/series/list', getSeries);
 router.get('/:id', mongoIdParam, getLecture);
-router.post('/:id/quiz', mongoIdParam, gradeLectureQuiz);
+router.post(
+  '/:id/quiz',
+  quizLimiter,
+  protect,
+  restrictTo('student', 'admin'),
+  mongoIdParam,
+  gradeLectureQuiz
+);
 
 router.use(protect, restrictTo('admin'));
 router.post('/', lectureValidation, createLecture);

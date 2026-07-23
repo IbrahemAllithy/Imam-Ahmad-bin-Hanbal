@@ -33,8 +33,8 @@ const Notifications = () => {
     try {
       await api.patch(`/notifications/${id}/read`);
       setItems((prev) => prev.map((n) => (n._id === id ? { ...n, read: true } : n)));
-    } catch {
-      // ignore
+    } catch (err) {
+      setError(err.response?.data?.message || 'تعذر تعليم التنبيه كمقروء');
     }
   };
 
@@ -42,8 +42,8 @@ const Notifications = () => {
     try {
       await api.patch('/notifications/read-all');
       setItems((prev) => prev.map((n) => ({ ...n, read: true })));
-    } catch {
-      // ignore
+    } catch (err) {
+      setError(err.response?.data?.message || 'تعذر تعليم التنبيهات كمقروءة');
     }
   };
 
@@ -102,7 +102,12 @@ const Notifications = () => {
               </div>
             ))
           ) : (
-            <p className="platform-empty">لا توجد تنبيهات حالياً.</p>
+            <div className="platform-empty" style={{ textAlign: 'center' }}>
+              <p>لا توجد تنبيهات حالياً. عند نشر درس أو مقال أو كتاب جديد ستظهر هنا.</p>
+              <Link to="/lectures" className="btn btn-outline" style={{ marginTop: '1rem', display: 'inline-block' }}>
+                تابع الدورات
+              </Link>
+            </div>
           )}
         </div>
       </div>
