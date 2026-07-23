@@ -92,11 +92,37 @@ export const mongoIdParam = [
 ];
 
 export const listQueryValidation = [
-  query('page').optional({ checkFalsy: true }).isInt({ min: 1 }).withMessage('رقم الصفحة غير صالح'),
-  query('limit').optional({ checkFalsy: true }).isInt({ min: 1, max: 1000 }).withMessage('حد العرض غير صالح'),
-  query('category').optional({ checkFalsy: true }).trim().isLength({ max: 100 }).withMessage('التصنيف غير صالح'),
-  query('series').optional({ checkFalsy: true }).trim().isLength({ max: 150 }).withMessage('اسم السلسلة غير صالح'),
-  query('search').optional({ checkFalsy: true }).trim().isLength({ max: 100 }).withMessage('نص البحث طويل جداً'),
-  query('all').optional({ checkFalsy: true }).isIn(['0', '1']).withMessage('قيمة all غير صالحة'),
+  query('page')
+    .optional({ values: 'falsy' })
+    .isInt({ min: 1 })
+    .withMessage('رقم الصفحة غير صالح')
+    .toInt(),
+  query('limit')
+    .optional({ values: 'falsy' })
+    .isInt({ min: 1, max: 1000 })
+    .withMessage('حد العرض غير صالح')
+    .toInt(),
+  query('category')
+    .optional({ values: 'falsy' })
+    .customSanitizer((value) => (Array.isArray(value) ? value[value.length - 1] : value))
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage('التصنيف غير صالح'),
+  query('series')
+    .optional({ values: 'falsy' })
+    .customSanitizer((value) => (Array.isArray(value) ? value[value.length - 1] : value))
+    .trim()
+    .isLength({ max: 150 })
+    .withMessage('اسم السلسلة غير صالح'),
+  query('search')
+    .optional({ values: 'falsy' })
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage('نص البحث طويل جداً'),
+  query('all')
+    .optional({ values: 'falsy' })
+    .customSanitizer((value) => String(value))
+    .isIn(['0', '1', 'true', 'false'])
+    .withMessage('قيمة all غير صالحة'),
   validate,
 ];

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import api from '../services/api';
 import { getFallbackData } from '../utils/fallbackData';
 
@@ -17,58 +17,81 @@ const clearStaleLocalContent = () => {
   }
 };
 
-export const useFetch = (url, params = {}, deps = []) => {
+export const useFetch = (url, params = {}, _deps = []) => {
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(Boolean(url));
   const [error, setError] = useState(null);
-
-  const fetchData = useCallback(async () => {
-    if (!url) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    try {
-      const { data: res } = await api.get(url, { params });
-      if (res && res.data !== undefined) {
-        // Successful API = source of truth for public display
-        if (url.startsWith('/lectures') || url.startsWith('/books')) {
-          clearStaleLocalContent();
-        }
-        setData(res);
-      } else {
-        setError('لم يتم العثور على بيانات');
-      }
-    } catch (err) {
-      const status = err.response?.status;
-      // Only use demo fallback when the server is unreachable
-      const offline = !err.response;
-      if (offline) {
-        const fallback = getFallbackData(url, params);
-        if (fallback) {
-          setData(fallback);
-          setError(null);
-        } else {
-          setError(err.response?.data?.message || 'حدث خطأ أثناء جلب البيانات');
-        }
-      } else {
-        setError(
-          err.response?.data?.message ||
-            (status === 401
-              ? 'يجب تسجيل الدخول بحساب إدارة حقيقي'
-              : 'حدث خطأ أثناء جلب البيانات')
-        );
-        setData(null);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [url, JSON.stringify(params)]);
+  const [tick, setTick] = useState(0);
+  const paramsKey = JSON.stringify(params || {});
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData, ...deps]);
+    if (!url) {
+      setLoading(false);
+      return undefined;
+    }
 
-  return { data, loading, error, refetch: fetchData };
+    const controller = new AbortController();
+    const requestId = ++requestIdRef.current;
+    const parsedParams = JSON.parse(paramsKey);
+
+    const run = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const { data: res } = await api.get(url, {
+          params: parsedParams,
+          signal: controller.signal,
+        });
+        if (requestId !== requestIdRef.current) return;
+
+        if (res && res.data !== undefined) {
+          if (url.startsWith('/lectures') || url.startsWith('/books')) {
+            clearStaleLocalContent();
+          }
+          setData(res);
+        } else {
+          setError('لم يتم العثور على بيانات');
+        }
+      } catch (err) {
+        if (controller.signal.aborted || err?.code === 'ERR_CANCELED') return;
+        if (requestId !== requestIdRef.current) return;
+
+        const status = err.response?.status;
+        const offline = !err.response;
+        if (offline) {
+          const fallback = getFallbackData(url, parsedParams);
+          if (fallback) {
+            setData(fallback);
+            setError(null);
+          } else {
+            setError('حدث خطأ أثناء جلب البيانات');
+          }
+        } else {
+          setError(
+            err.response?.data?.message ||
+              (status === 401
+                ? 'يجب تسجيل الدخول بحساب إدارة حقيقي'
+                : 'حدث خطأ أثناء جلب البيانات')
+          );
+          setData(null);
+        }
+      } finally {
+        if (requestId === requestIdRef.current && !controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    run();
+    return () => {
+      controller.abort();
+    };
+  }, [url, paramsKey, tick]);
+
+  const refetch = useCallback(() => {
+    setTick((t) => t + 1);
+  }, []);
+
+  return { data, loading, error, refetch };
 };

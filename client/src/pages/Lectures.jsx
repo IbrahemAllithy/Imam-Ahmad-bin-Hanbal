@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useFetch } from '../hooks/useFetch';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { useSiteSettings } from '../context/SiteSettingsContext';
@@ -7,23 +7,23 @@ import { FiCheckCircle, FiChevronDown, FiSearch } from 'react-icons/fi';
 import Loader from '../components/ui/Loader';
 import './ListPages.css';
 
+const categoryFromSearch = (search) => {
+  const cat = new URLSearchParams(search).get('category');
+  return cat && cat.trim() ? cat.trim() : 'الكل';
+};
+
 const Lectures = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { settings } = useSiteSettings();
   const categories = settings.categories || [];
-  const [category, setCategory] = useState('الكل');
+  const [category, setCategory] = useState(() => categoryFromSearch(location.search));
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebouncedValue(search, 400);
   const [completedMap, setCompletedMap] = useState({});
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const cat = params.get('category');
-    if (cat) {
-      setCategory(cat);
-    } else {
-      setCategory('الكل');
-    }
+    setCategory(categoryFromSearch(location.search));
   }, [location.search]);
 
   // Load completion states
@@ -45,7 +45,7 @@ const Lectures = () => {
     ...(debouncedSearch && { search: debouncedSearch }),
   };
 
-  const { data, loading, error } = useFetch('/lectures', params, [category, debouncedSearch]);
+  const { data, loading, error } = useFetch('/lectures', params);
 
   // Group lectures into Course/Series Bars
   const coursesList = useMemo(() => {
@@ -129,7 +129,15 @@ const Lectures = () => {
 
             <select
               value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              onChange={(e) => {
+                const next = e.target.value;
+                setCategory(next);
+                if (next === 'الكل') {
+                  navigate('/lectures');
+                } else {
+                  navigate(`/lectures?category=${encodeURIComponent(next)}`);
+                }
+              }}
               className="category-dropdown-select"
             >
               <option value="الكل">عرض الكل</option>

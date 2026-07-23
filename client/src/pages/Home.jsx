@@ -129,7 +129,7 @@ const Home = () => {
               {categories.map((cat) => (
                 <Link
                   key={cat.id || cat.name}
-                  to={`/lectures?category=${cat.name}`}
+                  to={`/lectures?category=${encodeURIComponent(cat.name)}`}
                   className="category-card"
                 >
                   <div className="category-icon">
