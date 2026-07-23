@@ -27,10 +27,36 @@ const userSchema = new mongoose.Schema(
       minlength: [8, 'كلمة المرور يجب أن تكون 8 أحرف على الأقل'],
       select: false,
     },
+    phone: {
+      type: String,
+      trim: true,
+      maxlength: [30, 'رقم الهاتف طويل جداً'],
+      default: '',
+    },
+    country: {
+      type: String,
+      trim: true,
+      maxlength: [80, 'اسم الدولة طويل جداً'],
+      default: '',
+    },
     role: {
       type: String,
-      enum: ['admin'],
-      default: 'admin',
+      enum: ['admin', 'student'],
+      default: 'student',
+    },
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    emailVerificationOTP: {
+      type: String,
+      select: false,
+      default: null,
+    },
+    emailVerificationExpires: {
+      type: Date,
+      select: false,
+      default: null,
     },
     failedLoginAttempts: {
       type: Number,
@@ -43,6 +69,9 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+userSchema.index({ role: 1, createdAt: -1 });
+userSchema.index({ email: 1, isEmailVerified: 1 });
 
 userSchema.virtual('isLocked').get(function isLocked() {
   return this.lockUntil && this.lockUntil > Date.now();
@@ -71,6 +100,19 @@ userSchema.methods.resetFailedAttempts = async function resetFailedAttempts() {
   this.failedLoginAttempts = 0;
   this.lockUntil = null;
   await this.save({ validateBeforeSave: false });
+};
+
+userSchema.methods.toSafeJSON = function toSafeJSON() {
+  return {
+    id: this._id,
+    name: this.name,
+    email: this.email,
+    phone: this.phone || '',
+    country: this.country || '',
+    role: this.role,
+    isEmailVerified: Boolean(this.isEmailVerified),
+    createdAt: this.createdAt,
+  };
 };
 
 const User = mongoose.model('User', userSchema);

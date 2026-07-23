@@ -25,6 +25,7 @@ const seedAdmin = async () => {
     email: ADMIN_EMAIL,
     password: ADMIN_PASSWORD,
     role: 'admin',
+    isEmailVerified: true,
   });
 
   console.log('✅ تم إنشاء حساب الأدمن بنجاح');

@@ -10,6 +10,7 @@ import {
   FiExternalLink,
   FiLogOut,
   FiSettings,
+  FiUsers,
 } from 'react-icons/fi';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import AdminOverview from './AdminOverview';
@@ -18,6 +19,7 @@ import AdminArticles from './AdminArticles';
 import AdminBooks from './AdminBooks';
 import AdminContacts from './AdminContacts';
 import AdminSettings from './AdminSettings';
+import AdminStudents from './AdminStudents';
 import './Admin.css';
 
 const NAV_ITEMS = [
@@ -25,6 +27,7 @@ const NAV_ITEMS = [
   { id: 'lectures', label: 'المحاضرات', icon: FiVideo },
   { id: 'articles', label: 'المقالات', icon: FiFileText },
   { id: 'books', label: 'الكتب', icon: FiBook },
+  { id: 'students', label: 'الطلاب', icon: FiUsers },
   { id: 'contacts', label: 'الرسائل', icon: FiMail },
   { id: 'settings', label: 'إعدادات الموقع', icon: FiSettings },
 ];
@@ -79,6 +82,7 @@ const AdminDashboard = () => {
         {tab === 'lectures' && <AdminLectures />}
         {tab === 'articles' && <AdminArticles />}
         {tab === 'books' && <AdminBooks />}
+        {tab === 'students' && <AdminStudents />}
         {tab === 'contacts' && <AdminContacts />}
         {tab === 'settings' && <AdminSettings />}
       </main>

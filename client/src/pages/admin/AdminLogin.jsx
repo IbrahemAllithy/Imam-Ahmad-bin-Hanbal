@@ -19,7 +19,7 @@ const AdminLogin = () => {
     setError('');
     setLoading(true);
     try {
-      await login(email, password);
+      await login(email, password, { requireAdmin: true });
       navigate(from, { replace: true });
     } catch (err) {
       setError(err.response?.data?.message || 'بيانات الدخول غير صحيحة');

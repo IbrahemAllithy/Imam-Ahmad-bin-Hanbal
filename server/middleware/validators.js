@@ -16,6 +16,30 @@ export const loginValidation = [
   validate,
 ];
 
+export const registerValidation = [
+  body('name').trim().notEmpty().withMessage('الاسم مطلوب').isLength({ min: 3, max: 100 }).withMessage('الاسم يجب أن يكون بين 3 و100 حرف'),
+  body('email').trim().isEmail().withMessage('صيغة البريد الإلكتروني غير صحيحة'),
+  body('password')
+    .isLength({ min: 8 })
+    .withMessage('كلمة المرور يجب أن تكون 8 أحرف على الأقل')
+    .isLength({ max: 128 })
+    .withMessage('كلمة المرور طويلة جداً'),
+  body('phone').optional({ checkFalsy: true }).trim().isLength({ max: 30 }).withMessage('رقم الهاتف طويل جداً'),
+  body('country').optional({ checkFalsy: true }).trim().isLength({ max: 80 }).withMessage('اسم الدولة طويل جداً'),
+  validate,
+];
+
+export const verifyEmailValidation = [
+  body('email').trim().isEmail().withMessage('صيغة البريد الإلكتروني غير صحيحة'),
+  body('otp').trim().notEmpty().withMessage('رمز التفعيل مطلوب').isLength({ min: 4, max: 8 }).withMessage('رمز التفعيل غير صالح'),
+  validate,
+];
+
+export const resendOtpValidation = [
+  body('email').trim().isEmail().withMessage('صيغة البريد الإلكتروني غير صحيحة'),
+  validate,
+];
+
 export const lectureValidation = [
   body('title').trim().notEmpty().withMessage('عنوان المحاضرة مطلوب').isLength({ max: 200 }).withMessage('العنوان طويل جداً'),
   body('youtubeUrl')

@@ -99,7 +99,7 @@ export const getFallbackData = (url, params = {}) => {
     return {
       success: true,
       data: {
-        counts: { lectures: 6, articles: 4, books: 3, contacts: 2, unreadContacts: 1 },
+        counts: { lectures: 6, articles: 4, books: 3, contacts: 2, unreadContacts: 1, students: 2 },
         recent: {
           lectures: [
             { _id: 'demo-aqeedah-1', title: 'التعليق على كتاب القواعد المثلى — المجلس (1)', category: 'العقيدة', createdAt: new Date().toISOString() },
@@ -113,6 +113,9 @@ export const getFallbackData = (url, params = {}) => {
           ],
           contacts: [
             { _id: 'c-1', name: 'إبراهيم الليثي', subject: 'استفسار حول دورة القواعد المثلى', read: false, createdAt: new Date().toISOString() }
+          ],
+          students: [
+            { _id: 'st-1', name: 'أحمد محمد', email: 'ahmad@example.com', phone: '', country: 'مصر', createdAt: new Date().toISOString() }
           ]
         }
       }
@@ -144,6 +147,28 @@ export const getFallbackData = (url, params = {}) => {
         }
       ],
       pagination: { page: 1, limit: 10, total: 2, pages: 1 }
+    };
+  }
+
+  if (url.startsWith('/admin/students')) {
+    let local = [];
+    try {
+      local = JSON.parse(localStorage.getItem('registered_students_v1') || '[]');
+    } catch {
+      local = [];
+    }
+    const data = local.map((s) => ({
+      _id: s.id,
+      name: s.name,
+      email: s.email,
+      phone: s.phone || '',
+      country: s.country || '',
+      createdAt: s.createdAt,
+    }));
+    return {
+      success: true,
+      data,
+      pagination: { page: 1, limit: 50, total: data.length, pages: 1 },
     };
   }
 

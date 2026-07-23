@@ -442,7 +442,13 @@
   color: var(--text-muted);
 }
 
-/* Forms & tables */
+.admin-table-wrap {
+  overflow-x: auto;
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
 .admin-form {
   background: var(--white);
   padding: 1.5rem;

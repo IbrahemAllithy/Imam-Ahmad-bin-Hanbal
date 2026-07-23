@@ -14,6 +14,10 @@ import Books from './pages/Books';
 import BookDetail from './pages/BookDetail';
 import About from './pages/About';
 import Contact from './pages/Contact';
+import Register from './pages/Register';
+import Login from './pages/Login';
+import VerifyEmail from './pages/VerifyEmail';
+import Account from './pages/Account';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 
@@ -51,6 +55,10 @@ const App = () => {
           <Route path="/books/:id" element={<BookDetail />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/account" element={<Account />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route
             path="/admin"

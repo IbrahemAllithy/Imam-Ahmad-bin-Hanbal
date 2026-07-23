@@ -43,6 +43,7 @@ export const errorHandler = (err, _req, res, _next) => {
   res.status(statusCode).json({
     success: false,
     message: isProd && statusCode >= 500 ? 'حدث خطأ في الخادم' : error.message,
+    ...(error.field || err.field ? { field: error.field || err.field } : {}),
     ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
   });
 };

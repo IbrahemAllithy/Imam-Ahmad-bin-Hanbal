@@ -2,36 +2,91 @@ import Lecture from '../models/Lecture.js';
 import Article from '../models/Article.js';
 import Book from '../models/Book.js';
 import Contact from '../models/Contact.js';
+import User from '../models/User.js';
+import AppError from '../utils/AppError.js';
 
 export const getStats = async (_req, res, next) => {
   try {
-    const [lectures, articles, books, contacts, unreadContacts] = await Promise.all([
+    const [lectures, articles, books, contacts, unreadContacts, students] = await Promise.all([
       Lecture.countDocuments(),
       Article.countDocuments(),
       Book.countDocuments(),
       Contact.countDocuments(),
       Contact.countDocuments({ read: false }),
+      User.countDocuments({ role: 'student' }),
     ]);
 
-    const [recentLectures, recentArticles, recentBooks, recentContacts] = await Promise.all([
-      Lecture.find().sort({ createdAt: -1 }).limit(5).select('title category createdAt'),
-      Article.find().sort({ createdAt: -1 }).limit(5).select('title category createdAt'),
-      Book.find().sort({ createdAt: -1 }).limit(5).select('title author createdAt'),
-      Contact.find().sort({ createdAt: -1 }).limit(5).select('name subject read createdAt'),
-    ]);
+    const [recentLectures, recentArticles, recentBooks, recentContacts, recentStudents] =
+      await Promise.all([
+        Lecture.find().sort({ createdAt: -1 }).limit(5).select('title category createdAt'),
+        Article.find().sort({ createdAt: -1 }).limit(5).select('title category createdAt'),
+        Book.find().sort({ createdAt: -1 }).limit(5).select('title author createdAt'),
+        Contact.find().sort({ createdAt: -1 }).limit(5).select('name subject read createdAt'),
+        User.find({ role: 'student' })
+          .sort({ createdAt: -1 })
+          .limit(5)
+          .select('name email phone country createdAt'),
+      ]);
 
     res.json({
       success: true,
       data: {
-        counts: { lectures, articles, books, contacts, unreadContacts },
+        counts: { lectures, articles, books, contacts, unreadContacts, students },
         recent: {
           lectures: recentLectures,
           articles: recentArticles,
           books: recentBooks,
           contacts: recentContacts,
+          students: recentStudents,
         },
       },
     });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getStudents = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = Math.min(parseInt(req.query.limit, 10) || 50, 100);
+    const skip = (page - 1) * limit;
+    const search = (req.query.search || '').trim();
+
+    const filter = { role: 'student' };
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { phone: { $regex: search, $options: 'i' } },
+        { country: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    const [students, total] = await Promise.all([
+      User.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .select('name email phone country createdAt'),
+      User.countDocuments(filter),
+    ]);
+
+    res.json({
+      success: true,
+      data: students,
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const deleteStudent = async (req, res, next) => {
+  try {
+    const student = await User.findOneAndDelete({ _id: req.params.id, role: 'student' });
+    if (!student) return next(new AppError('الطالب غير موجود', 404));
+    res.json({ success: true, message: 'تم حذف حساب الطالب' });
   } catch (err) {
     next(err);
   }

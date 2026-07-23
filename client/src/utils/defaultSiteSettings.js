@@ -76,7 +76,7 @@ export const DEFAULT_SITE_SETTINGS = {
       { to: '/contact', label: 'التواصل والتسجيل' },
     ],
     ctaText: 'سجّل الآن',
-    ctaLink: '/contact',
+    ctaLink: '/register',
   },
   footer: {
     title: 'الموقع الرسمي للشيخ شعبان العودة',

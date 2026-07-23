@@ -7,6 +7,7 @@ import {
   FiBook,
   FiMail,
   FiInbox,
+  FiUsers,
 } from 'react-icons/fi';
 
 const AdminOverview = ({ onNavigate }) => {
@@ -21,6 +22,7 @@ const AdminOverview = ({ onNavigate }) => {
     { id: 'lectures', label: 'المحاضرات', value: counts.lectures, icon: FiVideo, color: '#2f7bd3' },
     { id: 'articles', label: 'المقالات', value: counts.articles, icon: FiFileText, color: '#1e4e8c' },
     { id: 'books', label: 'الكتب', value: counts.books, icon: FiBook, color: '#d4a94e' },
+    { id: 'students', label: 'الطلاب', value: counts.students || 0, icon: FiUsers, color: '#6b4f2c' },
     { id: 'contacts', label: 'الرسائل', value: counts.contacts, icon: FiMail, color: '#0c2d57', badge: counts.unreadContacts },
   ];
 

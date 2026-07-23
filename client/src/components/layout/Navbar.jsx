@@ -1,13 +1,16 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { FiMenu, FiX } from 'react-icons/fi';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
+import { useAuth } from '../../context/AuthContext';
 import './Navbar.css';
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { settings, sheikhImage } = useSiteSettings();
+  const { user, logout, isStudent, isAdmin } = useAuth();
   const links = settings.navbar?.links || [];
   const { siteName, siteSubtitle } = settings.branding || {};
 
@@ -20,6 +23,39 @@ const Navbar = () => {
     }
     return location.pathname.startsWith(to);
   };
+
+  const handleLogout = async () => {
+    await logout();
+    setOpen(false);
+    navigate('/');
+  };
+
+  const authActions = user ? (
+    <>
+      {isStudent && (
+        <Link to="/account" className="btn-login" onClick={() => setOpen(false)}>
+          {user.name?.split(' ')[0] || 'حسابي'}
+        </Link>
+      )}
+      {isAdmin && (
+        <Link to="/admin" className="btn-login" onClick={() => setOpen(false)}>
+          لوحة التحكم
+        </Link>
+      )}
+      <button type="button" className="btn-start" onClick={handleLogout}>
+        خروج
+      </button>
+    </>
+  ) : (
+    <>
+      <Link to="/login" className="btn-login" onClick={() => setOpen(false)}>
+        دخول
+      </Link>
+      <Link to="/register" className="btn-start" onClick={() => setOpen(false)}>
+        سجّل حساباً
+      </Link>
+    </>
+  );
 
   return (
     <header className="navbar">
@@ -46,22 +82,10 @@ const Navbar = () => {
             ))}
           </div>
 
-          <div className="mobile-only">
-            <Link
-              to={settings.navbar?.ctaLink || '/contact'}
-              className="btn-start"
-              onClick={() => setOpen(false)}
-            >
-              {settings.navbar?.ctaText || 'سجّل الآن'}
-            </Link>
-          </div>
+          <div className="mobile-only navbar-auth-mobile">{authActions}</div>
         </nav>
 
-        <div className="navbar-actions desktop-only">
-          <Link to={settings.navbar?.ctaLink || '/contact'} className="btn-start">
-            {settings.navbar?.ctaText || 'سجّل الآن'}
-          </Link>
-        </div>
+        <div className="navbar-actions desktop-only">{authActions}</div>
 
         <button className="navbar-toggle" onClick={() => setOpen(!open)} aria-label="القائمة">
           {open ? <FiX /> : <FiMenu />}
