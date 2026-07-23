@@ -1,18 +1,46 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
-import { FiMenu, FiX } from 'react-icons/fi';
+import { useState, useEffect } from 'react';
+import { FiMenu, FiX, FiBell, FiAward } from 'react-icons/fi';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import { useAuth } from '../../context/AuthContext';
+import api from '../../services/api';
 import './Navbar.css';
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
   const { settings, sheikhImage } = useSiteSettings();
   const { user, logout, isStudent, isAdmin } = useAuth();
   const links = settings.navbar?.links || [];
   const { siteName, siteSubtitle } = settings.branding || {};
+
+  const hasRealSession =
+    user &&
+    (isStudent || isAdmin) &&
+    sessionStorage.getItem('accessToken') &&
+    !sessionStorage.getItem('accessToken').startsWith('local_');
+
+  useEffect(() => {
+    if (!hasRealSession) {
+      setUnreadCount(0);
+      return;
+    }
+
+    const fetchUnread = async () => {
+      try {
+        const { data } = await api.get('/notifications');
+        setUnreadCount(data.unread || 0);
+      } catch {
+        setUnreadCount(0);
+      }
+    };
+
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 60000);
+    return () => clearInterval(interval);
+  }, [hasRealSession, user?.id]);
 
   const isActiveLink = (to) => {
     if (to === '/') {
@@ -32,6 +60,22 @@ const Navbar = () => {
 
   const authActions = user ? (
     <>
+      {(isStudent || isAdmin) && (
+        <Link to="/certificates" className="btn-login desktop-only" onClick={() => setOpen(false)} title="شهاداتي">
+          <FiAward style={{ verticalAlign: 'middle' }} />
+        </Link>
+      )}
+      {isStudent && hasRealSession && (
+        <Link
+          to="/notifications"
+          className="navbar-bell"
+          onClick={() => setOpen(false)}
+          title="التنبيهات"
+        >
+          <FiBell />
+          {unreadCount > 0 && <span className="navbar-bell-badge">{unreadCount}</span>}
+        </Link>
+      )}
       {isStudent && (
         <Link to="/account" className="btn-login" onClick={() => setOpen(false)}>
           {user.name?.split(' ')[0] || 'حسابي'}
@@ -57,6 +101,11 @@ const Navbar = () => {
     </>
   );
 
+  const extraLinks = [
+    { to: '/start', label: 'ابدأ من هنا' },
+    { to: '/search', label: 'بحث' },
+  ];
+
   return (
     <header className="navbar">
       <div className="navbar-inner">
@@ -70,6 +119,16 @@ const Navbar = () => {
 
         <nav className={`navbar-links ${open ? 'open' : ''}`}>
           <div className="nav-menu">
+            {extraLinks.map(({ to, label }) => (
+              <Link
+                key={to}
+                to={to}
+                onClick={() => setOpen(false)}
+                className={`nav-item ${isActiveLink(to) ? 'active' : ''}`}
+              >
+                {label}
+              </Link>
+            ))}
             {links.map(({ to, label }) => (
               <Link
                 key={`${to}-${label}`}

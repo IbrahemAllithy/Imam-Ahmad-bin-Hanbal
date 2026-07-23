@@ -31,6 +31,11 @@ const articleSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    publishedAt: {
+      type: Date,
+      default: Date.now,
+      index: true,
+    },
   },
   { timestamps: true }
 );

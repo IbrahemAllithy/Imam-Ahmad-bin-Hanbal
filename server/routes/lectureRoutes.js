@@ -6,8 +6,9 @@ import {
   updateLecture,
   deleteLecture,
   getSeries,
+  gradeLectureQuiz,
 } from '../controllers/lectureController.js';
-import { protect, restrictTo } from '../middleware/auth.js';
+import { protect, restrictTo, optionalAuth } from '../middleware/auth.js';
 import {
   lectureValidation,
   mongoIdParam,
@@ -16,9 +17,10 @@ import {
 
 const router = Router();
 
-router.get('/', listQueryValidation, getLectures);
+router.get('/', optionalAuth, listQueryValidation, getLectures);
 router.get('/series/list', getSeries);
 router.get('/:id', mongoIdParam, getLecture);
+router.post('/:id/quiz', mongoIdParam, gradeLectureQuiz);
 
 router.use(protect, restrictTo('admin'));
 router.post('/', lectureValidation, createLecture);

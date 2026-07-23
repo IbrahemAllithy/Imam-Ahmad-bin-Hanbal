@@ -56,6 +56,11 @@ const bookSchema = new mongoose.Schema(
       maxlength: [100, 'التصنيف طويل جداً'],
       default: 'عام',
     },
+    publishedAt: {
+      type: Date,
+      default: Date.now,
+      index: true,
+    },
   },
   { timestamps: true }
 );

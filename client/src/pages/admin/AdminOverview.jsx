@@ -8,6 +8,9 @@ import {
   FiMail,
   FiInbox,
   FiUsers,
+  FiAward,
+  FiCheckCircle,
+  FiMessageCircle,
 } from 'react-icons/fi';
 
 const AdminOverview = ({ onNavigate }) => {
@@ -16,14 +19,32 @@ const AdminOverview = ({ onNavigate }) => {
   if (loading) return <Loader text="جاري تحميل الإحصائيات..." />;
   if (error) return <div className="alert alert-error">{error}</div>;
 
-  const { counts, recent } = data.data;
+  const { counts, recent, topSeries } = data.data;
 
   const stats = [
     { id: 'lectures', label: 'المحاضرات', value: counts.lectures, icon: FiVideo, color: '#2f7bd3' },
     { id: 'articles', label: 'المقالات', value: counts.articles, icon: FiFileText, color: '#1e4e8c' },
     { id: 'books', label: 'الكتب', value: counts.books, icon: FiBook, color: '#d4a94e' },
     { id: 'students', label: 'الطلاب', value: counts.students || 0, icon: FiUsers, color: '#6b4f2c' },
-    { id: 'contacts', label: 'الرسائل', value: counts.contacts, icon: FiMail, color: '#0c2d57', badge: counts.unreadContacts },
+    {
+      id: 'contacts',
+      label: 'الرسائل',
+      value: counts.contacts,
+      icon: FiMail,
+      color: '#0c2d57',
+      badge: counts.unreadContacts,
+    },
+  ];
+
+  const extraStats = [
+    { label: 'إكمال الدروس', value: counts.completions, icon: FiCheckCircle },
+    { label: 'الشهادات', value: counts.certificates, icon: FiAward },
+    {
+      label: 'أسئلة معلقة',
+      value: counts.pendingQuestions,
+      icon: FiMessageCircle,
+      onClick: () => onNavigate('questions'),
+    },
   ];
 
   return (
@@ -55,6 +76,40 @@ const AdminOverview = ({ onNavigate }) => {
           </button>
         ))}
       </div>
+
+      <div className="stats-grid" style={{ marginTop: '1rem' }}>
+        {extraStats.map(({ label, value, icon: Icon, onClick }) => (
+          <button
+            key={label}
+            type="button"
+            className="stat-card"
+            onClick={onClick}
+            style={{ '--stat-color': '#15803d', cursor: onClick ? 'pointer' : 'default' }}
+          >
+            <div className="stat-icon"><Icon /></div>
+            <div className="stat-info">
+              <span className="stat-value">{value ?? 0}</span>
+              <span className="stat-label">{label}</span>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {topSeries?.length > 0 && (
+        <div className="recent-card" style={{ marginTop: '1.5rem' }}>
+          <div className="recent-card-header">
+            <h3>أكثر الدورات إكمالاً</h3>
+          </div>
+          <ul className="recent-list">
+            {topSeries.map((s) => (
+              <li key={s.series}>
+                <strong>{s.series}</strong>
+                <span>{s.completions} إكمال</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="recent-grid">
         <RecentList

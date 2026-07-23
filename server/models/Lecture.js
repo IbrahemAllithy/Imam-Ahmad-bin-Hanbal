@@ -1,5 +1,24 @@
 import mongoose from 'mongoose';
 
+const quizItemSchema = new mongoose.Schema(
+  {
+    question: { type: String, required: true, trim: true, maxlength: 500 },
+    options: {
+      type: [String],
+      validate: {
+        validator: (arr) => Array.isArray(arr) && arr.length >= 2 && arr.length <= 6,
+        message: 'يجب توفير خيارين إلى ستة خيارات',
+      },
+    },
+    correctIndex: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+  },
+  { _id: false }
+);
+
 const CATEGORIES = [
   'العقيدة',
   'الفقه',
@@ -54,6 +73,16 @@ const lectureSchema = new mongoose.Schema(
       maxlength: [100, 'التصنيف طويل جداً'],
       default: 'عام',
     },
+    order: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    publishedAt: {
+      type: Date,
+      default: Date.now,
+      index: true,
+    },
     pdfUrl: {
       type: String,
       trim: true,
@@ -64,8 +93,14 @@ const lectureSchema = new mongoose.Schema(
       trim: true,
       default: '',
     },
+    /** Legacy open questions (display only) */
     quizQuestions: {
       type: [String],
+      default: [],
+    },
+    /** MCQ items with scoring */
+    quizItems: {
+      type: [quizItemSchema],
       default: [],
     },
   },
@@ -73,7 +108,7 @@ const lectureSchema = new mongoose.Schema(
 );
 
 lectureSchema.index({ category: 1, createdAt: -1 });
-lectureSchema.index({ series: 1 });
+lectureSchema.index({ series: 1, order: 1 });
 
 const Lecture = mongoose.model('Lecture', lectureSchema);
 

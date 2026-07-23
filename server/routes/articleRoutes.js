@@ -6,7 +6,7 @@ import {
   updateArticle,
   deleteArticle,
 } from '../controllers/articleController.js';
-import { protect, restrictTo } from '../middleware/auth.js';
+import { protect, restrictTo, optionalAuth } from '../middleware/auth.js';
 import {
   articleValidation,
   mongoIdParam,
@@ -16,7 +16,7 @@ import { uploadArticleCover, validateMagicBytes } from '../middleware/upload.js'
 
 const router = Router();
 
-router.get('/', listQueryValidation, getArticles);
+router.get('/', optionalAuth, listQueryValidation, getArticles);
 router.get('/:id', mongoIdParam, getArticle);
 
 router.use(protect, restrictTo('admin'));

@@ -64,6 +64,9 @@ const Home = () => {
               <Link to={hero.primaryCtaLink || '/lectures'} className="btn btn-primary hover-lift">
                 {hero.primaryCtaText}
               </Link>
+              <Link to="/start" className="btn btn-outline hover-lift">
+                ابدأ من هنا
+              </Link>
               {secondaryIsHash ? (
                 <a href={hero.secondaryCtaLink} className="btn btn-outline hover-lift">
                   {hero.secondaryCtaText}

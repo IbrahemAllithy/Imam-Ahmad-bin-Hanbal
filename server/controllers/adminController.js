@@ -3,17 +3,40 @@ import Article from '../models/Article.js';
 import Book from '../models/Book.js';
 import Contact from '../models/Contact.js';
 import User from '../models/User.js';
+import Progress from '../models/Progress.js';
+import Certificate from '../models/Certificate.js';
+import LessonQuestion from '../models/LessonQuestion.js';
 import AppError from '../utils/AppError.js';
 
 export const getStats = async (_req, res, next) => {
   try {
-    const [lectures, articles, books, contacts, unreadContacts, students] = await Promise.all([
+    const [
+      lectures,
+      articles,
+      books,
+      contacts,
+      unreadContacts,
+      students,
+      completions,
+      certificates,
+      pendingQuestions,
+    ] = await Promise.all([
       Lecture.countDocuments(),
       Article.countDocuments(),
       Book.countDocuments(),
       Contact.countDocuments(),
       Contact.countDocuments({ read: false }),
       User.countDocuments({ role: 'student' }),
+      Progress.countDocuments(),
+      Certificate.countDocuments(),
+      LessonQuestion.countDocuments({ status: 'pending' }),
+    ]);
+
+    const topSeries = await Progress.aggregate([
+      { $match: { series: { $ne: '' } } },
+      { $group: { _id: '$series', completions: { $sum: 1 } } },
+      { $sort: { completions: -1 } },
+      { $limit: 5 },
     ]);
 
     const [recentLectures, recentArticles, recentBooks, recentContacts, recentStudents] =
@@ -31,7 +54,18 @@ export const getStats = async (_req, res, next) => {
     res.json({
       success: true,
       data: {
-        counts: { lectures, articles, books, contacts, unreadContacts, students },
+        counts: {
+          lectures,
+          articles,
+          books,
+          contacts,
+          unreadContacts,
+          students,
+          completions,
+          certificates,
+          pendingQuestions,
+        },
+        topSeries: topSeries.map((s) => ({ series: s._id, completions: s.completions })),
         recent: {
           lectures: recentLectures,
           articles: recentArticles,

@@ -29,6 +29,22 @@ export const protect = async (req, _res, next) => {
   }
 };
 
+/** Attach user if token present; never fail the request */
+export const optionalAuth = async (req, _res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader?.startsWith('Bearer ')) return next();
+    const token = authHeader.split(' ')[1];
+    if (!token) return next();
+    const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+    const user = await User.findById(decoded.id).select('-password');
+    if (user) req.user = user;
+  } catch {
+    // ignore
+  }
+  next();
+};
+
 export const restrictTo = (...roles) => (req, _res, next) => {
   if (!req.user || !roles.includes(req.user.role)) {
     return next(new AppError('ليس لديك صلاحية للوصول', 403));

@@ -1,73 +1,179 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useFetch } from '../hooks/useFetch';
-import { FiCheckCircle, FiBookOpen, FiVolume2, FiHelpCircle, FiFileText, FiExternalLink } from 'react-icons/fi';
+import useProgress from '../hooks/useProgress';
+import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
+import {
+  FiCheckCircle,
+  FiBookOpen,
+  FiVolume2,
+  FiHelpCircle,
+  FiExternalLink,
+  FiChevronRight,
+  FiChevronLeft,
+  FiMessageCircle,
+} from 'react-icons/fi';
 import VideoPlayer from '../components/lectures/VideoPlayer';
 import Loader from '../components/ui/Loader';
 import './LectureDetail.css';
 
+const sortLessons = (lessons) =>
+  [...lessons].sort((a, b) => {
+    const orderA = a.order ?? 0;
+    const orderB = b.order ?? 0;
+    if (orderA !== orderB) return orderA - orderB;
+    return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
+  });
+
 const LectureDetail = () => {
   const { id } = useParams();
+  const { isStudent, isAdmin } = useAuth();
+  const { isCompleted, markComplete, unmarkComplete, syncing } = useProgress();
   const { data, loading, error } = useFetch(`/lectures/${id}`);
 
-  const [completedMap, setCompletedMap] = useState({});
   const [showQuizModal, setShowQuizModal] = useState(false);
-
-  useEffect(() => {
-    const map = {};
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && key.startsWith('completed_lecture_')) {
-        const itemKey = key.replace('completed_lecture_', '');
-        map[itemKey] = localStorage.getItem(key) === 'true';
-      }
-    }
-    setCompletedMap(map);
-  }, [id]);
-
-  const toggleCompleted = () => {
-    const nextState = !completedMap[id];
-    localStorage.setItem(`completed_lecture_${id}`, String(nextState));
-    setCompletedMap((prev) => ({ ...prev, [id]: nextState }));
-  };
+  const [quizAnswers, setQuizAnswers] = useState({});
+  const [quizSubmitted, setQuizSubmitted] = useState(false);
+  const [quizScore, setQuizScore] = useState(null);
+  const [loginHint, setLoginHint] = useState('');
+  const [questionText, setQuestionText] = useState('');
+  const [myQuestions, setMyQuestions] = useState([]);
+  const [qLoading, setQLoading] = useState(false);
+  const [qError, setQError] = useState('');
+  const [qSuccess, setQSuccess] = useState('');
 
   const lecture = data?.data;
-  const related = data?.related || [];
-
-  const categoryName = lecture?.category || '';
   const seriesName = lecture?.series || '';
-  const { data: catData } = useFetch(
-    categoryName ? `/lectures?category=${encodeURIComponent(categoryName)}` : null
+  const categoryName = lecture?.category || '';
+
+  const { data: seriesData } = useFetch(
+    seriesName ? '/lectures' : null,
+    seriesName ? { series: seriesName, limit: 100 } : {}
   );
 
-  if (loading) return <Loader />;
-  if (error || !lecture) return <div className="alert alert-error">{error || 'الدرس غير موجود'}</div>;
+  const playlist = useMemo(() => {
+    let items = seriesData?.data || [];
+    if (seriesName) {
+      items = items.filter((l) => l.series === seriesName);
+    } else if (categoryName) {
+      items = items.filter((l) => l.category === categoryName);
+    }
+    items = sortLessons(items.length ? items : lecture ? [lecture] : []);
+    if (lecture && !items.some((p) => p._id === lecture._id)) {
+      items = sortLessons([lecture, ...items]);
+    }
+    return items;
+  }, [seriesData, seriesName, categoryName, lecture]);
 
-  let youtubeId = lecture.youtubeId;
+  const currentIndex = playlist.findIndex((p) => p._id === id);
+  const prevLesson = currentIndex > 0 ? playlist[currentIndex - 1] : null;
+  const nextLesson = currentIndex >= 0 && currentIndex < playlist.length - 1
+    ? playlist[currentIndex + 1]
+    : null;
+
+  const isCurrentDone = isCompleted(id);
+  const canAskQuestion = isStudent || isAdmin;
+  const hasMcqQuiz = lecture?.quizItems?.length > 0;
+
+  useEffect(() => {
+    setLoginHint('');
+    setQuizAnswers({});
+    setQuizSubmitted(false);
+    setQuizScore(null);
+  }, [id]);
+
+  useEffect(() => {
+    if (!canAskQuestion || !id) return;
+    const fetchQuestions = async () => {
+      try {
+        const { data: res } = await api.get('/lesson-questions/mine', {
+          params: { lectureId: id },
+        });
+        setMyQuestions(res.data || []);
+      } catch {
+        setMyQuestions([]);
+      }
+    };
+    fetchQuestions();
+  }, [id, canAskQuestion]);
+
+  const handleToggleComplete = async () => {
+    if (isCurrentDone) {
+      await unmarkComplete(id);
+      setLoginHint('');
+      return;
+    }
+    const result = await markComplete(id);
+    if (result?.needsLogin) {
+      setLoginHint('سجّل دخولك لحفظ التقدم على حسابك — التقدم محفوظ مؤقتاً على هذا الجهاز.');
+    }
+  };
+
+  const handleQuizSubmit = async () => {
+    if (!hasMcqQuiz) return;
+    const answers = lecture.quizItems.map((_, idx) =>
+      quizAnswers[idx] === undefined ? -1 : Number(quizAnswers[idx])
+    );
+
+    try {
+      const { data } = await api.post(`/lectures/${id}/quiz`, { answers });
+      setQuizScore(data.data.score);
+      setQuizSubmitted(true);
+    } catch (err) {
+      setLoginHint(err.response?.data?.message || 'تعذر تصحيح الاختبار');
+    }
+  };
+
+  const handleSaveWithQuiz = async () => {
+    const result = await markComplete(id, quizScore);
+    if (result?.needsLogin) {
+      setLoginHint('سجّل دخولك لحفظ نتيجة الاختبار والتقدم على حسابك.');
+    } else if (result?.success) {
+      setShowQuizModal(false);
+    }
+  };
+
+  const handleAskQuestion = async (e) => {
+    e.preventDefault();
+    if (!questionText.trim()) return;
+    setQLoading(true);
+    setQError('');
+    setQSuccess('');
+    try {
+      const { data: res } = await api.post('/lesson-questions', {
+        lectureId: id,
+        question: questionText.trim(),
+      });
+      setMyQuestions((prev) => [res.data, ...prev]);
+      setQuestionText('');
+      setQSuccess('تم إرسال سؤالك — سيرد عليه الشيخ أو الإدارة قريباً.');
+    } catch (err) {
+      setQError(err.response?.data?.message || 'تعذر إرسال السؤال');
+    } finally {
+      setQLoading(false);
+    }
+  };
+
+  if (loading) return <Loader />;
+  if (error || !lecture) {
+    return <div className="alert alert-error">{error || 'الدرس غير موجود'}</div>;
+  }
+
+  const youtubeId = lecture.youtubeId;
   const pdfUrl = lecture.pdfUrl || 'https://archive.org/embed/20230616_20230616_1912';
   const audioUrl = lecture.audioUrl || 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
-
-  // Build playlist
-  let playlist = [];
-  if (catData?.data?.length) {
-    playlist = catData.data.filter((item) => !seriesName || item.series === seriesName || item.category === categoryName);
-  }
-  if (!playlist.length) {
-    playlist = [lecture, ...related.filter((r) => r.category === categoryName)];
-  }
-  if (!playlist.some((p) => p._id === lecture._id)) {
-    playlist.unshift(lecture);
-  }
-
-  const isCurrentDone = completedMap[lecture._id];
+  const courseLink = seriesName
+    ? `/courses/${encodeURIComponent(seriesName)}`
+    : '/lectures';
 
   return (
     <div className="sketch-lecture-page">
-      {/* Top Breadcrumb & Header */}
       <div className="sketch-page-header">
         <div className="sketch-header-inner">
           <div className="sketch-breadcrumbs">
-            <Link to="/">الرئيسية</Link> <span>/</span> <Link to="/lectures">الدروس والدورات</Link>
+            <Link to="/">الرئيسية</Link> <span>/</span>{' '}
+            <Link to="/lectures">الدروس والدورات</Link>
           </div>
           <h1 className="sketch-header-title">الدروس والدورات</h1>
           <p className="sketch-header-subtitle">
@@ -77,21 +183,28 @@ const LectureDetail = () => {
       </div>
 
       <div className="sketch-container">
-        {/* Back Link */}
         <div className="sketch-back-row">
-          <Link to="/lectures/list" className="sketch-back-link">
-            &rarr; الرجوع لقائمة الدروس
+          <Link to={courseLink} className="sketch-back-link">
+            &rarr; الرجوع للدورة
           </Link>
+          <div className="sketch-nav-buttons" style={{ display: 'flex', gap: '0.75rem' }}>
+            {prevLesson && (
+              <Link to={`/lectures/${prevLesson._id}`} className="sketch-back-link">
+                <FiChevronRight /> الدرس السابق
+              </Link>
+            )}
+            {nextLesson && (
+              <Link to={`/lectures/${nextLesson._id}`} className="sketch-back-link">
+                الدرس التالي <FiChevronLeft />
+              </Link>
+            )}
+          </div>
         </div>
 
-        {/* Lesson Title Above Grid */}
         <h2 className="sketch-lesson-title">{lecture.title}</h2>
 
-        {/* Main Grid: Video/Audio (Right), Book PDF (Left), Sidebar (Far Right) */}
         <div className="sketch-grid-layout">
-          {/* Main Content Area (2 Columns: Book PDF + Video/Audio) */}
           <div className="sketch-media-columns">
-            {/* Book PDF Column (Left Box matching handwritten drawing & screenshot) */}
             <div className="sketch-book-box">
               <div className="sketch-box-header">
                 <FiBookOpen />
@@ -103,11 +216,11 @@ const LectureDetail = () => {
                   title="الكتاب PDF"
                   className="sketch-pdf-iframe"
                   allowFullScreen
-                ></iframe>
+                />
               </div>
               <div className="sketch-pdf-footer">
                 <a
-                  href="https://archive.org/details/20230616_20230616_1912/mode/2up"
+                  href={pdfUrl}
                   target="_blank"
                   rel="noreferrer"
                   className="btn-pdf-external"
@@ -117,14 +230,15 @@ const LectureDetail = () => {
               </div>
             </div>
 
-            {/* Video & Audio Column (Right Box matching handwritten drawing & screenshot) */}
             <div className="sketch-video-box-col">
-              {/* YouTube Video Player */}
               <div className="sketch-video-wrapper">
-                <VideoPlayer youtubeId={youtubeId} youtubeUrl={lecture.youtubeUrl} title={lecture.title} />
+                <VideoPlayer
+                  youtubeId={youtubeId}
+                  youtubeUrl={lecture.youtubeUrl}
+                  title={lecture.title}
+                />
               </div>
 
-              {/* Audio Player (صوتي) */}
               <div className="sketch-audio-box">
                 <div className="sketch-audio-header">
                   <FiVolume2 />
@@ -137,14 +251,13 @@ const LectureDetail = () => {
             </div>
           </div>
 
-          {/* Sidebar (قائمة الدروس المرقّمة) */}
           <aside className="sketch-sidebar">
             <div className="sketch-playlist-card">
-              <h3 className="sketch-playlist-title">{categoryName || seriesName}</h3>
+              <h3 className="sketch-playlist-title">{seriesName || categoryName}</h3>
               <div className="sketch-playlist-list">
                 {playlist.map((item, idx) => {
                   const isCurrent = item._id === lecture._id;
-                  const itemDone = completedMap[item._id];
+                  const itemDone = isCompleted(item._id);
                   return (
                     <Link
                       key={item._id}
@@ -163,59 +276,216 @@ const LectureDetail = () => {
           </aside>
         </div>
 
-        {/* Middle Section: (محتوى + اختبر نفسك) */}
         <div className="sketch-middle-row">
-          {/* Quiz Box (اختبر نفسك - Left) */}
           <div className="sketch-quiz-box">
             <h4>اختبر نفسك</h4>
             <button
+              type="button"
               className="btn-quiz-start"
               onClick={() => setShowQuizModal(true)}
             >
               <FiHelpCircle style={{ margin: '0 0 -2px 6px' }} />
-              أسئلة خاصة بالدرس
+              {hasMcqQuiz ? 'اختبار متعدد الخيارات' : 'أسئلة خاصة بالدرس'}
             </button>
           </div>
 
-          {/* Content Summary Box (محتوى - Right) */}
           <div className="sketch-summary-box">
             <h4>محتوى الدرس والتفريغ</h4>
             <div className="sketch-content-line">
-              <div className="sketch-line-fill" style={{ width: isCurrentDone ? '100%' : '40%' }}></div>
+              <div
+                className="sketch-line-fill"
+                style={{ width: isCurrentDone ? '100%' : '40%' }}
+              />
             </div>
+            {lecture.description && (
+              <p style={{ marginTop: '1rem', fontSize: '0.95rem', textAlign: 'right' }}>
+                {lecture.description}
+              </p>
+            )}
           </div>
         </div>
 
-        {/* Bottom Action Button (أكملت الدرس) */}
+        {canAskQuestion && (
+          <div className="sketch-qa-section" style={{ marginBottom: '1.5rem' }}>
+            <div className="sketch-quiz-box" style={{ textAlign: 'right' }}>
+              <h4>
+                <FiMessageCircle style={{ marginLeft: 6 }} />
+                أسئلة الدرس
+              </h4>
+              <form onSubmit={handleAskQuestion}>
+                <textarea
+                  rows={3}
+                  value={questionText}
+                  onChange={(e) => setQuestionText(e.target.value)}
+                  placeholder="اكتب سؤالك حول هذا الدرس..."
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    borderRadius: 10,
+                    border: '1px solid var(--primary-border)',
+                    marginBottom: '0.75rem',
+                    fontFamily: 'inherit',
+                    direction: 'rtl',
+                  }}
+                />
+                {qError && <div className="alert alert-error">{qError}</div>}
+                {qSuccess && <div className="alert alert-success">{qSuccess}</div>}
+                <button type="submit" className="btn-quiz-start" disabled={qLoading}>
+                  {qLoading ? 'جاري الإرسال...' : 'إرسال السؤال'}
+                </button>
+              </form>
+
+              {myQuestions.length > 0 && (
+                <div style={{ marginTop: '1.25rem' }}>
+                  <h5 style={{ marginBottom: '0.75rem' }}>أسئلتي السابقة</h5>
+                  {myQuestions.map((q) => (
+                    <div
+                      key={q._id}
+                      style={{
+                        background: '#faf4eb',
+                        padding: '0.75rem',
+                        borderRadius: 10,
+                        marginBottom: '0.5rem',
+                        textAlign: 'right',
+                      }}
+                    >
+                      <p style={{ margin: 0, fontWeight: 600 }}>{q.question}</p>
+                      {q.adminReply && (
+                        <p style={{ margin: '0.5rem 0 0', color: 'var(--text-muted)' }}>
+                          <strong>الرد:</strong> {q.adminReply}
+                        </p>
+                      )}
+                      {!q.adminReply && (
+                        <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                          {q.status === 'pending' ? 'بانتظار الرد' : q.status}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {loginHint && (
+          <p
+            className="alert"
+            style={{
+              background: '#fff8e1',
+              padding: '0.75rem 1rem',
+              borderRadius: 10,
+              marginBottom: '1rem',
+              textAlign: 'center',
+            }}
+          >
+            {loginHint}{' '}
+            <Link to="/login" style={{ fontWeight: 700, color: 'var(--accent-color)' }}>
+              تسجيل الدخول
+            </Link>
+          </p>
+        )}
+
         <div className="sketch-bottom-action">
           <button
+            type="button"
             className={`btn-sketch-completed ${isCurrentDone ? 'completed' : ''}`}
-            onClick={toggleCompleted}
+            onClick={handleToggleComplete}
+            disabled={syncing}
           >
             <FiCheckCircle style={{ fontSize: '1.25rem' }} />
             {isCurrentDone ? 'تم إكمال الدرس ✓' : 'أكملت الدرس'}
           </button>
+
+          {isCurrentDone && nextLesson && (
+            <Link
+              to={`/lectures/${nextLesson._id}`}
+              className="btn-sketch-completed"
+              style={{ marginRight: '1rem', textDecoration: 'none' }}
+            >
+              الدرس التالي <FiChevronLeft />
+            </Link>
+          )}
         </div>
       </div>
 
-      {/* Quiz Questions Modal */}
       {showQuizModal && (
         <div className="sketch-modal-overlay" onClick={() => setShowQuizModal(false)}>
           <div className="sketch-modal-content" onClick={(e) => e.stopPropagation()}>
             <h3>أسئلة واختبار الدرس</h3>
             <p className="sketch-modal-sub">اختبر معلوماتك وفهمك لمحتوى هذا المجلس المبارك:</p>
 
-            <ol className="quiz-questions-list">
-              {(lecture.quizQuestions || [
-                'ما هي المسألة الرئيسية التي تناولها هذا المجلس؟',
-                'اذكر ثلاثة من القواعد والفوائد المستنبطة من الدرس.',
-                'ما أهمية كتاب القواعد المثلى في باب أسماء الله وصفاته؟'
-              ]).map((q, i) => (
-                <li key={i}>{q}</li>
-              ))}
-            </ol>
+            {hasMcqQuiz ? (
+              <div className="quiz-mcq-list" style={{ textAlign: 'right' }}>
+                {lecture.quizItems.map((item, idx) => (
+                  <div key={idx} style={{ marginBottom: '1.25rem' }}>
+                    <p style={{ fontWeight: 700, marginBottom: '0.5rem' }}>
+                      {idx + 1}. {item.question}
+                    </p>
+                    {(item.options || []).map((opt, oIdx) => (
+                      <label
+                        key={oIdx}
+                        style={{
+                          display: 'block',
+                          padding: '0.4rem 0',
+                          cursor: quizSubmitted ? 'default' : 'pointer',
+                        }}
+                      >
+                        <input
+                          type="radio"
+                          name={`quiz-${idx}`}
+                          value={oIdx}
+                          checked={Number(quizAnswers[idx]) === oIdx}
+                          disabled={quizSubmitted}
+                          onChange={() =>
+                            setQuizAnswers((prev) => ({ ...prev, [idx]: oIdx }))
+                          }
+                          style={{ marginLeft: 8 }}
+                        />
+                        {opt}
+                      </label>
+                    ))}
+                  </div>
+                ))}
 
-            <button className="btn-modal-close" onClick={() => setShowQuizModal(false)}>
+                {!quizSubmitted ? (
+                  <button type="button" className="btn-quiz-start" onClick={handleQuizSubmit}>
+                    تسليم الإجابات
+                  </button>
+                ) : (
+                  <div>
+                    <p style={{ fontWeight: 700, color: 'var(--primary-text)' }}>
+                      نتيجتك: {quizScore}%
+                    </p>
+                    <button
+                      type="button"
+                      className="btn-quiz-start"
+                      onClick={handleSaveWithQuiz}
+                      disabled={syncing}
+                      style={{ marginTop: '0.75rem' }}
+                    >
+                      حفظ النتيجة وإكمال الدرس
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <ol className="quiz-questions-list">
+                {(lecture.quizQuestions || [
+                  'ما هي المسألة الرئيسية التي تناولها هذا المجلس؟',
+                  'اذكر ثلاثة من القواعد والفوائد المستنبطة من الدرس.',
+                  'ما أهمية كتاب القواعد المثلى في باب أسماء الله وصفاته؟',
+                ]).map((q, i) => (
+                  <li key={i}>{q}</li>
+                ))}
+              </ol>
+            )}
+
+            <button
+              type="button"
+              className="btn-modal-close"
+              onClick={() => setShowQuizModal(false)}
+            >
               إغلاق النافذة
             </button>
           </div>

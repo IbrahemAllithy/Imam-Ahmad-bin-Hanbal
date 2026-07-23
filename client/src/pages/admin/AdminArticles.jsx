@@ -5,10 +5,18 @@ import api from '../../services/api';
 import Loader from '../../components/ui/Loader';
 import './Admin.css';
 
-const emptyArticle = { title: '', content: '', excerpt: '', category: 'عام' };
+const emptyArticle = { title: '', content: '', excerpt: '', category: 'عام', publishedAt: '' };
+
+const toDatetimeLocal = (iso) => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
 
 const AdminArticles = () => {
-  const { data, loading, refetch } = useFetch('/articles', { limit: 50 });
+  const { data, loading, refetch } = useFetch('/articles', { limit: 100, all: 1 });
   const { categoryNames } = useSiteSettings();
   const [form, setForm] = useState(emptyArticle);
   const [cover, setCover] = useState(null);
@@ -28,7 +36,13 @@ const AdminArticles = () => {
     setSubmitting(true);
 
     const formData = new FormData();
-    Object.entries(form).forEach(([k, v]) => formData.append(k, v));
+    Object.entries(form).forEach(([k, v]) => {
+      if (k === 'publishedAt' && v) {
+        formData.append(k, new Date(v).toISOString());
+      } else if (k !== 'publishedAt' || v) {
+        formData.append(k, v);
+      }
+    });
     if (cover) formData.append('coverImage', cover);
 
     try {
@@ -57,6 +71,7 @@ const AdminArticles = () => {
       content: article.content,
       excerpt: article.excerpt || '',
       category: article.category,
+      publishedAt: toDatetimeLocal(article.publishedAt),
     });
   };
 
@@ -101,6 +116,15 @@ const AdminArticles = () => {
         <div className="form-group">
           <label>المقتطف</label>
           <input value={form.excerpt} onChange={(e) => setForm({ ...form, excerpt: e.target.value })} />
+        </div>
+
+        <div className="form-group">
+          <label>موعد النشر (اتركه فارغاً للنشر الفوري)</label>
+          <input
+            type="datetime-local"
+            value={form.publishedAt || ''}
+            onChange={(e) => setForm({ ...form, publishedAt: e.target.value })}
+          />
         </div>
 
         <div className="form-group">

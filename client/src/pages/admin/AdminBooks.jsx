@@ -3,7 +3,7 @@ import { useFetch } from '../../hooks/useFetch';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import api from '../../services/api';
 import Loader from '../../components/ui/Loader';
-import { FiEdit2, FiTrash2, FiBookOpen, FiPlus, FiCheck, FiDownload } from 'react-icons/fi';
+import { FiEdit2, FiTrash2, FiBookOpen, FiPlus, FiCheck } from 'react-icons/fi';
 import './Admin.css';
 
 const emptyBook = {
@@ -12,13 +12,23 @@ const emptyBook = {
   category: 'العقيدة',
   pages: 50,
   pdfUrl: '',
+  publishedAt: '',
   description: '',
 };
 
+const toDatetimeLocal = (iso) => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
 const AdminBooks = () => {
-  const { data, loading, error: fetchError, refetch } = useFetch('/books', { limit: 100 });
+  const { data, loading, error: fetchError, refetch } = useFetch('/books', { limit: 200, all: 1 });
   const { categoryNames } = useSiteSettings();
   const [form, setForm] = useState(emptyBook);
+  const [pdfFile, setPdfFile] = useState(null);
   const [editId, setEditId] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -33,20 +43,26 @@ const AdminBooks = () => {
     e.preventDefault();
     setError('');
     setSuccess('');
-    setSubmitting(true);
 
-    const payload = {
-      title: form.title,
-      author: form.author || 'فضيلة الشيخ شعبان العودة',
-      category: form.category,
-      pages: Number(form.pages) || 50,
-      pdfUrl: form.pdfUrl,
-      description: form.description || '',
-    };
+    if (!pdfFile && !form.pdfUrl?.trim()) {
+      setError('أرفق ملف PDF أو أدخل رابط PDF');
+      return;
+    }
+
+    setSubmitting(true);
 
     try {
       const formData = new FormData();
-      Object.entries(payload).forEach(([k, v]) => formData.append(k, v));
+      formData.append('title', form.title);
+      formData.append('author', form.author || 'فضيلة الشيخ شعبان العودة');
+      formData.append('category', form.category);
+      formData.append('pages', String(Number(form.pages) || 50));
+      formData.append('description', form.description || '');
+      if (form.pdfUrl?.trim()) formData.append('pdfUrl', form.pdfUrl.trim());
+      if (form.publishedAt) {
+        formData.append('publishedAt', new Date(form.publishedAt).toISOString());
+      }
+      if (pdfFile) formData.append('pdf', pdfFile);
 
       if (editId) {
         await api.put(`/books/${editId}`, formData);
@@ -56,6 +72,7 @@ const AdminBooks = () => {
         setSuccess('تم إضافة الكتاب — يظهر الآن في المكتبة ✓');
       }
       setForm(emptyBook);
+      setPdfFile(null);
       setEditId(null);
       refetch();
     } catch (err) {
@@ -72,12 +89,14 @@ const AdminBooks = () => {
 
   const handleEdit = (book) => {
     setEditId(book._id);
+    setPdfFile(null);
     setForm({
       title: book.title || '',
       author: book.author || 'فضيلة الشيخ شعبان العودة',
       category: book.category || categories[0] || 'العقيدة',
       pages: book.pages || 50,
       pdfUrl: book.pdfUrl || '',
+      publishedAt: toDatetimeLocal(book.publishedAt),
       description: book.description || '',
     });
     window.scrollTo({ top: 120, behavior: 'smooth' });
@@ -155,14 +174,37 @@ const AdminBooks = () => {
               onChange={(e) => setForm({ ...form, pages: e.target.value })}
             />
           </div>
+
+          <div className="form-group">
+            <label>تاريخ النشر (اختياري)</label>
+            <input
+              type="datetime-local"
+              value={form.publishedAt}
+              onChange={(e) => setForm({ ...form, publishedAt: e.target.value })}
+            />
+          </div>
         </div>
 
         <div className="form-group" style={{ marginTop: '16px' }}>
-          <label>رابط القراءة والتصفح PDF *</label>
+          <label>رفع ملف PDF</label>
+          <input
+            type="file"
+            accept="application/pdf,.pdf"
+            onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
+          />
+          {pdfFile && (
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+              الملف المختار: {pdfFile.name}
+            </span>
+          )}
+        </div>
+
+        <div className="form-group" style={{ marginTop: '16px' }}>
+          <label>رابط القراءة والتصفح PDF {pdfFile ? '(اختياري عند رفع ملف)' : '*'}</label>
           <input
             value={form.pdfUrl}
             onChange={(e) => setForm({ ...form, pdfUrl: e.target.value })}
-            required
+            required={!pdfFile}
             placeholder="https://archive.org/embed/..."
           />
         </div>
@@ -188,6 +230,7 @@ const AdminBooks = () => {
               onClick={() => {
                 setEditId(null);
                 setForm(emptyBook);
+                setPdfFile(null);
               }}
             >
               إلغاء التعديل
@@ -213,9 +256,7 @@ const AdminBooks = () => {
                 </div>
 
                 <h4 className="card-lecture-title">{item.title}</h4>
-                <p className="card-series-name">
-                  <FiDownload /> {item.author}
-                </p>
+                <p className="card-series-name">{item.author}</p>
 
                 <div className="card-actions-footer">
                   <button type="button" className="btn-card-edit" onClick={() => handleEdit(item)}>

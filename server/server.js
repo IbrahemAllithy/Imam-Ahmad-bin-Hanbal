@@ -23,6 +23,11 @@ import bookRoutes from './routes/bookRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
+import progressRoutes from './routes/progressRoutes.js';
+import certificateRoutes from './routes/certificateRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
+import lessonQuestionRoutes from './routes/lessonQuestionRoutes.js';
+import searchRoutes from './routes/searchRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -119,6 +124,11 @@ app.use('/api/books', bookRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/progress', progressRoutes);
+app.use('/api/certificates', certificateRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/lesson-questions', lessonQuestionRoutes);
+app.use('/api/search', searchRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

@@ -91,6 +91,8 @@ export const listQueryValidation = [
   query('page').optional().isInt({ min: 1 }).withMessage('رقم الصفحة غير صالح'),
   query('limit').optional().isInt({ min: 1, max: 200 }).withMessage('حد العرض غير صالح'),
   query('category').optional().trim().isLength({ max: 100 }).withMessage('التصنيف غير صالح'),
+  query('series').optional().trim().isLength({ max: 150 }).withMessage('اسم السلسلة غير صالح'),
   query('search').optional().trim().isLength({ max: 100 }).withMessage('نص البحث طويل جداً'),
+  query('all').optional().isIn(['0', '1']).withMessage('قيمة all غير صالحة'),
   validate,
 ];

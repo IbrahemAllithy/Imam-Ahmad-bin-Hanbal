@@ -6,7 +6,7 @@ import {
   updateBook,
   deleteBook,
 } from '../controllers/bookController.js';
-import { protect, restrictTo } from '../middleware/auth.js';
+import { protect, restrictTo, optionalAuth } from '../middleware/auth.js';
 import {
   bookValidation,
   mongoIdParam,
@@ -16,7 +16,7 @@ import { uploadBookFiles, validateMagicBytes } from '../middleware/upload.js';
 
 const router = Router();
 
-router.get('/', listQueryValidation, getBooks);
+router.get('/', optionalAuth, listQueryValidation, getBooks);
 router.get('/:id', mongoIdParam, getBook);
 
 router.use(protect, restrictTo('admin'));

@@ -18,6 +18,11 @@ import Register from './pages/Register';
 import Login from './pages/Login';
 import VerifyEmail from './pages/VerifyEmail';
 import Account from './pages/Account';
+import Certificates from './pages/Certificates';
+import CertificateView from './pages/CertificateView';
+import Notifications from './pages/Notifications';
+import Search from './pages/Search';
+import StartHere from './pages/StartHere';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 
@@ -59,6 +64,11 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/account" element={<Account />} />
+          <Route path="/certificates" element={<Certificates />} />
+          <Route path="/certificates/:id" element={<CertificateView />} />
+          <Route path="/notifications" element={<Notifications />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/start" element={<StartHere />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route
             path="/admin"

@@ -123,6 +123,32 @@
   color: var(--accent-color);
 }
 
+.navbar-bell {
+  position: relative;
+  color: var(--primary-text);
+  font-size: 1.25rem;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.navbar-bell-badge {
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  background: #d32f2f;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+
 .navbar-auth-mobile {
   display: flex;
   flex-direction: column;

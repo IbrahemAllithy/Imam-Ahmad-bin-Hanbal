@@ -1,16 +1,28 @@
 import Article from '../models/Article.js';
 import AppError from '../utils/AppError.js';
 import { removeStorageFile } from '../utils/storage.js';
+import { notifyAllStudents } from './notificationController.js';
 
-const buildFilter = (query) => {
-  const filter = {};
+const publishedFilter = () => ({
+  $or: [
+    { publishedAt: { $exists: false } },
+    { publishedAt: null },
+    { publishedAt: { $lte: new Date() } },
+  ],
+});
+
+const buildFilter = (query, { includeUnpublished = false } = {}) => {
+  const filter = includeUnpublished ? {} : { ...publishedFilter() };
   if (query.category) filter.category = query.category;
   if (query.search) {
-    filter.$or = [
-      { title: { $regex: query.search, $options: 'i' } },
-      { excerpt: { $regex: query.search, $options: 'i' } },
-      { content: { $regex: query.search, $options: 'i' } },
-    ];
+    filter.$and = filter.$and || [];
+    filter.$and.push({
+      $or: [
+        { title: { $regex: query.search, $options: 'i' } },
+        { excerpt: { $regex: query.search, $options: 'i' } },
+        { content: { $regex: query.search, $options: 'i' } },
+      ],
+    });
   }
   return filter;
 };
@@ -20,7 +32,8 @@ export const getArticles = async (req, res, next) => {
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 12;
     const skip = (page - 1) * limit;
-    const filter = buildFilter(req.query);
+    const includeUnpublished = req.query.all === '1' && req.user?.role === 'admin';
+    const filter = buildFilter(req.query, { includeUnpublished });
 
     const [articles, total] = await Promise.all([
       Article.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
@@ -45,6 +58,7 @@ export const getArticle = async (req, res, next) => {
     const related = await Article.find({
       _id: { $ne: article._id },
       category: article.category,
+      ...publishedFilter(),
     })
       .sort({ createdAt: -1 })
       .limit(4);
@@ -64,8 +78,19 @@ export const createArticle = async (req, res, next) => {
     if (!data.excerpt && data.content) {
       data.excerpt = data.content.replace(/<[^>]+>/g, '').slice(0, 200);
     }
+    if (data.publishedAt === '' || data.publishedAt === undefined) {
+      data.publishedAt = new Date();
+    }
 
     const article = await Article.create(data);
+
+    notifyAllStudents({
+      type: 'article',
+      title: 'مقال جديد',
+      body: `تمت إضافة مقال: ${article.title}`,
+      link: `/articles/${article._id}`,
+    });
+
     res.status(201).json({ success: true, data: article });
   } catch (err) {
     next(err);
