@@ -127,6 +127,8 @@ const AdminLectures = () => {
 
     if (form.publishedAt) {
       payload.publishedAt = new Date(form.publishedAt).toISOString();
+    } else {
+      payload.publishedAt = new Date().toISOString();
     }
 
     try {
@@ -245,12 +247,15 @@ const AdminLectures = () => {
           </div>
 
           <div className="form-group">
-            <label>تاريخ النشر (اختياري — جدولة)</label>
+            <label>تاريخ النشر (اتركه فارغاً للنشر الفوري)</label>
             <input
               type="datetime-local"
               value={form.publishedAt}
               onChange={(e) => setForm({ ...form, publishedAt: e.target.value })}
             />
+            <small style={{ color: 'var(--text-muted)' }}>
+              إذا وضعت تاريخاً مستقبلياً لن تظهر السلسلة للزوار حتى يحين الموعد
+            </small>
           </div>
 
           <div className="form-group">

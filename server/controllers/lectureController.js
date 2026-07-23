@@ -2,14 +2,7 @@ import Lecture from '../models/Lecture.js';
 import { extractYoutubeId } from '../utils/youtube.js';
 import AppError from '../utils/AppError.js';
 import { notifyAllStudents } from './notificationController.js';
-
-const publishedFilter = () => ({
-  $or: [
-    { publishedAt: { $exists: false } },
-    { publishedAt: null },
-    { publishedAt: { $lte: new Date() } },
-  ],
-});
+import { publishedFilter, normalizePublishedAt } from '../utils/publish.js';
 
 const buildFilter = (query, { includeUnpublished = false } = {}) => {
   const filter = includeUnpublished ? {} : { ...publishedFilter() };
@@ -159,9 +152,7 @@ export const createLecture = async (req, res, next) => {
     const quizItems = parseQuizItems(req.body);
     if (quizItems !== undefined) payload.quizItems = quizItems;
     if (payload.order !== undefined) payload.order = Number(payload.order) || 0;
-    if (payload.publishedAt === '' || payload.publishedAt === undefined) {
-      payload.publishedAt = new Date();
-    }
+    payload.publishedAt = normalizePublishedAt(payload.publishedAt);
 
     // Legacy quizQuestions from textarea lines
     if (typeof payload.quizQuestionsText === 'string') {
@@ -199,6 +190,9 @@ export const updateLecture = async (req, res, next) => {
     const quizItems = parseQuizItems(updates);
     if (quizItems !== undefined) updates.quizItems = quizItems;
     if (updates.order !== undefined) updates.order = Number(updates.order) || 0;
+    if (updates.publishedAt !== undefined) {
+      updates.publishedAt = normalizePublishedAt(updates.publishedAt);
+    }
     if (typeof updates.quizQuestionsText === 'string') {
       updates.quizQuestions = updates.quizQuestionsText
         .split('\n')

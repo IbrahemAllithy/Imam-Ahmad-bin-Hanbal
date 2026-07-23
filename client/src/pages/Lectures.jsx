@@ -53,7 +53,11 @@ const Lectures = () => {
     const map = {};
 
     data.data.forEach((lecture) => {
-      const sName = lecture.series || lecture.title.split('—')[0].trim() || 'دروس عامة';
+      const sName =
+        (lecture.series && String(lecture.series).trim()) ||
+        lecture.title.split('—')[0].trim() ||
+        lecture.title.split('-')[0].trim() ||
+        'دروس عامة';
       if (!map[sName]) {
         map[sName] = {
           seriesName: sName,
@@ -65,7 +69,9 @@ const Lectures = () => {
       map[sName].lessons.push(lecture);
     });
 
-    return Object.values(map);
+    return Object.values(map).sort((a, b) =>
+      a.seriesName.localeCompare(b.seriesName, 'ar')
+    );
   }, [data]);
 
   // Count total completed courses

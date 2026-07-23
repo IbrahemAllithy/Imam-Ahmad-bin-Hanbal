@@ -2,14 +2,7 @@ import Article from '../models/Article.js';
 import AppError from '../utils/AppError.js';
 import { removeStorageFile } from '../utils/storage.js';
 import { notifyAllStudents } from './notificationController.js';
-
-const publishedFilter = () => ({
-  $or: [
-    { publishedAt: { $exists: false } },
-    { publishedAt: null },
-    { publishedAt: { $lte: new Date() } },
-  ],
-});
+import { publishedFilter, normalizePublishedAt } from '../utils/publish.js';
 
 const buildFilter = (query, { includeUnpublished = false } = {}) => {
   const filter = includeUnpublished ? {} : { ...publishedFilter() };
@@ -80,6 +73,8 @@ export const createArticle = async (req, res, next) => {
     }
     if (data.publishedAt === '' || data.publishedAt === undefined) {
       data.publishedAt = new Date();
+    } else {
+      data.publishedAt = normalizePublishedAt(data.publishedAt);
     }
 
     const article = await Article.create(data);

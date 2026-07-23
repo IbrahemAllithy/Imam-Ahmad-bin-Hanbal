@@ -2,14 +2,7 @@ import Book from '../models/Book.js';
 import AppError from '../utils/AppError.js';
 import { removeStorageFile } from '../utils/storage.js';
 import { notifyAllStudents } from './notificationController.js';
-
-const publishedFilter = () => ({
-  $or: [
-    { publishedAt: { $exists: false } },
-    { publishedAt: null },
-    { publishedAt: { $lte: new Date() } },
-  ],
-});
+import { publishedFilter, normalizePublishedAt } from '../utils/publish.js';
 
 const buildFilter = (query, { includeUnpublished = false } = {}) => {
   const filter = includeUnpublished ? {} : { ...publishedFilter() };
@@ -88,6 +81,8 @@ export const createBook = async (req, res, next) => {
     if (data.pages) data.pages = Number(data.pages) || 1;
     if (data.publishedAt === '' || data.publishedAt === undefined) {
       data.publishedAt = new Date();
+    } else {
+      data.publishedAt = normalizePublishedAt(data.publishedAt);
     }
 
     const book = await Book.create(data);
