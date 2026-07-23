@@ -368,6 +368,19 @@ export const getFallbackData = (url, params = {}) => {
 
     // --- الحديث ---
     {
+      _id: 'demo-hadith-dawood-1',
+      title: 'شرح كتاب سنن أبي داود — الدرس 1',
+      youtubeUrl: 'https://www.youtube.com/watch?v=utBmANOrM90&list=PLzgycZElueFjEi_wdWoEYhU0_qBlSCXTB',
+      youtubeId: 'utBmANOrM90',
+      category: 'الحديث',
+      series: 'سنن أبي داود',
+      teacher: 'الشيخ شعبان العودة',
+      duration: '50 دقيقة',
+      description: 'الدرس الأول من شرح كتاب سنن أبي داود لفضيلة الشيخ شعبان العودة، ويتضمن مقدمة الشرح وقراءة في أول أبواب كتاب الطهارة.',
+      pdfUrl: defaultPdf,
+      audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+    },
+    {
       _id: 'demo-hadith-1',
       title: 'شرح علوم الحديث — المجلس (1)',
       youtubeUrl: 'https://youtu.be/yqHJJePxW18?si=xN2d5_37Qycm-Cto',
