@@ -95,6 +95,25 @@ export const mongoIdParam = [
   validate,
 ];
 
+export const issueCertificateValidation = [
+  body('userId').isMongoId().withMessage('معرّف الطالب غير صالح'),
+  body('series')
+    .trim()
+    .notEmpty()
+    .withMessage('اسم الدورة مطلوب')
+    .isLength({ max: 150 })
+    .withMessage('اسم الدورة طويل جداً'),
+  validate,
+];
+
+export const updateStudentValidation = [
+  body('name').optional().trim().isLength({ min: 1, max: 100 }).withMessage('الاسم غير صالح'),
+  body('phone').optional({ values: 'falsy' }).trim().isLength({ max: 30 }).withMessage('رقم الهاتف طويل جداً'),
+  body('country').optional({ values: 'falsy' }).trim().isLength({ max: 80 }).withMessage('اسم الدولة طويل جداً'),
+  body('role').optional().isIn(['admin', 'student']).withMessage('الدور غير صالح'),
+  validate,
+];
+
 export const listQueryValidation = [
   query('page')
     .optional({ values: 'falsy' })

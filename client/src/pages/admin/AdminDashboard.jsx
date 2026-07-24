@@ -13,6 +13,7 @@ import {
   FiUsers,
   FiMessageCircle,
   FiSend,
+  FiAward,
 } from 'react-icons/fi';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import AdminOverview from './AdminOverview';
@@ -24,6 +25,7 @@ import AdminSettings from './AdminSettings';
 import AdminStudents from './AdminStudents';
 import AdminQuestions from './AdminQuestions';
 import AdminBroadcast from './AdminBroadcast';
+import AdminCertificates from './AdminCertificates';
 import './Admin.css';
 
 const NAV_ITEMS = [
@@ -33,6 +35,7 @@ const NAV_ITEMS = [
   { id: 'articles', label: 'المقالات', icon: FiFileText },
   { id: 'books', label: 'الكتب', icon: FiBook },
   { id: 'students', label: 'الطلاب', icon: FiUsers },
+  { id: 'certificates', label: 'الشهادات', icon: FiAward },
   { id: 'questions', label: 'أسئلة الدروس', icon: FiMessageCircle },
   { id: 'contacts', label: 'رسائل الزوار', icon: FiMail },
   { id: 'settings', label: 'إعدادات الموقع', icon: FiSettings },
@@ -90,6 +93,7 @@ const AdminDashboard = () => {
         {tab === 'articles' && <AdminArticles />}
         {tab === 'books' && <AdminBooks />}
         {tab === 'students' && <AdminStudents />}
+        {tab === 'certificates' && <AdminCertificates />}
         {tab === 'questions' && <AdminQuestions />}
         {tab === 'contacts' && <AdminContacts />}
         {tab === 'settings' && <AdminSettings />}

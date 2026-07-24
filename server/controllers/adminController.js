@@ -127,3 +127,147 @@ export const deleteStudent = async (req, res, next) => {
     next(err);
   }
 };
+
+export const updateUser = async (req, res, next) => {
+  try {
+    const { name, phone, country, role } = req.body;
+    const target = await User.findById(req.params.id);
+    if (!target) return next(new AppError('المستخدم غير موجود', 404));
+
+    if (role && role !== target.role) {
+      if (String(target._id) === String(req.user._id)) {
+        return next(new AppError('لا يمكنك تغيير دورك الخاص', 400));
+      }
+      if (target.role === 'admin' && role === 'student') {
+        const adminCount = await User.countDocuments({ role: 'admin' });
+        if (adminCount <= 1) {
+          return next(new AppError('لا يمكن إزالة صلاحية آخر أدمن في الموقع', 400));
+        }
+      }
+      target.role = role;
+    }
+
+    if (name !== undefined) target.name = name;
+    if (phone !== undefined) target.phone = phone;
+    if (country !== undefined) target.country = country;
+
+    await target.save();
+    res.json({ success: true, data: target.toSafeJSON() });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getAdmins = async (_req, res, next) => {
+  try {
+    const admins = await User.find({ role: 'admin' })
+      .sort({ createdAt: 1 })
+      .select('name email phone country isEmailVerified createdAt');
+    res.json({ success: true, data: admins });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const deleteAdmin = async (req, res, next) => {
+  try {
+    if (req.params.id === String(req.user._id)) {
+      return next(new AppError('لا يمكنك حذف حسابك الخاص', 400));
+    }
+    const adminCount = await User.countDocuments({ role: 'admin' });
+    if (adminCount <= 1) {
+      return next(new AppError('لا يمكن حذف آخر أدمن في الموقع', 400));
+    }
+    const admin = await User.findOneAndDelete({ _id: req.params.id, role: 'admin' });
+    if (!admin) return next(new AppError('حساب الأدمن غير موجود', 404));
+    res.json({ success: true, message: 'تم حذف حساب الأدمن' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getStudentProgress = async (req, res, next) => {
+  try {
+    const student = await User.findOne({ _id: req.params.id, role: 'student' }).select(
+      'name email'
+    );
+    if (!student) return next(new AppError('الطالب غير موجود', 404));
+
+    const [progress, certificates] = await Promise.all([
+      Progress.find({ user: req.params.id })
+        .populate('lecture', 'title series category order')
+        .sort({ completedAt: -1 }),
+      Certificate.find({ user: req.params.id }).sort({ issuedAt: -1 }),
+    ]);
+
+    res.json({
+      success: true,
+      data: { student, progress, certificates },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getAllCertificates = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = Math.min(parseInt(req.query.limit, 10) || 50, 100);
+    const skip = (page - 1) * limit;
+    const search = (req.query.search || '').trim();
+
+    const filter = {};
+    if (search) {
+      const safeSearch = escapeRegex(search.slice(0, 100));
+      filter.series = { $regex: safeSearch, $options: 'i' };
+    }
+
+    const [certificates, total] = await Promise.all([
+      Certificate.find(filter)
+        .populate('user', 'name email')
+        .sort({ issuedAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      Certificate.countDocuments(filter),
+    ]);
+
+    res.json({
+      success: true,
+      data: certificates,
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const issueCertificate = async (req, res, next) => {
+  try {
+    const { userId, series } = req.body;
+    const student = await User.findOne({ _id: userId, role: 'student' });
+    if (!student) return next(new AppError('الطالب غير موجود', 404));
+
+    const existing = await Certificate.findOne({ user: userId, series });
+    if (existing) return next(new AppError('الطالب لديه شهادة لهذه الدورة بالفعل', 400));
+
+    const certificate = await Certificate.create({
+      user: userId,
+      series,
+      code: Certificate.generateCode(),
+    });
+
+    res.status(201).json({ success: true, data: certificate });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const deleteCertificate = async (req, res, next) => {
+  try {
+    const certificate = await Certificate.findByIdAndDelete(req.params.id);
+    if (!certificate) return next(new AppError('الشهادة غير موجودة', 404));
+    res.json({ success: true, message: 'تم إلغاء الشهادة' });
+  } catch (err) {
+    next(err);
+  }
+};
