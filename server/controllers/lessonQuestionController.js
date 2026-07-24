@@ -56,6 +56,16 @@ export const getAdminLessonQuestions = async (req, res, next) => {
   }
 };
 
+export const deleteLessonQuestion = async (req, res, next) => {
+  try {
+    const item = await LessonQuestion.findByIdAndDelete(req.params.id);
+    if (!item) return next(new AppError('السؤال غير موجود', 404));
+    res.json({ success: true, message: 'تم حذف السؤال' });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const replyLessonQuestion = async (req, res, next) => {
   try {
     const { adminReply, status } = req.body;

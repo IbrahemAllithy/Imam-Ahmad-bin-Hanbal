@@ -3,7 +3,7 @@ import { useFetch } from '../../hooks/useFetch';
 import api from '../../services/api';
 import { formatDate } from '../../utils/helpers';
 import Loader from '../../components/ui/Loader';
-import { FiMessageCircle } from 'react-icons/fi';
+import { FiMessageCircle, FiTrash2 } from 'react-icons/fi';
 import './Admin.css';
 
 const STATUS_OPTIONS = [
@@ -22,6 +22,17 @@ const AdminQuestions = () => {
   const [actionError, setActionError] = useState('');
 
   const questions = data?.data || [];
+
+  const handleDelete = async (qId) => {
+    if (!window.confirm('حذف هذا السؤال نهائياً؟')) return;
+    setActionError('');
+    try {
+      await api.delete(`/lesson-questions/admin/${qId}`);
+      refetch();
+    } catch (err) {
+      setActionError(err.response?.data?.message || 'فشل حذف السؤال');
+    }
+  };
 
   const handleReply = async (qId) => {
     const adminReply = (replies[qId] || '').trim();
@@ -85,6 +96,14 @@ const AdminQuestions = () => {
               <div className="card-badge-row">
                 <span className="card-cat-badge">{q.status}</span>
                 <span className="card-pdf-badge">{formatDate(q.createdAt)}</span>
+                <button
+                  type="button"
+                  className="btn-card-delete"
+                  style={{ marginInlineStart: 'auto' }}
+                  onClick={() => handleDelete(q._id)}
+                >
+                  <FiTrash2 /> حذف
+                </button>
               </div>
               <p style={{ margin: '0.5rem 0', fontWeight: 700 }}>
                 {q.lecture?.title || 'درس'}

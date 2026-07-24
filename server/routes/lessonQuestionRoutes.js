@@ -4,6 +4,7 @@ import {
   getMyLessonQuestions,
   getAdminLessonQuestions,
   replyLessonQuestion,
+  deleteLessonQuestion,
 } from '../controllers/lessonQuestionController.js';
 import { protect, restrictTo } from '../middleware/auth.js';
 import { mongoIdParam } from '../middleware/validators.js';
@@ -17,5 +18,6 @@ router.get('/mine', restrictTo('student', 'admin'), getMyLessonQuestions);
 
 router.get('/admin', restrictTo('admin'), getAdminLessonQuestions);
 router.patch('/admin/:id', restrictTo('admin'), mongoIdParam, replyLessonQuestion);
+router.delete('/admin/:id', restrictTo('admin'), mongoIdParam, deleteLessonQuestion);
 
 export default router;

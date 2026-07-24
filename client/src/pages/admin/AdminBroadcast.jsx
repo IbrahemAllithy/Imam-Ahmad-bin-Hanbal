@@ -1,15 +1,23 @@
 import { useState } from 'react';
-import { FiSend, FiUsers, FiMail, FiBell, FiCheckCircle } from 'react-icons/fi';
+import { FiSend, FiUsers, FiMail, FiBell, FiCheckCircle, FiClock } from 'react-icons/fi';
 import { useFetch } from '../../hooks/useFetch';
 import { useToast } from '../../context/ToastContext';
 import api from '../../services/api';
+import { formatDate } from '../../utils/helpers';
+import Loader from '../../components/ui/Loader';
 import './Admin.css';
 
 const AdminBroadcast = () => {
   const { showSuccess, showError } = useToast();
   const { data: studentsData } = useFetch('/admin/students');
+  const {
+    data: historyData,
+    loading: historyLoading,
+    refetch: refetchHistory,
+  } = useFetch('/notifications/broadcast/history');
   const students = studentsData?.data || [];
   const verifiedCount = students.filter((s) => s.isEmailVerified).length;
+  const history = historyData?.data || [];
 
   const [form, setForm] = useState({
     title: '',
@@ -43,6 +51,7 @@ const AdminBroadcast = () => {
         type: 'system',
         sendEmail: true,
       });
+      refetchHistory();
     } catch (err) {
       showError(err.response?.data?.message || 'فشل إرسال البث الجماعي');
     } finally {
@@ -220,6 +229,42 @@ const AdminBroadcast = () => {
             <span>سيتم إنشاء إشعار بالموقع لجميع الطلاب المسجلين تلقائياً عند الضغط على إرسال.</span>
           </div>
         </div>
+      </div>
+
+      <div className="admin-form-card" style={{ marginTop: 24 }}>
+        <h3 className="form-card-title">
+          <FiClock /> سجل البثوث السابقة
+        </h3>
+        {historyLoading ? (
+          <Loader />
+        ) : history.length ? (
+          <div className="admin-table-wrap">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>العنوان</th>
+                  <th>النوع</th>
+                  <th>عدد المستلمين</th>
+                  <th>عدد القراءات</th>
+                  <th>تاريخ الإرسال</th>
+                </tr>
+              </thead>
+              <tbody>
+                {history.map((h, idx) => (
+                  <tr key={idx}>
+                    <td>{h.title}</td>
+                    <td>{h.type}</td>
+                    <td>{h.recipients}</td>
+                    <td>{h.readCount}</td>
+                    <td>{formatDate(h.sentAt)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p style={{ color: 'var(--text-muted)' }}>لا يوجد بثوث مُرسلة بعد.</p>
+        )}
       </div>
     </div>
   );

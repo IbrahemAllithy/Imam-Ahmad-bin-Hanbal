@@ -149,6 +149,45 @@ export const sendAdminBroadcast = async (req, res, next) => {
   }
 };
 
+export const getBroadcastHistory = async (_req, res, next) => {
+  try {
+    const history = await Notification.aggregate([
+      {
+        $group: {
+          _id: {
+            title: '$title',
+            body: '$body',
+            link: '$link',
+            type: '$type',
+            day: { $dateToString: { format: '%Y-%m-%d %H:%M', date: '$createdAt' } },
+          },
+          sentAt: { $min: '$createdAt' },
+          recipients: { $sum: 1 },
+          readCount: { $sum: { $cond: ['$read', 1, 0] } },
+        },
+      },
+      { $sort: { sentAt: -1 } },
+      { $limit: 100 },
+      {
+        $project: {
+          _id: 0,
+          title: '$_id.title',
+          body: '$_id.body',
+          link: '$_id.link',
+          type: '$_id.type',
+          sentAt: 1,
+          recipients: 1,
+          readCount: 1,
+        },
+      },
+    ]);
+
+    res.json({ success: true, data: history });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const getMyNotifications = async (req, res, next) => {
   try {
     const items = await Notification.find({ user: req.user._id })
