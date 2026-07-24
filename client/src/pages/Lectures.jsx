@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useLectures } from '../hooks/useLectures';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { useSiteSettings } from '../context/SiteSettingsContext';
-import { FiCheckCircle, FiChevronDown, FiSearch } from 'react-icons/fi';
+import { FiCheckCircle, FiChevronDown, FiSearch, FiYoutube } from 'react-icons/fi';
 import Loader from '../components/ui/Loader';
 import './ListPages.css';
 
@@ -68,9 +68,20 @@ const Lectures = () => {
       map[sName].lessons.push(lecture);
     });
 
-    return Object.values(map).sort((a, b) =>
-      a.seriesName.localeCompare(b.seriesName, 'ar')
-    );
+    return Object.values(map)
+      .map((course) => {
+        const sorted = [...course.lessons].sort(
+          (a, b) => (a.order ?? 0) - (b.order ?? 0)
+        );
+        const firstLesson = sorted[0];
+        return {
+          ...course,
+          firstLectureId: firstLesson?._id || course.firstLectureId,
+          thumbnailId: firstLesson?.youtubeId || null,
+          youtubeUrl: firstLesson?.youtubeUrl || null,
+        };
+      })
+      .sort((a, b) => a.seriesName.localeCompare(b.seriesName, 'ar'));
   }, [data]);
 
   // Count total completed courses
@@ -164,6 +175,15 @@ const Lectures = () => {
                   className={`course-item-bar ${isCourseDone ? 'completed' : ''}`}
                 >
                   <div className="course-item-right">
+                    {course.thumbnailId && (
+                      <span className="course-item-thumb">
+                        <img
+                          src={`https://img.youtube.com/vi/${course.thumbnailId}/mqdefault.jpg`}
+                          alt=""
+                          loading="lazy"
+                        />
+                      </span>
+                    )}
                     <div className={`course-check-circle ${isCourseDone ? 'done' : ''}`}>
                       <FiCheckCircle />
                     </div>
@@ -173,6 +193,20 @@ const Lectures = () => {
                   <div className="course-item-left">
                     {isCourseDone && <span className="badge-course-completed">مكتمل</span>}
                     <span className="course-lessons-tag">{course.lessons.length} دروس</span>
+                    {course.youtubeUrl && (
+                      <span
+                        className="course-youtube-btn"
+                        role="button"
+                        title="فتح القائمة على يوتيوب"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          window.open(course.youtubeUrl, '_blank', 'noopener,noreferrer');
+                        }}
+                      >
+                        <FiYoutube />
+                      </span>
+                    )}
                     <FiChevronDown className="course-arrow-icon" />
                   </div>
                 </Link>
