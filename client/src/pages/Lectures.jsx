@@ -1,8 +1,8 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useLectures } from '../hooks/useLectures';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { useSiteSettings } from '../context/SiteSettingsContext';
+import api from '../services/api';
 import { FiCheckCircle, FiChevronDown, FiSearch, FiYoutube } from 'react-icons/fi';
 import Loader from '../components/ui/Loader';
 import './ListPages.css';
@@ -21,6 +21,9 @@ const Lectures = () => {
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebouncedValue(search, 400);
   const [completedMap, setCompletedMap] = useState({});
+  const [coursesList, setCoursesList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     setCategory(categoryFromSearch(location.search));
@@ -39,54 +42,47 @@ const Lectures = () => {
     setCompletedMap(map);
   }, []);
 
-  const params = {
-    ...(category !== 'الكل' && { category }),
-    ...(debouncedSearch && { search: debouncedSearch }),
-  };
+  // Fetch pre-grouped courses in a single lightweight request instead of
+  // paginating through every lecture (avoids exhausting the API rate limit
+  // once the catalog grows into the thousands of lessons).
+  useEffect(() => {
+    const controller = new AbortController();
+    let alive = true;
 
-  const { data, loading, error } = useLectures(params);
-
-  // Group lectures into Course/Series Bars
-  const coursesList = useMemo(() => {
-    if (!data?.data?.length) return [];
-    const map = {};
-
-    data.data.forEach((lecture) => {
-      const sName =
-        (lecture.series && String(lecture.series).trim()) ||
-        lecture.title.split('—')[0].trim() ||
-        lecture.title.split('-')[0].trim() ||
-        'دروس عامة';
-      if (!map[sName]) {
-        map[sName] = {
-          seriesName: sName,
-          category: lecture.category,
-          lessons: [],
-          firstLectureId: lecture._id,
+    const run = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const params = {
+          ...(category !== 'الكل' && { category }),
+          ...(debouncedSearch && { search: debouncedSearch }),
         };
+        const res = await api.get('/lectures/courses', {
+          params,
+          signal: controller.signal,
+        });
+        if (!alive) return;
+        setCoursesList(res.data?.data || []);
+      } catch (err) {
+        if (controller.signal.aborted || err?.code === 'ERR_CANCELED') return;
+        if (!alive) return;
+        setError(err.response?.data?.message || 'حدث خطأ أثناء جلب البيانات');
+        setCoursesList([]);
+      } finally {
+        if (alive && !controller.signal.aborted) setLoading(false);
       }
-      map[sName].lessons.push(lecture);
-    });
+    };
 
-    return Object.values(map)
-      .map((course) => {
-        const sorted = [...course.lessons].sort(
-          (a, b) => (a.order ?? 0) - (b.order ?? 0)
-        );
-        const firstLesson = sorted[0];
-        return {
-          ...course,
-          firstLectureId: firstLesson?._id || course.firstLectureId,
-          thumbnailId: firstLesson?.youtubeId || null,
-          youtubeUrl: firstLesson?.youtubeUrl || null,
-        };
-      })
-      .sort((a, b) => a.seriesName.localeCompare(b.seriesName, 'ar'));
-  }, [data]);
+    run();
+    return () => {
+      alive = false;
+      controller.abort();
+    };
+  }, [category, debouncedSearch]);
 
   // Count total completed courses
   const completedCoursesCount = coursesList.filter((course) =>
-    course.lessons.every((l) => completedMap[l._id])
+    (course.lessonIds || []).every((id) => completedMap[id])
   ).length;
 
   return (
@@ -167,7 +163,9 @@ const Lectures = () => {
         {!loading && !error && (
           <div className="courses-bars-list">
             {coursesList.map((course, idx) => {
-              const isCourseDone = course.lessons.every((l) => completedMap[l._id]);
+              const isCourseDone = (course.lessonIds || []).every(
+                (id) => completedMap[id]
+              );
               return (
                 <Link
                   key={idx}
@@ -192,7 +190,7 @@ const Lectures = () => {
 
                   <div className="course-item-left">
                     {isCourseDone && <span className="badge-course-completed">مكتمل</span>}
-                    <span className="course-lessons-tag">{course.lessons.length} دروس</span>
+                    <span className="course-lessons-tag">{course.lessonsCount} دروس</span>
                     {course.youtubeUrl && (
                       <span
                         className="course-youtube-btn"

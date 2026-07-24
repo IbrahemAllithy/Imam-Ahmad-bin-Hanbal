@@ -227,6 +227,71 @@ export const deleteLecture = async (req, res, next) => {
   }
 };
 
+export const getCourses = async (req, res, next) => {
+  try {
+    const filter = buildFilter(req.query);
+
+    const courses = await Lecture.aggregate([
+      { $match: filter },
+      { $sort: { order: 1, createdAt: 1 } },
+      {
+        $addFields: {
+          seriesTrim: { $trim: { input: { $ifNull: ['$series', ''] } } },
+        },
+      },
+      {
+        $addFields: {
+          groupKey: {
+            $cond: [
+              { $ne: ['$seriesTrim', ''] },
+              '$seriesTrim',
+              {
+                $trim: {
+                  input: {
+                    $arrayElemAt: [
+                      { $split: [{ $ifNull: ['$title', ''] }, '—'] },
+                      0,
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: '$groupKey',
+          category: { $first: '$category' },
+          lessonsCount: { $sum: 1 },
+          lessonIds: { $push: '$_id' },
+          firstLectureId: { $first: '$_id' },
+          thumbnailId: { $first: '$youtubeId' },
+          youtubeUrl: { $first: '$youtubeUrl' },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          seriesName: '$_id',
+          category: 1,
+          lessonsCount: 1,
+          lessonIds: 1,
+          firstLectureId: 1,
+          thumbnailId: 1,
+          youtubeUrl: 1,
+        },
+      },
+    ]);
+
+    courses.sort((a, b) => a.seriesName.localeCompare(b.seriesName, 'ar'));
+
+    res.json({ success: true, data: courses });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const getSeries = async (_req, res, next) => {
   try {
     const series = await Lecture.distinct('series', {

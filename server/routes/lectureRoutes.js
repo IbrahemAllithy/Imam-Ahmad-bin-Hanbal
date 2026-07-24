@@ -7,6 +7,7 @@ import {
   updateLecture,
   deleteLecture,
   getSeries,
+  getCourses,
   gradeLectureQuiz,
 } from '../controllers/lectureController.js';
 import { protect, restrictTo, optionalAuth } from '../middleware/auth.js';
@@ -32,6 +33,7 @@ const quizLimiter = rateLimit({
 });
 
 router.get('/', optionalAuth, listQueryValidation, getLectures);
+router.get('/courses', getCourses);
 router.get('/series/list', getSeries);
 router.get('/:id', optionalAuth, mongoIdParam, getLecture);
 router.post(
