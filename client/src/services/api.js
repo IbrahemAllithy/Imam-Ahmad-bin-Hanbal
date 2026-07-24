@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const PROD_FALLBACK_API_URL = 'https://imam-ahmad-bin-hanbal.onrender.com/api';
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? 'http://localhost:5000/api' : PROD_FALLBACK_API_URL);
 const BASE_URL = API_URL.replace(/\/api$/, '');
 
 const api = axios.create({
