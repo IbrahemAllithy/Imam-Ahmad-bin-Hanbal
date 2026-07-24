@@ -3,17 +3,20 @@ import AppError from '../utils/AppError.js';
 import { removeStorageFile } from '../utils/storage.js';
 import { notifyAllStudents } from './notificationController.js';
 import { publishedFilter, normalizePublishedAt } from '../utils/publish.js';
+import { escapeRegex } from '../utils/sanitize.js';
+import { removeUploadedFiles } from '../middleware/upload.js';
 
 const buildFilter = (query, { includeUnpublished = false } = {}) => {
   const filter = includeUnpublished ? {} : { ...publishedFilter() };
   if (query.category) filter.category = query.category;
   if (query.search) {
+    const search = escapeRegex(String(query.search).slice(0, 100));
     filter.$and = filter.$and || [];
     filter.$and.push({
       $or: [
-        { title: { $regex: query.search, $options: 'i' } },
-        { author: { $regex: query.search, $options: 'i' } },
-        { description: { $regex: query.search, $options: 'i' } },
+        { title: { $regex: search, $options: 'i' } },
+        { author: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
       ],
     });
   }
@@ -45,7 +48,9 @@ export const getBooks = async (req, res, next) => {
 
 export const getBook = async (req, res, next) => {
   try {
-    const book = await Book.findById(req.params.id);
+    const isAdmin = req.user?.role === 'admin';
+    const filter = isAdmin ? { _id: req.params.id } : { _id: req.params.id, ...publishedFilter() };
+    const book = await Book.findOne(filter);
     if (!book) return next(new AppError('الكتاب غير موجود', 404));
 
     const related = await Book.find({
@@ -71,6 +76,7 @@ export const createBook = async (req, res, next) => {
     } else if (req.body.pdfUrl) {
       data.pdfUrl = req.body.pdfUrl;
     } else {
+      await removeUploadedFiles(req);
       return next(new AppError('ملف PDF أو رابط القراءة مطلوب', 400));
     }
 
@@ -96,6 +102,7 @@ export const createBook = async (req, res, next) => {
 
     res.status(201).json({ success: true, data: book });
   } catch (err) {
+    await removeUploadedFiles(req);
     next(err);
   }
 };
@@ -120,13 +127,17 @@ export const updateBook = async (req, res, next) => {
       new: true,
       runValidators: true,
     });
-    if (!book) return next(new AppError('الكتاب غير موجود', 404));
+    if (!book) {
+      await removeUploadedFiles(req);
+      return next(new AppError('الكتاب غير موجود', 404));
+    }
 
     if (previous && req.files?.pdf?.[0]) removeStorageFile(previous.pdfUrl);
     if (previous && req.files?.coverImage?.[0]) removeStorageFile(previous.coverImage);
 
     res.json({ success: true, data: book });
   } catch (err) {
+    await removeUploadedFiles(req);
     next(err);
   }
 };

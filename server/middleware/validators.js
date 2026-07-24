@@ -1,9 +1,13 @@
 import { body, param, query, validationResult } from 'express-validator';
 import { extractYoutubeId } from '../utils/youtube.js';
+import { removeUploadedFiles } from './upload.js';
 
-export const validate = (req, res, next) => {
+export const validate = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    // Multer (upload middleware) runs before body validation on file routes,
+    // so a body-validation failure would otherwise leak the already-written file.
+    if (req.file || req.files) await removeUploadedFiles(req);
     const message = errors.array().map((e) => e.msg).join(' — ');
     return res.status(400).json({ success: false, message });
   }

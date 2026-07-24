@@ -33,7 +33,7 @@ const quizLimiter = rateLimit({
 
 router.get('/', optionalAuth, listQueryValidation, getLectures);
 router.get('/series/list', getSeries);
-router.get('/:id', mongoIdParam, getLecture);
+router.get('/:id', optionalAuth, mongoIdParam, getLecture);
 router.post(
   '/:id/quiz',
   quizLimiter,

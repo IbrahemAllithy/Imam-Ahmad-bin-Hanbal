@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../services/api';
+import { validateClientPassword } from '../utils/authValidation';
 import './Auth.css';
 
 const ResetPassword = () => {
@@ -24,7 +25,7 @@ const ResetPassword = () => {
       setError('رابط إعادة التعيين غير صالح');
       return;
     }
-    if (password.length < 8) next.password = 'كلمة المرور يجب أن تكون 8 أحرف على الأقل';
+    next.password = validateClientPassword(password);
     if (password !== confirm) next.confirm = 'كلمتا المرور غير متطابقتين';
     setFieldErrors(next);
     if (next.password || next.confirm) return;

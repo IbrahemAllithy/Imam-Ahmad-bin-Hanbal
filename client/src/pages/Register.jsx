@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { validateClientEmail, validateClientName } from '../utils/authValidation';
+import { validateClientEmail, validateClientName, validateClientPassword } from '../utils/authValidation';
 import './Auth.css';
 
 const Register = () => {
@@ -41,8 +41,7 @@ const Register = () => {
       confirmPassword: '',
     };
 
-    if (!form.password) next.password = 'كلمة المرور مطلوبة';
-    else if (form.password.length < 8) next.password = 'كلمة المرور يجب أن تكون 8 أحرف على الأقل';
+    next.password = validateClientPassword(form.password);
 
     if (form.password !== form.confirmPassword) {
       next.confirmPassword = 'كلمتا المرور غير متطابقتين';

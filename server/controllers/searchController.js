@@ -2,10 +2,11 @@ import Lecture from '../models/Lecture.js';
 import Article from '../models/Article.js';
 import Book from '../models/Book.js';
 import { publishedFilter } from '../utils/publish.js';
+import { escapeRegex } from '../utils/sanitize.js';
 
 export const globalSearch = async (req, res, next) => {
   try {
-    const q = (req.query.q || '').trim();
+    const q = (req.query.q || '').trim().slice(0, 100);
     if (!q || q.length < 2) {
       return res.json({
         success: true,
@@ -13,7 +14,7 @@ export const globalSearch = async (req, res, next) => {
       });
     }
 
-    const regex = { $regex: q, $options: 'i' };
+    const regex = { $regex: escapeRegex(q), $options: 'i' };
     const pub = publishedFilter();
 
     const [lectures, articles, books] = await Promise.all([

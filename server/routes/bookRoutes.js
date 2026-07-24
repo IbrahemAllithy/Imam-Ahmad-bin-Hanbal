@@ -17,7 +17,7 @@ import { uploadBookFiles, validateMagicBytes } from '../middleware/upload.js';
 const router = Router();
 
 router.get('/', optionalAuth, listQueryValidation, getBooks);
-router.get('/:id', mongoIdParam, getBook);
+router.get('/:id', optionalAuth, mongoIdParam, getBook);
 
 router.use(protect, restrictTo('admin'));
 router.post('/', uploadBookFiles, validateMagicBytes, bookValidation, createBook);

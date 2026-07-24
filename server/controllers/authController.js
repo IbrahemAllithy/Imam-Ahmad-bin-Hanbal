@@ -82,11 +82,10 @@ export const register = async (req, res, next) => {
       if (exists.isEmailVerified) {
         return next(new AppError('هذا البريد الإلكتروني مسجّل مسبقاً', 409, 'email'));
       }
-      exists.name = nameCheck.name;
-      exists.password = password;
-      exists.phone = phone;
-      exists.country = country;
-      exists.role = 'student';
+      // Pending (unverified) account — just resend a fresh OTP.
+      // Do NOT overwrite name/password/phone here: the caller hasn't proven
+      // mailbox ownership yet, so this would let anyone who knows the email
+      // silently overwrite another person's in-progress registration.
       await assignAndSendOtp(exists);
 
       return res.status(200).json({
@@ -159,7 +158,11 @@ export const verifyEmail = async (req, res, next) => {
       return next(new AppError('انتهت صلاحية الرمز — اطلب رمزاً جديداً', 400, 'otp'));
     }
 
-    if (hashOtp(otp) !== user.emailVerificationOTP) {
+    const provided = Buffer.from(hashOtp(otp));
+    const expected = Buffer.from(user.emailVerificationOTP);
+    const matches =
+      provided.length === expected.length && crypto.timingSafeEqual(provided, expected);
+    if (!matches) {
       return next(new AppError('رمز التفعيل غير صحيح', 400, 'otp'));
     }
 
@@ -224,16 +227,6 @@ export const login = async (req, res, next) => {
       return next(new AppError(GENERIC_LOGIN_FAIL, 401));
     }
 
-    if (user.role === 'student' && !user.isEmailVerified) {
-      return next(
-        new AppError(
-          'يجب تفعيل البريد الإلكتروني أولاً عبر رمز التأكيد',
-          403,
-          'email'
-        )
-      );
-    }
-
     if (user.isLocked) {
       logger.security('محاولة دخول على حساب مقفل', { email });
       return next(
@@ -246,6 +239,18 @@ export const login = async (req, res, next) => {
       await user.incrementFailedAttempts();
       logger.security('محاولة دخول فاشلة — كلمة مرور خاطئة', { email });
       return next(new AppError(GENERIC_LOGIN_FAIL, 401));
+    }
+
+    // Only reveal "unverified" after the password has been proven correct,
+    // otherwise this branch becomes an email-enumeration oracle.
+    if (user.role === 'student' && !user.isEmailVerified) {
+      return next(
+        new AppError(
+          'يجب تفعيل البريد الإلكتروني أولاً عبر رمز التأكيد',
+          403,
+          'email'
+        )
+      );
     }
 
     await user.resetFailedAttempts();

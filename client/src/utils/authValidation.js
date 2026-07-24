@@ -47,6 +47,15 @@ export const validateClientEmail = (rawEmail = '') => {
   return '';
 };
 
+export const validateClientPassword = (rawPassword = '') => {
+  if (!rawPassword) return 'كلمة المرور مطلوبة';
+  if (rawPassword.length < 8) return 'كلمة المرور يجب أن تكون 8 أحرف على الأقل';
+  if (rawPassword.length > 128) return 'كلمة المرور طويلة جداً';
+  if (!/[a-zA-Z]/.test(rawPassword)) return 'كلمة المرور يجب أن تحتوي على حرف إنجليزي واحد على الأقل';
+  if (!/\d/.test(rawPassword)) return 'كلمة المرور يجب أن تحتوي على رقم واحد على الأقل';
+  return '';
+};
+
 export const validateClientName = (rawName = '') => {
   const name = rawName.trim().replace(/\s+/g, ' ');
   if (!name) return 'الاسم مطلوب';

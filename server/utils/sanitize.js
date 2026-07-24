@@ -12,6 +12,12 @@ export const escapeHtml = (str) => {
   return str.replace(/[&<>"'/]/g, (char) => HTML_ESCAPE_MAP[char]);
 };
 
+/** Escape regex metacharacters so user input is safe inside a $regex query. */
+export const escapeRegex = (str) => {
+  if (typeof str !== 'string') return '';
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
 /**
  * Robust string sanitizer for server input.
  * Strips script tags, unsafe protocols (javascript:, data:, vbscript:),

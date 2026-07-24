@@ -3,17 +3,20 @@ import AppError from '../utils/AppError.js';
 import { removeStorageFile } from '../utils/storage.js';
 import { notifyAllStudents } from './notificationController.js';
 import { publishedFilter, normalizePublishedAt } from '../utils/publish.js';
+import { escapeRegex } from '../utils/sanitize.js';
+import { removeUploadedFiles } from '../middleware/upload.js';
 
 const buildFilter = (query, { includeUnpublished = false } = {}) => {
   const filter = includeUnpublished ? {} : { ...publishedFilter() };
   if (query.category) filter.category = query.category;
   if (query.search) {
+    const search = escapeRegex(String(query.search).slice(0, 100));
     filter.$and = filter.$and || [];
     filter.$and.push({
       $or: [
-        { title: { $regex: query.search, $options: 'i' } },
-        { excerpt: { $regex: query.search, $options: 'i' } },
-        { content: { $regex: query.search, $options: 'i' } },
+        { title: { $regex: search, $options: 'i' } },
+        { excerpt: { $regex: search, $options: 'i' } },
+        { content: { $regex: search, $options: 'i' } },
       ],
     });
   }
@@ -45,7 +48,9 @@ export const getArticles = async (req, res, next) => {
 
 export const getArticle = async (req, res, next) => {
   try {
-    const article = await Article.findById(req.params.id);
+    const isAdmin = req.user?.role === 'admin';
+    const filter = isAdmin ? { _id: req.params.id } : { _id: req.params.id, ...publishedFilter() };
+    const article = await Article.findOne(filter);
     if (!article) return next(new AppError('المقال غير موجود', 404));
 
     const related = await Article.find({
@@ -88,6 +93,7 @@ export const createArticle = async (req, res, next) => {
 
     res.status(201).json({ success: true, data: article });
   } catch (err) {
+    await removeUploadedFiles(req);
     next(err);
   }
 };
@@ -104,11 +110,15 @@ export const updateArticle = async (req, res, next) => {
       new: true,
       runValidators: true,
     });
-    if (!article) return next(new AppError('المقال غير موجود', 404));
+    if (!article) {
+      await removeUploadedFiles(req);
+      return next(new AppError('المقال غير موجود', 404));
+    }
     if (previous?.coverImage) removeStorageFile(previous.coverImage);
 
     res.json({ success: true, data: article });
   } catch (err) {
+    await removeUploadedFiles(req);
     next(err);
   }
 };

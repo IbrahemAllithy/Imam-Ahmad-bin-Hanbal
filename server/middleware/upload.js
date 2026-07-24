@@ -124,19 +124,32 @@ export const validateMagicBytes = async (req, _res, next) => {
     }
 
     for (const { file, allowed, label } of checks) {
-      const buffer = fs.readFileSync(file.path);
+      const buffer = await fs.promises.readFile(file.path);
       const type = await fileTypeFromBuffer(buffer);
 
       if (!type || !allowed.includes(type.mime)) {
-        fs.unlinkSync(file.path);
+        await removeUploadedFiles(req);
         return next(new AppError(`محتوى الملف (${label}) لا يطابق النوع المعلن`, 400));
       }
     }
 
     next();
   } catch (err) {
+    await removeUploadedFiles(req);
     next(err);
   }
+};
+
+/** Delete every file multer wrote for this request (single `.file` or `.fields()` `.files`). */
+export const removeUploadedFiles = async (req) => {
+  const files = req.file ? [req.file] : Object.values(req.files || {}).flat();
+  await Promise.all(
+    files.map((file) =>
+      fs.promises.unlink(file.path).catch(() => {
+        // already removed or never written — nothing to clean up
+      })
+    )
+  );
 };
 
 export const STORAGE_PATHS = { STORAGE_ROOT, PDF_DIR, COVER_DIR };

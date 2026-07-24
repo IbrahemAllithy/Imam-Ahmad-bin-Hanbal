@@ -7,6 +7,7 @@ import Progress from '../models/Progress.js';
 import Certificate from '../models/Certificate.js';
 import LessonQuestion from '../models/LessonQuestion.js';
 import AppError from '../utils/AppError.js';
+import { escapeRegex } from '../utils/sanitize.js';
 
 export const getStats = async (_req, res, next) => {
   try {
@@ -89,11 +90,12 @@ export const getStudents = async (req, res, next) => {
 
     const filter = { role: 'student' };
     if (search) {
+      const safeSearch = escapeRegex(search.slice(0, 100));
       filter.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } },
-        { phone: { $regex: search, $options: 'i' } },
-        { country: { $regex: search, $options: 'i' } },
+        { name: { $regex: safeSearch, $options: 'i' } },
+        { email: { $regex: safeSearch, $options: 'i' } },
+        { phone: { $regex: safeSearch, $options: 'i' } },
+        { country: { $regex: safeSearch, $options: 'i' } },
       ];
     }
 
@@ -102,7 +104,7 @@ export const getStudents = async (req, res, next) => {
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
-        .select('name email phone country createdAt'),
+        .select('name email phone country isEmailVerified createdAt'),
       User.countDocuments(filter),
     ]);
 

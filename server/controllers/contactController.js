@@ -43,7 +43,7 @@ export const submitContact = async (req, res, next) => {
 
 export const getContacts = async (_req, res, next) => {
   try {
-    const contacts = await Contact.find().sort({ createdAt: -1 });
+    const contacts = await Contact.find().sort({ createdAt: -1 }).limit(500);
     res.json({ success: true, data: contacts });
   } catch (err) {
     next(err);

@@ -53,6 +53,12 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, [checkAuth]);
 
+  useEffect(() => {
+    const handleAuthLogout = () => setUser(null);
+    window.addEventListener('auth:logout', handleAuthLogout);
+    return () => window.removeEventListener('auth:logout', handleAuthLogout);
+  }, []);
+
   const login = async (email, password, options = {}) => {
     const { requireAdmin = false } = options;
     const normalizedEmail = (email || '').trim().toLowerCase();

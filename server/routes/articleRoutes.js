@@ -17,7 +17,7 @@ import { uploadArticleCover, validateMagicBytes } from '../middleware/upload.js'
 const router = Router();
 
 router.get('/', optionalAuth, listQueryValidation, getArticles);
-router.get('/:id', mongoIdParam, getArticle);
+router.get('/:id', optionalAuth, mongoIdParam, getArticle);
 
 router.use(protect, restrictTo('admin'));
 router.post(

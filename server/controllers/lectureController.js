@@ -3,18 +3,20 @@ import { extractYoutubeId } from '../utils/youtube.js';
 import AppError from '../utils/AppError.js';
 import { notifyAllStudents } from './notificationController.js';
 import { publishedFilter, normalizePublishedAt } from '../utils/publish.js';
+import { escapeRegex } from '../utils/sanitize.js';
 
 const buildFilter = (query, { includeUnpublished = false } = {}) => {
   const filter = includeUnpublished ? {} : { ...publishedFilter() };
   if (query.category) filter.category = query.category;
   if (query.series) filter.series = query.series;
   if (query.search) {
+    const search = escapeRegex(String(query.search).slice(0, 100));
     filter.$and = filter.$and || [];
     filter.$and.push({
       $or: [
-        { title: { $regex: query.search, $options: 'i' } },
-        { description: { $regex: query.search, $options: 'i' } },
-        { series: { $regex: query.search, $options: 'i' } },
+        { title: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+        { series: { $regex: search, $options: 'i' } },
       ],
     });
   }
@@ -82,7 +84,9 @@ export const getLectures = async (req, res, next) => {
 
 export const getLecture = async (req, res, next) => {
   try {
-    const lecture = await Lecture.findById(req.params.id);
+    const isAdmin = req.user?.role === 'admin';
+    const filter = isAdmin ? { _id: req.params.id } : { _id: req.params.id, ...publishedFilter() };
+    const lecture = await Lecture.findOne(filter);
     if (!lecture) return next(new AppError('المحاضرة غير موجودة', 404));
 
     const relatedFilter = {

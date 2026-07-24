@@ -6,8 +6,12 @@ import { useAuth } from '../context/AuthContext';
  * Redirects unauthenticated visitors to /login.
  */
 const ProtectedRoute = ({ children }) => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const location = useLocation();
+
+  if (loading) {
+    return <div className="loading">جاري التحقق...</div>;
+  }
 
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
