@@ -137,11 +137,6 @@ const Navbar = () => {
     </>
   );
 
-  const extraLinks = [
-    { to: '/start', label: 'ابدأ من هنا' },
-    { to: '/search', label: 'بحث' },
-  ];
-
   return (
     <header className="navbar">
       <div className="navbar-inner">
@@ -155,16 +150,6 @@ const Navbar = () => {
 
         <nav id="main-nav-menu" className={`navbar-links ${open ? 'open' : ''}`}>
           <div className="nav-menu">
-            {extraLinks.map(({ to, label }) => (
-              <Link
-                key={to}
-                to={to}
-                onClick={() => setOpen(false)}
-                className={`nav-item ${isActiveLink(to) ? 'active' : ''}`}
-              >
-                {label}
-              </Link>
-            ))}
             {links.map(({ to, label }) => (
               <Link
                 key={`${to}-${label}`}

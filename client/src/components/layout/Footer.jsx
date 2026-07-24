@@ -15,7 +15,7 @@ const Footer = () => {
           <p className="footer-desc">{footer.description}</p>
         </div>
         <div>
-          <div className="footer-col-title">الأقسام</div>
+          <div className="footer-col-title">{footer.sectionsTitle}</div>
           <div className="footer-links">
             {categories.map((cat) => (
               <Link
@@ -28,15 +28,17 @@ const Footer = () => {
           </div>
         </div>
         <div>
-          <div className="footer-col-title">روابط</div>
+          <div className="footer-col-title">{footer.linksTitle}</div>
           <div className="footer-links">
-            <Link to="/lectures">الدروس</Link>
-            <Link to="/books">الكتب</Link>
-            <Link to="/articles">المقالات</Link>
+            {(footer.quickLinks || []).map((link) => (
+              <Link key={link.to} to={link.to}>
+                {link.label}
+              </Link>
+            ))}
           </div>
         </div>
         <div>
-          <div className="footer-col-title">تواصل معنا</div>
+          <div className="footer-col-title">{footer.contactTitle}</div>
           <div className="footer-contact">
             {footer.email && (
               <a href={`mailto:${footer.email}`}>{footer.email}</a>

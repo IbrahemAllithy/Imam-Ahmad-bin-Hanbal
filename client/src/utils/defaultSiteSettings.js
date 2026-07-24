@@ -69,6 +69,8 @@ export const DEFAULT_SITE_SETTINGS = {
   },
   navbar: {
     links: [
+      { to: '/start', label: 'ابدأ من هنا' },
+      { to: '/search', label: 'بحث' },
       { to: '/', label: 'الرئيسية' },
       { to: '/#about', label: 'عن الشيخ' },
       { to: '/lectures', label: 'الدورات والبرامج' },
@@ -88,10 +90,31 @@ export const DEFAULT_SITE_SETTINGS = {
       { label: 'تيليجرام', url: '' },
     ],
     copyrightSuffix: 'جميع الحقوق محفوظة.',
+    sectionsTitle: 'الأقسام',
+    linksTitle: 'روابط',
+    contactTitle: 'تواصل معنا',
+    quickLinks: [
+      { to: '/lectures', label: 'الدروس' },
+      { to: '/books', label: 'الكتب' },
+      { to: '/articles', label: 'المقالات' },
+    ],
   },
   contactPage: {
     headerTitle: 'التواصل والتسجيل',
     headerSubtitle: 'يسعدنا تواصلكم معنا للاشتراك والاستفسار',
+  },
+  lectureCategoriesPage: {
+    headerTitle: 'اختر العلم الشرعي الذي تود دراسته',
+    headerSubtitle:
+      'تصفّح الدورات العلمية والشرعية لفضيلة الشيخ شعبان العودة، المبوبة بحسب الفنون والعلوم الشرعية.',
+    sectionTitle: 'العلوم والعلوم الشرعية المتاحة',
+    sectionSubtitle: 'اضغط على أي علم لتصفح كتبه ودوراته التعليمية',
+  },
+  startHerePage: {
+    headerTitle: 'ابدأ من هنا',
+    headerSubtitle: 'مسارات مقترحة للبدء في طلب العلم على الموقع',
+    emptyText: 'لا توجد دورات متاحة حالياً.',
+    allLecturesLinkText: 'استعرض جميع الدروس',
   },
   categories: [
     { id: 'tafsir', name: 'التفسير', letter: 'ت', count: 29 },

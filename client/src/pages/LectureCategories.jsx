@@ -6,6 +6,7 @@ import './LectureCategories.css';
 const LectureCategories = () => {
   const { settings } = useSiteSettings();
   const categories = settings.categories || [];
+  const page = settings.lectureCategoriesPage || {};
 
   return (
     <div className="categories-page">
@@ -16,17 +17,15 @@ const LectureCategories = () => {
             <span>/</span>
             <span className="current">العلوم والدورات الشرعية</span>
           </div>
-          <h1>اختر العلم الشرعي الذي تود دراسته</h1>
-          <p>
-            تصفّح الدورات العلمية والشرعية لفضيلة الشيخ شعبان العودة، المبوبة بحسب الفنون والعلوم الشرعية.
-          </p>
+          <h1>{page.headerTitle}</h1>
+          <p>{page.headerSubtitle}</p>
         </div>
       </div>
 
       <div className="categories-content">
         <div className="categories-section-header">
-          <h2>العلوم والعلوم الشرعية المتاحة</h2>
-          <p>اضغط على أي علم لتصفح كتبه ودوراته التعليمية</p>
+          <h2>{page.sectionTitle}</h2>
+          <p>{page.sectionSubtitle}</p>
         </div>
 
         <div className="categories-grid-modern">

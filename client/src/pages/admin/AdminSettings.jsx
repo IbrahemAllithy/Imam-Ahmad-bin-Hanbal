@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FiCheck, FiPlus, FiTrash2, FiSettings } from 'react-icons/fi';
+import { FiCheck, FiPlus, FiTrash2, FiSettings, FiAlertTriangle } from 'react-icons/fi';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import { DEFAULT_SITE_SETTINGS } from '../../utils/defaultSiteSettings';
 import './Admin.css';
@@ -11,6 +11,7 @@ const SECTIONS = [
   { id: 'nav', label: 'القائمة والفوتر' },
   { id: 'categories', label: 'التصنيفات' },
   { id: 'contact', label: 'التواصل' },
+  { id: 'pages', label: 'صفحات أخرى' },
 ];
 
 const clone = (value) => JSON.parse(JSON.stringify(value));
@@ -24,10 +25,21 @@ const AdminSettings = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const dirty = JSON.stringify(form) !== JSON.stringify(settings) || Boolean(logoFile) || Boolean(sheikhFile);
 
   useEffect(() => {
     setForm(clone(settings));
   }, [settings]);
+
+  useEffect(() => {
+    if (!dirty) return undefined;
+    const warn = (e) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [dirty]);
 
   const updatePath = (path, value) => {
     setForm((prev) => {
@@ -80,6 +92,14 @@ const AdminSettings = () => {
           <p>تحكم في الهوية والنصوص والتصنيفات والقوائم من مكان واحد</p>
         </div>
       </div>
+
+      {dirty && (
+        <div className="settings-unsaved-banner">
+          <span>
+            <FiAlertTriangle /> عندك تعديلات لسه ما اتحفظتش — اضغط "حفظ الإعدادات" قبل ما تسيب الصفحة.
+          </span>
+        </div>
+      )}
 
       <div className="settings-tabs">
         {SECTIONS.map((item) => (
@@ -256,7 +276,7 @@ const AdminSettings = () => {
 
             <h4 className="settings-subtitle">روابط الاستكشاف</h4>
             {(form.exploreLinks || []).map((link, idx) => (
-              <div className="form-grid" key={`explore-${idx}`}>
+              <div className="form-grid settings-inline-row" key={`explore-${idx}`}>
                 <div className="form-group">
                   <label>النص</label>
                   <input
@@ -279,8 +299,29 @@ const AdminSettings = () => {
                     }}
                   />
                 </div>
+                <button
+                  type="button"
+                  className="btn-card-delete"
+                  onClick={() =>
+                    updatePath('exploreLinks', form.exploreLinks.filter((_, i) => i !== idx))
+                  }
+                >
+                  <FiTrash2 />
+                </button>
               </div>
             ))}
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={() =>
+                updatePath('exploreLinks', [
+                  ...form.exploreLinks,
+                  { label: 'رابط جديد', href: '/' },
+                ])
+              }
+            >
+              <FiPlus /> إضافة رابط استكشاف
+            </button>
 
             <h4 className="settings-subtitle">قسم التواصل في الرئيسية</h4>
             <div className="form-grid">
@@ -444,7 +485,68 @@ const AdminSettings = () => {
                 <label>نص الحقوق</label>
                 <input value={form.footer.copyrightSuffix} onChange={(e) => updatePath('footer.copyrightSuffix', e.target.value)} />
               </div>
+              <div className="form-group">
+                <label>عنوان عمود "الأقسام"</label>
+                <input value={form.footer.sectionsTitle} onChange={(e) => updatePath('footer.sectionsTitle', e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label>عنوان عمود "روابط"</label>
+                <input value={form.footer.linksTitle} onChange={(e) => updatePath('footer.linksTitle', e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label>عنوان عمود "تواصل معنا"</label>
+                <input value={form.footer.contactTitle} onChange={(e) => updatePath('footer.contactTitle', e.target.value)} />
+              </div>
             </div>
+
+            <h4 className="settings-subtitle">روابط عمود "روابط" في الفوتر</h4>
+            {(form.footer.quickLinks || []).map((link, idx) => (
+              <div className="form-grid settings-inline-row" key={`quick-${idx}`}>
+                <div className="form-group">
+                  <label>النص</label>
+                  <input
+                    value={link.label}
+                    onChange={(e) => {
+                      const links = [...form.footer.quickLinks];
+                      links[idx] = { ...links[idx], label: e.target.value };
+                      updatePath('footer.quickLinks', links);
+                    }}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>الرابط</label>
+                  <input
+                    value={link.to}
+                    onChange={(e) => {
+                      const links = [...form.footer.quickLinks];
+                      links[idx] = { ...links[idx], to: e.target.value };
+                      updatePath('footer.quickLinks', links);
+                    }}
+                  />
+                </div>
+                <button
+                  type="button"
+                  className="btn-card-delete"
+                  onClick={() =>
+                    updatePath('footer.quickLinks', form.footer.quickLinks.filter((_, i) => i !== idx))
+                  }
+                >
+                  <FiTrash2 />
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={() =>
+                updatePath('footer.quickLinks', [
+                  ...(form.footer.quickLinks || []),
+                  { label: 'رابط جديد', to: '/' },
+                ])
+              }
+            >
+              <FiPlus /> إضافة رابط
+            </button>
 
             <h4 className="settings-subtitle">روابط التواصل الاجتماعي</h4>
             {(form.footer.socialLinks || []).map((link, idx) => (
@@ -576,6 +678,75 @@ const AdminSettings = () => {
               />
             </div>
           </div>
+        )}
+
+        {section === 'pages' && (
+          <>
+            <h4 className="settings-subtitle">صفحة "العلوم والدورات"</h4>
+            <div className="form-grid">
+              <div className="form-group">
+                <label>العنوان الرئيسي</label>
+                <input
+                  value={form.lectureCategoriesPage.headerTitle}
+                  onChange={(e) => updatePath('lectureCategoriesPage.headerTitle', e.target.value)}
+                />
+              </div>
+              <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                <label>الوصف</label>
+                <textarea
+                  rows={2}
+                  value={form.lectureCategoriesPage.headerSubtitle}
+                  onChange={(e) => updatePath('lectureCategoriesPage.headerSubtitle', e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label>عنوان قسم العلوم</label>
+                <input
+                  value={form.lectureCategoriesPage.sectionTitle}
+                  onChange={(e) => updatePath('lectureCategoriesPage.sectionTitle', e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label>وصف قسم العلوم</label>
+                <input
+                  value={form.lectureCategoriesPage.sectionSubtitle}
+                  onChange={(e) => updatePath('lectureCategoriesPage.sectionSubtitle', e.target.value)}
+                />
+              </div>
+            </div>
+
+            <h4 className="settings-subtitle">صفحة "ابدأ من هنا"</h4>
+            <div className="form-grid">
+              <div className="form-group">
+                <label>العنوان الرئيسي</label>
+                <input
+                  value={form.startHerePage.headerTitle}
+                  onChange={(e) => updatePath('startHerePage.headerTitle', e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label>الوصف</label>
+                <input
+                  value={form.startHerePage.headerSubtitle}
+                  onChange={(e) => updatePath('startHerePage.headerSubtitle', e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label>نص حالة عدم وجود دورات</label>
+                <input
+                  value={form.startHerePage.emptyText}
+                  onChange={(e) => updatePath('startHerePage.emptyText', e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label>نص زرار "كل الدروس"</label>
+                <input
+                  value={form.startHerePage.allLecturesLinkText}
+                  onChange={(e) => updatePath('startHerePage.allLecturesLinkText', e.target.value)}
+                />
+              </div>
+            </div>
+          </>
         )}
 
         <div className="form-actions-bar">

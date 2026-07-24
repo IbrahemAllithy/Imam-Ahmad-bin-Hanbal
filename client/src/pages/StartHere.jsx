@@ -2,18 +2,25 @@ import { Link } from 'react-router-dom';
 import { FiCompass, FiChevronLeft } from 'react-icons/fi';
 import { useFetch } from '../hooks/useFetch';
 import { useLectures } from '../hooks/useLectures';
+import { useSiteSettings } from '../context/SiteSettingsContext';
 import Loader from '../components/ui/Loader';
 import './PlatformPages.css';
 
 const StartHere = () => {
+  const { settings } = useSiteSettings();
+  const page = settings.startHerePage || {};
   const { data: seriesData, loading: seriesLoading } = useFetch('/lectures/series/list');
-  const { data: lecturesData, loading: lecturesLoading } = useLectures();
+  const seriesFromApi = seriesData?.data || [];
+  // Only fall back to fetching every lecture (expensive) if the lightweight
+  // series list truly came back empty.
+  const needsFallback = !seriesLoading && seriesFromApi.length === 0;
+  const { data: lecturesData, loading: lecturesLoading } = useLectures({}, needsFallback);
 
-  const loading = seriesLoading || lecturesLoading;
+  const loading = seriesLoading || (needsFallback && lecturesLoading);
 
-  let seriesList = seriesData?.data || [];
+  let seriesList = seriesFromApi.slice(0, 4);
 
-  if (!seriesList.length && lecturesData?.data?.length) {
+  if (needsFallback && lecturesData?.data?.length) {
     const counts = {};
     lecturesData.data.forEach((l) => {
       const name = l.series || l.category;
@@ -23,8 +30,6 @@ const StartHere = () => {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 4)
       .map(([name]) => name);
-  } else {
-    seriesList = seriesList.slice(0, 4);
   }
 
   return (
@@ -33,9 +38,9 @@ const StartHere = () => {
         <div className="platform-header">
           <h1>
             <FiCompass style={{ marginLeft: 10, verticalAlign: 'middle' }} />
-            ابدأ من هنا
+            {page.headerTitle}
           </h1>
-          <p>مسارات مقترحة للبدء في طلب العلم على الموقع</p>
+          <p>{page.headerSubtitle}</p>
         </div>
 
         {loading ? (
@@ -59,12 +64,12 @@ const StartHere = () => {
             ))}
           </div>
         ) : (
-          <p className="platform-empty">لا توجد دورات متاحة حالياً.</p>
+          <p className="platform-empty">{page.emptyText}</p>
         )}
 
         <div style={{ textAlign: 'center', marginTop: '2rem' }}>
           <Link to="/lectures" className="btn btn-outline">
-            استعرض جميع الدروس
+            {page.allLecturesLinkText}
           </Link>
         </div>
       </div>

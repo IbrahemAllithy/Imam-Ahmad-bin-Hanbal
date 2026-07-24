@@ -71,6 +71,8 @@ export const DEFAULT_SETTINGS = {
   },
   navbar: {
     links: [
+      { to: '/start', label: 'ابدأ من هنا' },
+      { to: '/search', label: 'بحث' },
       { to: '/', label: 'الرئيسية' },
       { to: '/#about', label: 'عن الشيخ' },
       { to: '/lectures', label: 'الدورات والبرامج' },
@@ -90,10 +92,31 @@ export const DEFAULT_SETTINGS = {
       { label: 'تيليجرام', url: '' },
     ],
     copyrightSuffix: 'جميع الحقوق محفوظة.',
+    sectionsTitle: 'الأقسام',
+    linksTitle: 'روابط',
+    contactTitle: 'تواصل معنا',
+    quickLinks: [
+      { to: '/lectures', label: 'الدروس' },
+      { to: '/books', label: 'الكتب' },
+      { to: '/articles', label: 'المقالات' },
+    ],
   },
   contactPage: {
     headerTitle: 'التواصل والتسجيل',
     headerSubtitle: 'يسعدنا تواصلكم معنا للاشتراك والاستفسار',
+  },
+  lectureCategoriesPage: {
+    headerTitle: 'اختر العلم الشرعي الذي تود دراسته',
+    headerSubtitle:
+      'تصفّح الدورات العلمية والشرعية لفضيلة الشيخ شعبان العودة، المبوبة بحسب الفنون والعلوم الشرعية.',
+    sectionTitle: 'العلوم والعلوم الشرعية المتاحة',
+    sectionSubtitle: 'اضغط على أي علم لتصفح كتبه ودوراته التعليمية',
+  },
+  startHerePage: {
+    headerTitle: 'ابدأ من هنا',
+    headerSubtitle: 'مسارات مقترحة للبدء في طلب العلم على الموقع',
+    emptyText: 'لا توجد دورات متاحة حالياً.',
+    allLecturesLinkText: 'استعرض جميع الدروس',
   },
   categories: [
     { id: 'tafsir', name: 'التفسير', letter: 'ت', count: 29 },
@@ -136,6 +159,14 @@ const socialLinkSchema = new mongoose.Schema(
   {
     label: { type: String, trim: true, default: '' },
     url: { type: String, trim: true, default: '' },
+  },
+  { _id: false }
+);
+
+const quickLinkSchema = new mongoose.Schema(
+  {
+    to: { type: String, trim: true, default: '/' },
+    label: { type: String, trim: true, default: '' },
   },
   { _id: false }
 );
@@ -241,6 +272,10 @@ const siteSettingsSchema = new mongoose.Schema(
         trim: true,
         default: DEFAULT_SETTINGS.footer.copyrightSuffix,
       },
+      sectionsTitle: { type: String, trim: true, default: DEFAULT_SETTINGS.footer.sectionsTitle },
+      linksTitle: { type: String, trim: true, default: DEFAULT_SETTINGS.footer.linksTitle },
+      contactTitle: { type: String, trim: true, default: DEFAULT_SETTINGS.footer.contactTitle },
+      quickLinks: { type: [quickLinkSchema], default: DEFAULT_SETTINGS.footer.quickLinks },
     },
     contactPage: {
       headerTitle: {
@@ -252,6 +287,42 @@ const siteSettingsSchema = new mongoose.Schema(
         type: String,
         trim: true,
         default: DEFAULT_SETTINGS.contactPage.headerSubtitle,
+      },
+    },
+    lectureCategoriesPage: {
+      headerTitle: {
+        type: String,
+        trim: true,
+        default: DEFAULT_SETTINGS.lectureCategoriesPage.headerTitle,
+      },
+      headerSubtitle: {
+        type: String,
+        trim: true,
+        default: DEFAULT_SETTINGS.lectureCategoriesPage.headerSubtitle,
+      },
+      sectionTitle: {
+        type: String,
+        trim: true,
+        default: DEFAULT_SETTINGS.lectureCategoriesPage.sectionTitle,
+      },
+      sectionSubtitle: {
+        type: String,
+        trim: true,
+        default: DEFAULT_SETTINGS.lectureCategoriesPage.sectionSubtitle,
+      },
+    },
+    startHerePage: {
+      headerTitle: { type: String, trim: true, default: DEFAULT_SETTINGS.startHerePage.headerTitle },
+      headerSubtitle: {
+        type: String,
+        trim: true,
+        default: DEFAULT_SETTINGS.startHerePage.headerSubtitle,
+      },
+      emptyText: { type: String, trim: true, default: DEFAULT_SETTINGS.startHerePage.emptyText },
+      allLecturesLinkText: {
+        type: String,
+        trim: true,
+        default: DEFAULT_SETTINGS.startHerePage.allLecturesLinkText,
       },
     },
     categories: { type: [categorySchema], default: DEFAULT_SETTINGS.categories },

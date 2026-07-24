@@ -13,6 +13,8 @@ const SETTINGS_SECTIONS = [
   'footer',
   'contactPage',
   'categories',
+  'lectureCategoriesPage',
+  'startHerePage',
 ];
 
 const deepMerge = (target, source) => {
