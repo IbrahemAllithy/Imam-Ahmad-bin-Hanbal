@@ -194,10 +194,16 @@ const Lectures = () => {
                 (id) => completedMap[id]
               );
               const courseBook = findCourseBook(course.seriesName, recentBooks);
+              const courseHref = `/courses/${encodeURIComponent(course.seriesName)}`;
               return (
-                <Link
+                <div
                   key={idx}
-                  to={`/courses/${encodeURIComponent(course.seriesName)}`}
+                  role="link"
+                  tabIndex={0}
+                  onClick={() => navigate(courseHref)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') navigate(courseHref);
+                  }}
                   className={`course-item-bar ${isCourseDone ? 'completed' : ''}`}
                 >
                   <div className="course-item-right">
@@ -245,7 +251,7 @@ const Lectures = () => {
                     )}
                     <FiChevronDown className="course-arrow-icon" />
                   </div>
-                </Link>
+                </div>
               );
             })}
 
