@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { FiBookOpen, FiDownload, FiBook } from 'react-icons/fi';
 import { useFetch } from '../hooks/useFetch';
 import { getStorageUrl, getBookCoverUrl } from '../services/api';
-import BookCard from '../components/books/BookCard';
 import Loader from '../components/ui/Loader';
 import './BookDetail.css';
 
@@ -15,7 +14,7 @@ const BookDetail = () => {
   if (loading) return <Loader />;
   if (error) return <div className="container alert alert-error">{error}</div>;
 
-  const { data: book, related } = data || {};
+  const { data: book } = data || {};
   if (!book) return <div className="container alert alert-error">لم يتم العثور على الكتاب المطلوب</div>;
 
   const coverUrl = getBookCoverUrl(book);
@@ -109,14 +108,6 @@ const BookDetail = () => {
             />
           </div>
 
-          {related?.length > 0 && (
-            <div className="related-books-section">
-              <h3 className="section-title">كتب ومؤلفات ذات صلة</h3>
-              <div className="grid grid-3">
-                {related.map((b) => <BookCard key={b._id} book={b} />)}
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
