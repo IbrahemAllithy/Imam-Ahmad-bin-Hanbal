@@ -4,13 +4,32 @@ import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { useSiteSettings } from '../context/SiteSettingsContext';
 import { readLocalCompletedIds } from '../utils/completedLectures';
 import api from '../services/api';
-import { FiCheckCircle, FiChevronDown, FiSearch, FiYoutube } from 'react-icons/fi';
+import { FiCheckCircle, FiChevronDown, FiSearch, FiYoutube, FiBookOpen } from 'react-icons/fi';
 import Loader from '../components/ui/Loader';
 import './ListPages.css';
 
 const categoryFromSearch = (search) => {
   const cat = new URLSearchParams(search).get('category');
   return cat && cat.trim() ? cat.trim() : 'الكل';
+};
+
+// Strip brackets/punctuation so course and book titles compare on words alone
+const normalizeTitle = (s) =>
+  (s || '')
+    .replace(/[\[\]().،,«»"'"'ـ]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+
+const findCourseBook = (seriesName, books) => {
+  const courseNorm = normalizeTitle(seriesName);
+  if (!courseNorm) return null;
+  return (
+    books.find((book) => {
+      const bookNorm = normalizeTitle(book.title);
+      return bookNorm && (bookNorm.includes(courseNorm) || courseNorm.includes(bookNorm));
+    }) || null
+  );
 };
 
 const Lectures = () => {
@@ -25,10 +44,21 @@ const Lectures = () => {
   const [coursesList, setCoursesList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [recentBooks, setRecentBooks] = useState([]);
 
   useEffect(() => {
     setCategory(categoryFromSearch(location.search));
   }, [location.search]);
+
+  // Recently added books, used to auto-match each course with its book by title
+  useEffect(() => {
+    const controller = new AbortController();
+    api
+      .get('/books', { params: { limit: 100 }, signal: controller.signal })
+      .then((res) => setRecentBooks(res.data?.data || []))
+      .catch(() => {});
+    return () => controller.abort();
+  }, []);
 
   // Load completion states
   useEffect(() => {
@@ -136,9 +166,9 @@ const Lectures = () => {
                 const next = e.target.value;
                 setCategory(next);
                 if (next === 'الكل') {
-                  navigate('/lectures');
+                  navigate('/lectures/list');
                 } else {
-                  navigate(`/lectures?category=${encodeURIComponent(next)}`);
+                  navigate(`/lectures/list?category=${encodeURIComponent(next)}`);
                 }
               }}
               className="category-dropdown-select"
@@ -163,6 +193,7 @@ const Lectures = () => {
               const isCourseDone = (course.lessonIds || []).every(
                 (id) => completedMap[id]
               );
+              const courseBook = findCourseBook(course.seriesName, recentBooks);
               return (
                 <Link
                   key={idx}
@@ -188,6 +219,16 @@ const Lectures = () => {
                   <div className="course-item-left">
                     {isCourseDone && <span className="badge-course-completed">مكتمل</span>}
                     <span className="course-lessons-tag">{course.lessonsCount} دروس</span>
+                    {courseBook && (
+                      <Link
+                        to={`/books/${courseBook._id}`}
+                        className="course-book-link"
+                        title={`كتاب الدورة: ${courseBook.title}`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <FiBookOpen /> {courseBook.title}
+                      </Link>
+                    )}
                     {course.youtubeUrl && (
                       <span
                         className="course-youtube-btn"

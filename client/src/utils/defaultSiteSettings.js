@@ -69,10 +69,9 @@ export const DEFAULT_SITE_SETTINGS = {
   },
   navbar: {
     links: [
-      { to: '/start', label: 'ابدأ من هنا' },
       { to: '/search', label: 'بحث' },
       { to: '/', label: 'الرئيسية' },
-      { to: '/#about', label: 'عن الشيخ' },
+      { to: '/about', label: 'عن الشيخ' },
       { to: '/lectures', label: 'الدورات والبرامج' },
       { to: '/#explore', label: 'استكشف خيارات' },
       { to: '/contact', label: 'التواصل والتسجيل' },
@@ -109,12 +108,6 @@ export const DEFAULT_SITE_SETTINGS = {
       'تصفّح الدورات العلمية والشرعية لفضيلة الشيخ شعبان العودة، المبوبة بحسب الفنون والعلوم الشرعية.',
     sectionTitle: 'العلوم والعلوم الشرعية المتاحة',
     sectionSubtitle: 'اضغط على أي علم لتصفح كتبه ودوراته التعليمية',
-  },
-  startHerePage: {
-    headerTitle: 'ابدأ من هنا',
-    headerSubtitle: 'مسارات مقترحة للبدء في طلب العلم على الموقع',
-    emptyText: 'لا توجد دورات متاحة حالياً.',
-    allLecturesLinkText: 'استعرض جميع الدروس',
   },
   categories: [
     { id: 'tafsir', name: 'التفسير', letter: 'ت', count: 29 },

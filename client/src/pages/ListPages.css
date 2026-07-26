@@ -406,6 +406,29 @@
   font-weight: 600;
 }
 
+.course-book-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 160px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #f4eae0;
+  color: var(--accent-color);
+  font-size: 12.5px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all 0.2s;
+}
+
+.course-book-link:hover {
+  background: var(--accent-color);
+  color: #ffffff;
+}
+
 .course-arrow-icon {
   width: 26px;
   height: 26px;

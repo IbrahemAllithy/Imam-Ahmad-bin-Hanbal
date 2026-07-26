@@ -20,7 +20,7 @@ const Footer = () => {
             {categories.map((cat) => (
               <Link
                 key={cat.id || cat.name}
-                to={`/lectures?category=${encodeURIComponent(cat.name)}`}
+                to={`/lectures/list?category=${encodeURIComponent(cat.name)}`}
               >
                 {cat.name}
               </Link>

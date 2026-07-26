@@ -715,37 +715,6 @@ const AdminSettings = () => {
               </div>
             </div>
 
-            <h4 className="settings-subtitle">صفحة "ابدأ من هنا"</h4>
-            <div className="form-grid">
-              <div className="form-group">
-                <label>العنوان الرئيسي</label>
-                <input
-                  value={form.startHerePage.headerTitle}
-                  onChange={(e) => updatePath('startHerePage.headerTitle', e.target.value)}
-                />
-              </div>
-              <div className="form-group">
-                <label>الوصف</label>
-                <input
-                  value={form.startHerePage.headerSubtitle}
-                  onChange={(e) => updatePath('startHerePage.headerSubtitle', e.target.value)}
-                />
-              </div>
-              <div className="form-group">
-                <label>نص حالة عدم وجود دورات</label>
-                <input
-                  value={form.startHerePage.emptyText}
-                  onChange={(e) => updatePath('startHerePage.emptyText', e.target.value)}
-                />
-              </div>
-              <div className="form-group">
-                <label>نص زرار "كل الدروس"</label>
-                <input
-                  value={form.startHerePage.allLecturesLinkText}
-                  onChange={(e) => updatePath('startHerePage.allLecturesLinkText', e.target.value)}
-                />
-              </div>
-            </div>
           </>
         )}
 

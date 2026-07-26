@@ -18,7 +18,7 @@ export const DEFAULT_SETTINGS = {
     primaryCtaText: 'استعرض الدروس',
     primaryCtaLink: '/lectures',
     secondaryCtaText: 'تعرّف على الشيخ',
-    secondaryCtaLink: '#about',
+    secondaryCtaLink: '/about',
   },
   homeAbout: {
     title: 'تعريف بالشيخ',
@@ -71,10 +71,9 @@ export const DEFAULT_SETTINGS = {
   },
   navbar: {
     links: [
-      { to: '/start', label: 'ابدأ من هنا' },
       { to: '/search', label: 'بحث' },
       { to: '/', label: 'الرئيسية' },
-      { to: '/#about', label: 'عن الشيخ' },
+      { to: '/about', label: 'عن الشيخ' },
       { to: '/lectures', label: 'الدورات والبرامج' },
       { to: '/#explore', label: 'استكشف خيارات' },
       { to: '/contact', label: 'التواصل والتسجيل' },
@@ -111,12 +110,6 @@ export const DEFAULT_SETTINGS = {
       'تصفّح الدورات العلمية والشرعية لفضيلة الشيخ شعبان العودة، المبوبة بحسب الفنون والعلوم الشرعية.',
     sectionTitle: 'العلوم والعلوم الشرعية المتاحة',
     sectionSubtitle: 'اضغط على أي علم لتصفح كتبه ودوراته التعليمية',
-  },
-  startHerePage: {
-    headerTitle: 'ابدأ من هنا',
-    headerSubtitle: 'مسارات مقترحة للبدء في طلب العلم على الموقع',
-    emptyText: 'لا توجد دورات متاحة حالياً.',
-    allLecturesLinkText: 'استعرض جميع الدروس',
   },
   categories: [
     { id: 'tafsir', name: 'التفسير', letter: 'ت', count: 29 },
@@ -309,20 +302,6 @@ const siteSettingsSchema = new mongoose.Schema(
         type: String,
         trim: true,
         default: DEFAULT_SETTINGS.lectureCategoriesPage.sectionSubtitle,
-      },
-    },
-    startHerePage: {
-      headerTitle: { type: String, trim: true, default: DEFAULT_SETTINGS.startHerePage.headerTitle },
-      headerSubtitle: {
-        type: String,
-        trim: true,
-        default: DEFAULT_SETTINGS.startHerePage.headerSubtitle,
-      },
-      emptyText: { type: String, trim: true, default: DEFAULT_SETTINGS.startHerePage.emptyText },
-      allLecturesLinkText: {
-        type: String,
-        trim: true,
-        default: DEFAULT_SETTINGS.startHerePage.allLecturesLinkText,
       },
     },
     categories: { type: [categorySchema], default: DEFAULT_SETTINGS.categories },

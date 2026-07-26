@@ -90,10 +90,7 @@ const Account = () => {
           </div>
 
           <div className="account-actions">
-            <Link to="/start" className="btn btn-primary">
-              ابدأ من هنا
-            </Link>
-            <Link to="/lectures" className="btn btn-outline">
+            <Link to="/lectures" className="btn btn-primary">
               استعرض الدروس
             </Link>
             <Link to="/certificates" className="btn btn-outline">

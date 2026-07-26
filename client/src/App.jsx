@@ -26,7 +26,8 @@ const Certificates = lazy(() => import('./pages/Certificates'));
 const CertificateView = lazy(() => import('./pages/CertificateView'));
 const Notifications = lazy(() => import('./pages/Notifications'));
 const Search = lazy(() => import('./pages/Search'));
-const StartHere = lazy(() => import('./pages/StartHere'));
+const SunnahReading = lazy(() => import('./pages/SunnahReading'));
+const DistanceLearning = lazy(() => import('./pages/DistanceLearning'));
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const NotFound = lazy(() => import('./pages/NotFound'));
@@ -60,7 +61,7 @@ const App = () => {
           <Routes>
             {/* ── Public pages ────────────────────────── */}
             <Route path="/" element={<Home />} />
-            <Route path="/lectures" element={<Lectures />} />
+            <Route path="/lectures" element={<LectureCategories />} />
             <Route path="/lectures/categories" element={<LectureCategories />} />
             <Route path="/lectures/list" element={<Lectures />} />
             <Route path="/courses/:seriesName" element={<CourseDetail />} />
@@ -72,7 +73,8 @@ const App = () => {
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/search" element={<Search />} />
-            <Route path="/start" element={<StartHere />} />
+            <Route path="/sunnah-reading" element={<SunnahReading />} />
+            <Route path="/distance-learning" element={<DistanceLearning />} />
 
             {/* ── Auth pages (guest only) ─────────────── */}
             <Route path="/register" element={<Register />} />

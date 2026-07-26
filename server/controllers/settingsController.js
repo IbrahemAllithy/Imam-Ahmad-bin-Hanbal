@@ -14,7 +14,6 @@ const SETTINGS_SECTIONS = [
   'contactPage',
   'categories',
   'lectureCategoriesPage',
-  'startHerePage',
 ];
 
 const deepMerge = (target, source) => {

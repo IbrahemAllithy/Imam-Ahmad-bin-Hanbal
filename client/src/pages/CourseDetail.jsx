@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useLectures } from '../hooks/useLectures';
 import useProgress from '../hooks/useProgress';
 import { useAuth } from '../context/AuthContext';
-import { FiCheckCircle, FiHelpCircle, FiChevronRight, FiAward } from 'react-icons/fi';
+import { FiCheckCircle, FiChevronRight, FiAward } from 'react-icons/fi';
 import Loader from '../components/ui/Loader';
 import './CourseDetail.css';
 
@@ -74,12 +74,6 @@ const CourseDetail = () => {
           </div>
         )}
 
-        <div className="course-ask-button-wrapper">
-          <Link to="/contact" className="btn-course-ask">
-            <FiHelpCircle style={{ margin: '0 0 -2px 6px' }} />
-            اضغط هنا لكتابة سؤال حول الدورة
-          </Link>
-        </div>
       </div>
 
       <div className="course-content-section">

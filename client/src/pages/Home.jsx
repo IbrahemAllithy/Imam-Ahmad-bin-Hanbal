@@ -8,13 +8,20 @@ import {
   FiBook,
   FiFileText,
   FiVideo,
-  FiList,
+  FiBookOpen,
+  FiMonitor,
   FiCheckCircle,
   FiChevronLeft,
   FiPhoneCall,
 } from 'react-icons/fi';
 
-const exploreIcons = [<FiVideo />, <FiBook />, <FiFileText />, <FiList />];
+const quickLinks = [
+  { label: 'الدروس', href: '/lectures', icon: <FiVideo /> },
+  { label: 'الكتب', href: '/books', icon: <FiBook /> },
+  { label: 'المقالات', href: '/articles', icon: <FiFileText /> },
+  { label: 'قراءة السنة', href: '/sunnah-reading', icon: <FiBookOpen /> },
+  { label: 'تعلم عن بعد', href: '/distance-learning', icon: <FiMonitor /> },
+];
 
 const Home = () => {
   const { data: lectures, loading: l1 } = useFetch('/lectures', { limit: 4 });
@@ -24,10 +31,7 @@ const Home = () => {
   const { settings, sheikhImage } = useSiteSettings();
 
   const hero = settings.hero || {};
-  const homeAbout = settings.homeAbout || {};
   const announcements = settings.announcements || [];
-  const categories = settings.categories || [];
-  const exploreLinks = settings.exploreLinks || [];
   const cta = settings.cta || {};
 
   useEffect(() => {
@@ -42,7 +46,8 @@ const Home = () => {
     }
   }, [location]);
 
-  const secondaryIsHash = (hero.secondaryCtaLink || '').startsWith('#');
+  const secondaryLink = hero.secondaryCtaLink === '#about' ? '/about' : hero.secondaryCtaLink;
+  const secondaryIsHash = (secondaryLink || '').startsWith('#');
 
   return (
     <div className="home-wrapper">
@@ -64,15 +69,12 @@ const Home = () => {
               <Link to={hero.primaryCtaLink || '/lectures'} className="btn btn-primary hover-lift">
                 {hero.primaryCtaText}
               </Link>
-              <Link to="/start" className="btn btn-outline hover-lift">
-                ابدأ من هنا
-              </Link>
               {secondaryIsHash ? (
-                <a href={hero.secondaryCtaLink} className="btn btn-outline hover-lift">
+                <a href={secondaryLink} className="btn btn-outline hover-lift">
                   {hero.secondaryCtaText}
                 </a>
               ) : (
-                <Link to={hero.secondaryCtaLink || '/about'} className="btn btn-outline hover-lift">
+                <Link to={secondaryLink || '/about'} className="btn btn-outline hover-lift">
                   {hero.secondaryCtaText}
                 </Link>
               )}
@@ -84,34 +86,11 @@ const Home = () => {
         </div>
       </section>
 
-      <section id="about" className="home-about animate-fade-in-up delay-300">
-        <div className="about-inner">
-          <div className="about-intro-section">
-            <h2 className="about-title">{homeAbout.title}</h2>
-            <h3 className="about-subtitle">{homeAbout.subtitle}</h3>
-            <ul className="about-bullets">
-              {(homeAbout.bullets || []).map((bullet) => (
-                <li key={bullet}>{bullet}</li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="home-stats-grid">
-            {(homeAbout.stats || []).map((stat) => (
-              <div className="stat-card" key={stat.label}>
-                <div className="stat-num">{stat.value}</div>
-                <div className="stat-label">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="home-categories">
+      <section id="explore" className="home-categories">
         <div className="categories-inner">
           <div className="announcements-sidebar animate-fade-in-up">
             <div className="announcements-title">
-              <FiCheckCircle /> إعلانات الموقع
+              <FiCheckCircle /> إعلانات عن الدروس
             </div>
             <div className="announcements-list">
               {announcements.map((an) => (
@@ -122,48 +101,22 @@ const Home = () => {
 
           <div className="categories-main animate-fade-in-up delay-100">
             <div className="categories-header">
-              <h2>الدورات والبرامج</h2>
-              <p>اختر العلم الذي تريد البدء بدراسته</p>
+              <h2>أقسام الموقع</h2>
+              <p>تصفح محتوى الموقع بطريقة سهلة وميسرة</p>
             </div>
-            <div className="categories-grid">
-              {categories.map((cat) => (
+            <div className="explore-grid">
+              {quickLinks.map((link, idx) => (
                 <Link
-                  key={cat.id || cat.name}
-                  to={`/lectures?category=${encodeURIComponent(cat.name)}`}
-                  className="category-card"
+                  key={link.href}
+                  to={link.href}
+                  className="explore-card animate-fade-in-up"
+                  style={{ animationDelay: `${idx * 100}ms` }}
                 >
-                  <div className="category-icon">
-                    <span>{cat.letter || cat.name?.[0]}</span>
-                  </div>
-                  <div>
-                    <div className="category-name">{cat.name}</div>
-                    <div className="category-count">{cat.count} درسًا</div>
-                  </div>
+                  <div className="explore-icon">{link.icon}</div>
+                  <div className="explore-label">{link.label}</div>
                 </Link>
               ))}
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="explore" className="home-explore">
-        <div className="explore-inner">
-          <div className="categories-header text-center animate-fade-in-up">
-            <h2>استكشف خيارات التعلّم</h2>
-            <p>تصفح محتوى الموقع بطريقة سهلة وميسرة</p>
-          </div>
-          <div className="explore-grid">
-            {exploreLinks.map((link, idx) => (
-              <Link
-                key={`${link.href}-${link.label}`}
-                to={link.href}
-                className="explore-card animate-fade-in-up"
-                style={{ animationDelay: `${idx * 100}ms` }}
-              >
-                <div className="explore-icon">{exploreIcons[idx % exploreIcons.length]}</div>
-                <div className="explore-label">{link.label}</div>
-              </Link>
-            ))}
           </div>
         </div>
       </section>
