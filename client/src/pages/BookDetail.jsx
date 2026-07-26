@@ -2,7 +2,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useState } from 'react';
 import { FiBookOpen, FiDownload, FiBook } from 'react-icons/fi';
 import { useFetch } from '../hooks/useFetch';
-import { getBookCoverUrl } from '../services/api';
+import { getStorageUrl, getBookCoverUrl } from '../services/api';
 import BookCard from '../components/books/BookCard';
 import Loader from '../components/ui/Loader';
 import './BookDetail.css';
