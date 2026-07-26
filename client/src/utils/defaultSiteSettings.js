@@ -69,10 +69,8 @@ export const DEFAULT_SITE_SETTINGS = {
   },
   navbar: {
     links: [
-      { to: '/search', label: 'بحث' },
       { to: '/', label: 'الرئيسية' },
       { to: '/about', label: 'عن الشيخ' },
-      { to: '/lectures', label: 'الدورات والبرامج' },
       { to: '/#explore', label: 'استكشف خيارات' },
       { to: '/contact', label: 'التواصل والتسجيل' },
     ],
