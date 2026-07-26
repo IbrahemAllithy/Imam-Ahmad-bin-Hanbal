@@ -1,22 +1,7 @@
 import { Link } from 'react-router-dom';
-import { FiMonitor, FiCheckCircle, FiUserPlus, FiBookOpen } from 'react-icons/fi';
+import { FiMonitor, FiUserPlus, FiBookOpen } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import './PlatformPages.css';
-
-const programs = [
-  {
-    title: 'مسار العقيدة',
-    desc: 'دراسة منظمة لأصول الاعتقاد عبر لقاءات دورية ومتابعة مباشرة.',
-  },
-  {
-    title: 'مسار الفقه',
-    desc: 'برنامج متدرج في الفقه وأصوله بإشراف ومتابعة للطلاب.',
-  },
-  {
-    title: 'مسار الحديث والتفسير',
-    desc: 'قراءة وشرح للمتون مع تقييم دوري لمستوى الطالب.',
-  },
-];
 
 const DistanceLearning = () => {
   const { user, isStudent } = useAuth();
@@ -30,18 +15,6 @@ const DistanceLearning = () => {
             التعلم عن بعد
           </h1>
           <p>برامج دراسية منظمة عن بعد بمتابعة ومراجعة مستمرة</p>
-        </div>
-
-        <div style={{ display: 'grid', gap: '1rem', marginBottom: '2.5rem' }}>
-          {programs.map((p) => (
-            <div className="platform-card" key={p.title}>
-              <h3>
-                <FiCheckCircle style={{ color: 'var(--accent-color)', marginLeft: 8, verticalAlign: 'middle' }} />
-                {p.title}
-              </h3>
-              <p className="platform-card-meta" style={{ marginBottom: 0 }}>{p.desc}</p>
-            </div>
-          ))}
         </div>
 
         <div className="platform-card" style={{ textAlign: 'center' }}>
