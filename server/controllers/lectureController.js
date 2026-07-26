@@ -54,15 +54,14 @@ export const getLectures = async (req, res, next) => {
     const filter = buildFilter(req.query, { includeUnpublished });
 
     const [lectures, total] = await Promise.all([
-      Lecture.find(filter).sort({ order: 1, createdAt: 1 }).skip(skip).limit(limit),
+      Lecture.find(filter).sort({ order: 1, createdAt: 1 }).skip(skip).limit(limit).lean(),
       Lecture.countDocuments(filter),
     ]);
 
     const isAdmin = req.user?.role === 'admin';
     const data = isAdmin
       ? lectures
-      : lectures.map((l) => {
-          const obj = l.toObject();
+      : lectures.map((obj) => {
           if (obj.quizItems?.length) {
             obj.quizItems = obj.quizItems.map(({ question, options }) => ({
               question,
@@ -86,7 +85,7 @@ export const getLecture = async (req, res, next) => {
   try {
     const isAdmin = req.user?.role === 'admin';
     const filter = isAdmin ? { _id: req.params.id } : { _id: req.params.id, ...publishedFilter() };
-    const lecture = await Lecture.findOne(filter);
+    const lecture = await Lecture.findOne(filter).lean();
     if (!lecture) return next(new AppError('المحاضرة غير موجودة', 404));
 
     const relatedFilter = {
@@ -101,11 +100,12 @@ export const getLecture = async (req, res, next) => {
 
     const related = await Lecture.find(relatedFilter)
       .sort({ order: 1, createdAt: 1 })
-      .limit(50);
+      .limit(50)
+      .lean();
 
     // Hide correct answers from public; grade via dedicated endpoint or client for now
     // For fair MCQ we expose options only and grade on submit via POST /api/progress/quiz
-    const payload = lecture.toObject();
+    const payload = lecture;
     if (payload.quizItems?.length) {
       payload.quizItems = payload.quizItems.map(({ question, options }) => ({
         question,
@@ -121,7 +121,7 @@ export const getLecture = async (req, res, next) => {
 
 export const gradeLectureQuiz = async (req, res, next) => {
   try {
-    const lecture = await Lecture.findById(req.params.id);
+    const lecture = await Lecture.findById(req.params.id).lean();
     if (!lecture) return next(new AppError('الدرس غير موجود', 404));
 
     const answers = Array.isArray(req.body.answers) ? req.body.answers : [];

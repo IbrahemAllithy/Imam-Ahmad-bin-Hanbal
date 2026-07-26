@@ -1,36 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
-
-const STORAGE_PREFIX = 'completed_lecture_';
-
-const readLocalCompletedIds = () => {
-  const ids = new Set();
-  try {
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key?.startsWith(STORAGE_PREFIX) && localStorage.getItem(key) === 'true') {
-        ids.add(key.replace(STORAGE_PREFIX, ''));
-      }
-    }
-  } catch {
-    // ignore
-  }
-  return ids;
-};
-
-const clearLocalCompletedKeys = () => {
-  try {
-    const keys = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key?.startsWith(STORAGE_PREFIX)) keys.push(key);
-    }
-    keys.forEach((k) => localStorage.removeItem(k));
-  } catch {
-    // ignore
-  }
-};
+import {
+  COMPLETED_LECTURE_PREFIX as STORAGE_PREFIX,
+  readLocalCompletedIds,
+  clearLocalCompletedKeys,
+} from '../utils/completedLectures';
 
 const hasRealApiSession = () => {
   const token = sessionStorage.getItem('accessToken');

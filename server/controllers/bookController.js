@@ -32,7 +32,7 @@ export const getBooks = async (req, res, next) => {
     const filter = buildFilter(req.query, { includeUnpublished });
 
     const [books, total] = await Promise.all([
-      Book.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      Book.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
       Book.countDocuments(filter),
     ]);
 
@@ -50,7 +50,7 @@ export const getBook = async (req, res, next) => {
   try {
     const isAdmin = req.user?.role === 'admin';
     const filter = isAdmin ? { _id: req.params.id } : { _id: req.params.id, ...publishedFilter() };
-    const book = await Book.findOne(filter);
+    const book = await Book.findOne(filter).lean();
     if (!book) return next(new AppError('الكتاب غير موجود', 404));
 
     const related = await Book.find({
@@ -59,7 +59,8 @@ export const getBook = async (req, res, next) => {
       ...publishedFilter(),
     })
       .sort({ createdAt: -1 })
-      .limit(4);
+      .limit(4)
+      .lean();
 
     res.json({ success: true, data: book, related });
   } catch (err) {
@@ -111,7 +112,7 @@ export const updateBook = async (req, res, next) => {
   try {
     const updates = { ...req.body };
     const needsPrevious = req.files?.pdf?.[0] || req.files?.coverImage?.[0];
-    const previous = needsPrevious ? await Book.findById(req.params.id) : null;
+    const previous = needsPrevious ? await Book.findById(req.params.id).lean() : null;
 
     if (req.files?.pdf?.[0]) {
       updates.pdfUrl = `/storage/pdfs/${req.files.pdf[0].filename}`;

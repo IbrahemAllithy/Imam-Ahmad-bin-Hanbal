@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { useSiteSettings } from '../context/SiteSettingsContext';
+import { readLocalCompletedIds } from '../utils/completedLectures';
 import api from '../services/api';
 import { FiCheckCircle, FiChevronDown, FiSearch, FiYoutube } from 'react-icons/fi';
 import Loader from '../components/ui/Loader';
@@ -32,13 +33,9 @@ const Lectures = () => {
   // Load completion states
   useEffect(() => {
     const map = {};
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && key.startsWith('completed_lecture_')) {
-        const id = key.replace('completed_lecture_', '');
-        map[id] = localStorage.getItem(key) === 'true';
-      }
-    }
+    readLocalCompletedIds().forEach((id) => {
+      map[id] = true;
+    });
     setCompletedMap(map);
   }, []);
 

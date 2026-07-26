@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -16,17 +16,19 @@ import {
   FiAward,
 } from 'react-icons/fi';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
-import AdminOverview from './AdminOverview';
-import AdminLectures from './AdminLectures';
-import AdminArticles from './AdminArticles';
-import AdminBooks from './AdminBooks';
-import AdminContacts from './AdminContacts';
-import AdminSettings from './AdminSettings';
-import AdminStudents from './AdminStudents';
-import AdminQuestions from './AdminQuestions';
-import AdminBroadcast from './AdminBroadcast';
-import AdminCertificates from './AdminCertificates';
+import Loader from '../../components/ui/Loader';
 import './Admin.css';
+
+const AdminOverview = lazy(() => import('./AdminOverview'));
+const AdminLectures = lazy(() => import('./AdminLectures'));
+const AdminArticles = lazy(() => import('./AdminArticles'));
+const AdminBooks = lazy(() => import('./AdminBooks'));
+const AdminContacts = lazy(() => import('./AdminContacts'));
+const AdminSettings = lazy(() => import('./AdminSettings'));
+const AdminStudents = lazy(() => import('./AdminStudents'));
+const AdminQuestions = lazy(() => import('./AdminQuestions'));
+const AdminBroadcast = lazy(() => import('./AdminBroadcast'));
+const AdminCertificates = lazy(() => import('./AdminCertificates'));
 
 const NAV_ITEMS = [
   { id: 'overview', label: 'الرئيسية', icon: FiHome },
@@ -87,16 +89,18 @@ const AdminDashboard = () => {
       </aside>
 
       <main className="admin-main">
-        {tab === 'overview' && <AdminOverview onNavigate={setTab} />}
-        {tab === 'broadcast' && <AdminBroadcast />}
-        {tab === 'lectures' && <AdminLectures />}
-        {tab === 'articles' && <AdminArticles />}
-        {tab === 'books' && <AdminBooks />}
-        {tab === 'students' && <AdminStudents />}
-        {tab === 'certificates' && <AdminCertificates />}
-        {tab === 'questions' && <AdminQuestions />}
-        {tab === 'contacts' && <AdminContacts />}
-        {tab === 'settings' && <AdminSettings />}
+        <Suspense fallback={<Loader />}>
+          {tab === 'overview' && <AdminOverview onNavigate={setTab} />}
+          {tab === 'broadcast' && <AdminBroadcast />}
+          {tab === 'lectures' && <AdminLectures />}
+          {tab === 'articles' && <AdminArticles />}
+          {tab === 'books' && <AdminBooks />}
+          {tab === 'students' && <AdminStudents />}
+          {tab === 'certificates' && <AdminCertificates />}
+          {tab === 'questions' && <AdminQuestions />}
+          {tab === 'contacts' && <AdminContacts />}
+          {tab === 'settings' && <AdminSettings />}
+        </Suspense>
       </main>
     </div>
   );

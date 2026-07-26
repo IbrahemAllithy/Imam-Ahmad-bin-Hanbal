@@ -32,7 +32,7 @@ export const getArticles = async (req, res, next) => {
     const filter = buildFilter(req.query, { includeUnpublished });
 
     const [articles, total] = await Promise.all([
-      Article.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      Article.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
       Article.countDocuments(filter),
     ]);
 
@@ -50,7 +50,7 @@ export const getArticle = async (req, res, next) => {
   try {
     const isAdmin = req.user?.role === 'admin';
     const filter = isAdmin ? { _id: req.params.id } : { _id: req.params.id, ...publishedFilter() };
-    const article = await Article.findOne(filter);
+    const article = await Article.findOne(filter).lean();
     if (!article) return next(new AppError('المقال غير موجود', 404));
 
     const related = await Article.find({
@@ -59,7 +59,8 @@ export const getArticle = async (req, res, next) => {
       ...publishedFilter(),
     })
       .sort({ createdAt: -1 })
-      .limit(4);
+      .limit(4)
+      .lean();
 
     res.json({ success: true, data: article, related });
   } catch (err) {
@@ -101,7 +102,7 @@ export const createArticle = async (req, res, next) => {
 export const updateArticle = async (req, res, next) => {
   try {
     const updates = { ...req.body };
-    const previous = req.file ? await Article.findById(req.params.id) : null;
+    const previous = req.file ? await Article.findById(req.params.id).lean() : null;
     if (req.file) {
       updates.coverImage = `/storage/covers/${req.file.filename}`;
     }

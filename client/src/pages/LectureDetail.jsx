@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useFetch } from '../hooks/useFetch';
-import { useLectures } from '../hooks/useLectures';
 import useProgress from '../hooks/useProgress';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
@@ -49,24 +48,14 @@ const LectureDetail = () => {
   const seriesName = lecture?.series || '';
   const categoryName = lecture?.category || '';
 
-  const { data: seriesData } = useLectures(
-    seriesName ? { series: seriesName } : {},
-    Boolean(seriesName)
-  );
-
   const playlist = useMemo(() => {
-    let items = seriesData?.data || [];
-    if (seriesName) {
-      items = items.filter((l) => l.series === seriesName);
-    } else if (categoryName) {
-      items = items.filter((l) => l.category === categoryName);
-    }
+    let items = data?.related || [];
     items = sortLessons(items.length ? items : lecture ? [lecture] : []);
     if (lecture && !items.some((p) => p._id === lecture._id)) {
       items = sortLessons([lecture, ...items]);
     }
     return items;
-  }, [seriesData, seriesName, categoryName, lecture]);
+  }, [data, lecture]);
 
   const currentIndex = playlist.findIndex((p) => p._id === id);
   const prevLesson = currentIndex > 0 ? playlist[currentIndex - 1] : null;

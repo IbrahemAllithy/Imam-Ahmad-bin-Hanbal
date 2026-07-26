@@ -67,7 +67,8 @@ export const getMyProgress = async (req, res, next) => {
 
     const items = await Progress.find(filter)
       .populate('lecture', 'title series category order')
-      .sort({ completedAt: -1 });
+      .sort({ completedAt: -1 })
+      .lean();
 
     res.json({
       success: true,
@@ -201,29 +202,33 @@ export const syncLocalProgress = async (req, res, next) => {
       return res.json({ success: true, data: [], synced: 0, skipped: 0 });
     }
 
-    const lectures = await Lecture.find({ _id: { $in: ids } });
-    let synced = 0;
-    let skipped = 0;
+    const lectures = await Lecture.find({ _id: { $in: ids } }).lean();
+    const syncable = lectures.filter((lecture) => !lecture.quizItems?.length);
+    const skipped = lectures.length - syncable.length;
+    const synced = syncable.length;
 
-    for (const lecture of lectures) {
-      if (lecture.quizItems?.length) {
-        skipped += 1;
-        continue;
-      }
-
-      await Progress.findOneAndUpdate(
-        { user: req.user._id, lecture: lecture._id },
-        {
-          $set: { series: lecture.series || '', completedAt: new Date() },
-          $setOnInsert: { user: req.user._id, lecture: lecture._id },
-        },
-        { upsert: true }
+    if (syncable.length) {
+      const now = new Date();
+      await Progress.bulkWrite(
+        syncable.map((lecture) => ({
+          updateOne: {
+            filter: { user: req.user._id, lecture: lecture._id },
+            update: {
+              $set: { series: lecture.series || '', completedAt: now },
+              $setOnInsert: { user: req.user._id, lecture: lecture._id },
+            },
+            upsert: true,
+          },
+        }))
       );
-      synced += 1;
-      await maybeIssueCertificate(req.user._id, lecture.series);
+
+      const seriesToCheck = [...new Set(syncable.map((l) => l.series).filter(Boolean))];
+      for (const series of seriesToCheck) {
+        await maybeIssueCertificate(req.user._id, series);
+      }
     }
 
-    const items = await Progress.find({ user: req.user._id });
+    const items = await Progress.find({ user: req.user._id }).lean();
     res.json({
       success: true,
       synced,
