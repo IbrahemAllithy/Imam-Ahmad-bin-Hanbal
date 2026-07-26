@@ -119,7 +119,13 @@ export const SiteSettingsProvider = ({ children }) => {
       getImageUrl,
       sheikhImage: getImageUrl(settings.branding?.sheikhImageUrl, defaultSheikhImage),
       logoImage: getImageUrl(settings.branding?.logoUrl, defaultLogo),
-      categoryNames: (settings.categories || []).map((c) => c.name).filter(Boolean),
+      categoryNames: [
+        ...new Set(
+          [...(settings.categories || []), ...(settings.sunnahBooks || [])]
+            .map((c) => c.name)
+            .filter(Boolean)
+        ),
+      ],
     }),
     [settings, loading, refresh, saveSettings, applySettings, getImageUrl]
   );

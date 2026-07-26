@@ -128,6 +128,14 @@ export const DEFAULT_SITE_SETTINGS = {
     { id: 'general', name: 'دروس عامة', letter: 'د', count: 33 },
     { id: 'fawaid', name: 'فوائد', letter: 'ف', count: 50 },
   ],
+  sunnahBooks: [
+    { id: 'bukhari', name: 'صحيح البخاري', letter: 'ب', count: 0 },
+    { id: 'muslim', name: 'صحيح مسلم', letter: 'م', count: 0 },
+    { id: 'abudawud', name: 'سنن أبي داود', letter: 'د', count: 0 },
+    { id: 'tirmidhi', name: 'سنن الترمذي', letter: 'ت', count: 0 },
+    { id: 'nasai', name: 'سنن النسائي', letter: 'ن', count: 0 },
+    { id: 'ibnmajah', name: 'سنن ابن ماجه', letter: 'ه', count: 0 },
+  ],
 };
 
 export const SITE_SETTINGS_STORAGE_KEY = 'site_settings_v1';

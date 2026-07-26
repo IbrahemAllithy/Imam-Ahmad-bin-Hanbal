@@ -10,6 +10,7 @@ const SECTIONS = [
   { id: 'about', label: 'عن الشيخ' },
   { id: 'nav', label: 'القائمة والفوتر' },
   { id: 'categories', label: 'التصنيفات' },
+  { id: 'sunnah', label: 'قراءة السنة' },
   { id: 'contact', label: 'التواصل' },
   { id: 'pages', label: 'صفحات أخرى' },
 ];
@@ -645,6 +646,81 @@ const AdminSettings = () => {
               }
             >
               <FiPlus /> إضافة تصنيف
+            </button>
+          </>
+        )}
+
+        {section === 'sunnah' && (
+          <>
+            <p className="settings-hint">
+              هذه الأقسام تظهر ككروت في صفحة "قراءة السنة". أضف كتاب السنة هنا، ثم أضف دروسه من
+              قسم "المحاضرات" باختيار نفس الاسم في حقل التصنيف.
+            </p>
+            {(form.sunnahBooks || []).map((book, idx) => (
+              <div className="form-grid settings-inline-row" key={`sunnah-${idx}`}>
+                <div className="form-group">
+                  <label>الاسم</label>
+                  <input
+                    value={book.name}
+                    onChange={(e) => {
+                      const books = [...form.sunnahBooks];
+                      books[idx] = { ...books[idx], name: e.target.value };
+                      updatePath('sunnahBooks', books);
+                    }}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>الحرف</label>
+                  <input
+                    value={book.letter}
+                    maxLength={2}
+                    onChange={(e) => {
+                      const books = [...form.sunnahBooks];
+                      books[idx] = { ...books[idx], letter: e.target.value };
+                      updatePath('sunnahBooks', books);
+                    }}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>العدد الظاهر</label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={book.count}
+                    onChange={(e) => {
+                      const books = [...form.sunnahBooks];
+                      books[idx] = { ...books[idx], count: Number(e.target.value) || 0 };
+                      updatePath('sunnahBooks', books);
+                    }}
+                  />
+                </div>
+                <button
+                  type="button"
+                  className="btn-card-delete"
+                  onClick={() =>
+                    updatePath('sunnahBooks', form.sunnahBooks.filter((_, i) => i !== idx))
+                  }
+                >
+                  <FiTrash2 />
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={() =>
+                updatePath('sunnahBooks', [
+                  ...form.sunnahBooks,
+                  {
+                    id: `sunnah-${Date.now()}`,
+                    name: 'كتاب جديد',
+                    letter: 'ج',
+                    count: 0,
+                  },
+                ])
+              }
+            >
+              <FiPlus /> إضافة كتاب
             </button>
           </>
         )}

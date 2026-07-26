@@ -130,6 +130,14 @@ export const DEFAULT_SETTINGS = {
     { id: 'general', name: 'دروس عامة', letter: 'د', count: 33 },
     { id: 'fawaid', name: 'فوائد', letter: 'ف', count: 50 },
   ],
+  sunnahBooks: [
+    { id: 'bukhari', name: 'صحيح البخاري', letter: 'ب', count: 0 },
+    { id: 'muslim', name: 'صحيح مسلم', letter: 'م', count: 0 },
+    { id: 'abudawud', name: 'سنن أبي داود', letter: 'د', count: 0 },
+    { id: 'tirmidhi', name: 'سنن الترمذي', letter: 'ت', count: 0 },
+    { id: 'nasai', name: 'سنن النسائي', letter: 'ن', count: 0 },
+    { id: 'ibnmajah', name: 'سنن ابن ماجه', letter: 'ه', count: 0 },
+  ],
 };
 
 const navLinkSchema = new mongoose.Schema(
@@ -305,6 +313,7 @@ const siteSettingsSchema = new mongoose.Schema(
       },
     },
     categories: { type: [categorySchema], default: DEFAULT_SETTINGS.categories },
+    sunnahBooks: { type: [categorySchema], default: DEFAULT_SETTINGS.sunnahBooks },
   },
   { timestamps: true }
 );
