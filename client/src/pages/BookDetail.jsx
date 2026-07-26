@@ -58,13 +58,6 @@ const BookDetail = () => {
               <div className="info-value">{book.category}</div>
             </div>
             
-            {book.pages && (
-              <div className="info-item">
-                <div className="info-label">عدد الصفحات</div>
-                <div className="info-value">{book.pages} صفحة</div>
-              </div>
-            )}
-
             <div className="book-actions-group">
               <a 
                 href={getStorageUrl(book.pdfUrl)}
