@@ -97,7 +97,7 @@ const Register = () => {
       </div>
 
       <div className="container auth-page">
-        <form onSubmit={handleSubmit} className="auth-form" noValidate>
+        <form onSubmit={handleSubmit} className="auth-form" noValidate autoComplete="off">
           {error && <div className="alert alert-error">{error}</div>}
 
           <div className="form-group">
@@ -105,6 +105,7 @@ const Register = () => {
             <input
               id="name"
               name="name"
+              autoComplete="off"
               value={form.name}
               onChange={handleChange}
               maxLength={100}
@@ -121,6 +122,7 @@ const Register = () => {
               id="email"
               name="email"
               type="email"
+              autoComplete="off"
               value={form.email}
               onChange={handleChange}
               placeholder="بريدك الشخصي مثل name@gmail.com"
@@ -148,6 +150,7 @@ const Register = () => {
                 id="password"
                 name="password"
                 type={showPassword ? 'text' : 'password'}
+                autoComplete="new-password"
                 value={form.password}
                 onChange={handleChange}
                 minLength={8}
@@ -174,6 +177,7 @@ const Register = () => {
               id="confirmPassword"
               name="confirmPassword"
               type={showPassword ? 'text' : 'password'}
+              autoComplete="new-password"
               value={form.confirmPassword}
               onChange={handleChange}
               minLength={8}
