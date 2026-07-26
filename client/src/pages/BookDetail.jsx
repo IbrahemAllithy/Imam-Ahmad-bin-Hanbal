@@ -1,7 +1,8 @@
 import { useParams, Link } from 'react-router-dom';
+import { useState } from 'react';
 import { FiBookOpen, FiDownload, FiBook } from 'react-icons/fi';
 import { useFetch } from '../hooks/useFetch';
-import { getStorageUrl } from '../services/api';
+import { getBookCoverUrl } from '../services/api';
 import BookCard from '../components/books/BookCard';
 import Loader from '../components/ui/Loader';
 import './BookDetail.css';
@@ -9,12 +10,15 @@ import './BookDetail.css';
 const BookDetail = () => {
   const { id } = useParams();
   const { data, loading, error } = useFetch(`/books/${id}`);
+  const [imgFailed, setImgFailed] = useState(false);
 
   if (loading) return <Loader />;
   if (error) return <div className="container alert alert-error">{error}</div>;
 
   const { data: book, related } = data || {};
   if (!book) return <div className="container alert alert-error">لم يتم العثور على الكتاب المطلوب</div>;
+
+  const coverUrl = getBookCoverUrl(book);
 
   return (
     <div className="book-page-wrapper">
@@ -29,8 +33,13 @@ const BookDetail = () => {
       <div className="book-layout">
         <div className="book-sidebar">
           <div className="book-cover-wrapper">
-            {book.coverImage ? (
-              <img src={getStorageUrl(book.coverImage)} alt={book.title} className="book-cover-img" />
+            {coverUrl && !imgFailed ? (
+              <img
+                src={coverUrl}
+                alt={book.title}
+                className="book-cover-img"
+                onError={() => setImgFailed(true)}
+              />
             ) : (
               <div className="book-cover-placeholder">
                 <FiBook className="placeholder-icon" />

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useFetch } from '../hooks/useFetch';
 import { useSiteSettings } from '../context/SiteSettingsContext';
-import { getStorageUrl } from '../services/api';
+import { getStorageUrl, getBookCoverUrl } from '../services/api';
 import './Home.css';
 import {
   FiBook,
@@ -168,7 +168,7 @@ const Home = () => {
                   books?.data?.map((bk) => (
                     <Link to={`/books/${bk._id}`} key={bk._id} className="latest-item">
                       <div className="latest-thumb book">
-                        {bk.coverImage && <img src={getStorageUrl(bk.coverImage)} alt="" />}
+                        {getBookCoverUrl(bk) && <img src={getBookCoverUrl(bk)} alt="" />}
                       </div>
                       <div className="latest-info">
                         <div className="latest-title">{bk.title}</div>

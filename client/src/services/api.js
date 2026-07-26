@@ -86,4 +86,14 @@ export const getStorageUrl = (path) => {
   return `${BASE_URL}${path}`;
 };
 
+// Archive.org exposes a cover thumbnail for every item at a predictable URL
+// derived from its identifier (the segment right after "/details/").
+export const getArchiveCoverUrl = (pdfUrl) => {
+  const match = (pdfUrl || '').match(/archive\.org\/details\/([^/]+)/);
+  return match ? `https://archive.org/services/img/${match[1]}` : '';
+};
+
+export const getBookCoverUrl = (book) =>
+  book?.coverImage ? getStorageUrl(book.coverImage) : getArchiveCoverUrl(book?.pdfUrl);
+
 export default api;
