@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useFetch } from '../hooks/useFetch';
 import { useSiteSettings } from '../context/SiteSettingsContext';
-import { getStorageUrl, getBookCoverUrl } from '../services/api';
+import { getStorageUrl } from '../services/api';
 import './Home.css';
 import {
   FiBook,
@@ -30,7 +30,6 @@ const quickLinks = [
 const Home = () => {
   const { data: lectures, loading: l1 } = useFetch('/lectures', { limit: 4 });
   const { data: articles, loading: l2 } = useFetch('/articles', { limit: 4 });
-  const { data: books, loading: l3 } = useFetch('/books', { limit: 4 });
   const location = useLocation();
   const { settings, sheikhImage } = useSiteSettings();
 
@@ -141,28 +140,6 @@ const Home = () => {
                       </div>
                       <div className="latest-info">
                         <div className="latest-title">{ls.title}</div>
-                      </div>
-                    </Link>
-                  ))}
-              </div>
-            </div>
-
-            <div className="latest-section-col animate-fade-in-up delay-100">
-              <div className="latest-header">
-                <h3>جديد الكتب</h3>
-                <Link to="/books">
-                  الكل <FiChevronLeft />
-                </Link>
-              </div>
-              <div className="latest-list">
-                {!l3 &&
-                  books?.data?.map((bk) => (
-                    <Link to={`/books/${bk._id}`} key={bk._id} className="latest-item">
-                      <div className="latest-thumb book">
-                        {getBookCoverUrl(bk) && <img src={getBookCoverUrl(bk)} alt="" />}
-                      </div>
-                      <div className="latest-info">
-                        <div className="latest-title">{bk.title}</div>
                       </div>
                     </Link>
                   ))}

@@ -43,12 +43,6 @@ const Books = () => {
         />
 
         <div className="pills-filter">
-          <span 
-            className={`pill-btn ${category === 'الكل' ? 'active' : ''}`}
-            onClick={() => setCategory('الكل')}
-          >
-            الكل
-          </span>
           {categories.map((cat, idx) => (
             <span
               key={idx}
