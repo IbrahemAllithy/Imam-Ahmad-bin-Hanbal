@@ -31,6 +31,7 @@ const BuyBooks = lazy(() => import('./pages/BuyBooks'));
 const Events = lazy(() => import('./pages/Events'));
 const Testimonials = lazy(() => import('./pages/Testimonials'));
 const DistanceLearning = lazy(() => import('./pages/DistanceLearning'));
+const ComingSoon = lazy(() => import('./pages/ComingSoon'));
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const NotFound = lazy(() => import('./pages/NotFound'));
@@ -81,6 +82,8 @@ const App = () => {
             <Route path="/events" element={<Events />} />
             <Route path="/testimonials" element={<Testimonials />} />
             <Route path="/distance-learning" element={<DistanceLearning />} />
+            <Route path="/kids" element={<ComingSoon title="البراعم" />} />
+            <Route path="/women" element={<ComingSoon title="النساء" />} />
 
             {/* ── Auth pages (guest only) ─────────────── */}
             <Route path="/register" element={<Register />} />
