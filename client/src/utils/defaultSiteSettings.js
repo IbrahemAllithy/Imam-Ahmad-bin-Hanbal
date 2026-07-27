@@ -71,10 +71,14 @@ export const DEFAULT_SITE_SETTINGS = {
     links: [
       { to: '/', label: 'الرئيسية' },
       { to: '/about', label: 'عن الشيخ' },
+      { to: '/buy-books', label: 'شراء الكتب' },
       { to: '/contact', label: 'التواصل والتسجيل' },
     ],
     ctaText: 'سجّل الآن',
     ctaLink: '/register',
+  },
+  bookStore: {
+    whatsappNumber: '+201102085387',
   },
   footer: {
     title: 'الموقع الرسمي للشيخ شعبان العودة',

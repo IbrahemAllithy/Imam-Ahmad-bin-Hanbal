@@ -20,6 +20,7 @@ import authRoutes from './routes/authRoutes.js';
 import lectureRoutes from './routes/lectureRoutes.js';
 import articleRoutes from './routes/articleRoutes.js';
 import bookRoutes from './routes/bookRoutes.js';
+import saleBookRoutes from './routes/saleBookRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
@@ -60,6 +61,7 @@ app.use(
       },
     },
     crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
   })
 );
 
@@ -113,6 +115,10 @@ app.use(
   })
 );
 
+// Seed cover images checked into the repo (unlike /storage, which is
+// gitignored user-upload content and not guaranteed to survive a redeploy).
+app.use('/seed-covers', express.static(path.join(__dirname, 'seed', 'sale-covers')));
+
 app.get('/api/health', (_req, res) => {
   res.json({ success: true, message: 'الخادم يعمل' });
 });
@@ -121,6 +127,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/lectures', lectureRoutes);
 app.use('/api/articles', articleRoutes);
 app.use('/api/books', bookRoutes);
+app.use('/api/sale-books', saleBookRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/settings', settingsRoutes);

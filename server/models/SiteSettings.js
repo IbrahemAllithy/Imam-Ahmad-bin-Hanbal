@@ -73,10 +73,14 @@ export const DEFAULT_SETTINGS = {
     links: [
       { to: '/', label: 'الرئيسية' },
       { to: '/about', label: 'عن الشيخ' },
+      { to: '/buy-books', label: 'شراء الكتب' },
       { to: '/contact', label: 'التواصل والتسجيل' },
     ],
     ctaText: 'سجّل الآن',
     ctaLink: '/register',
+  },
+  bookStore: {
+    whatsappNumber: '+201102085387',
   },
   footer: {
     title: 'الموقع الرسمي للشيخ شعبان العودة',
@@ -311,6 +315,13 @@ const siteSettingsSchema = new mongoose.Schema(
     },
     categories: { type: [categorySchema], default: DEFAULT_SETTINGS.categories },
     sunnahBooks: { type: [categorySchema], default: DEFAULT_SETTINGS.sunnahBooks },
+    bookStore: {
+      whatsappNumber: {
+        type: String,
+        trim: true,
+        default: DEFAULT_SETTINGS.bookStore.whatsappNumber,
+      },
+    },
   },
   { timestamps: true }
 );

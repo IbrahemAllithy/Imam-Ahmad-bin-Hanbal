@@ -15,6 +15,7 @@ const SETTINGS_SECTIONS = [
   'categories',
   'lectureCategoriesPage',
   'sunnahBooks',
+  'bookStore',
 ];
 
 const deepMerge = (target, source) => {
