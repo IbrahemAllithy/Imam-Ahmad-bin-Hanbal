@@ -71,6 +71,7 @@ export const DEFAULT_SITE_SETTINGS = {
     links: [
       { to: '/', label: 'الرئيسية' },
       { to: '/about', label: 'عن الشيخ' },
+      { to: '/events', label: 'فعاليات' },
     ],
     ctaText: 'سجّل الآن',
     ctaLink: '/register',

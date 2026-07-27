@@ -16,6 +16,7 @@ import {
   FiAward,
   FiShoppingBag,
   FiCalendar,
+  FiMessageSquare,
 } from 'react-icons/fi';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import Loader from '../../components/ui/Loader';
@@ -27,6 +28,7 @@ const AdminArticles = lazy(() => import('./AdminArticles'));
 const AdminBooks = lazy(() => import('./AdminBooks'));
 const AdminSaleBooks = lazy(() => import('./AdminSaleBooks'));
 const AdminEvents = lazy(() => import('./AdminEvents'));
+const AdminTestimonials = lazy(() => import('./AdminTestimonials'));
 const AdminContacts = lazy(() => import('./AdminContacts'));
 const AdminSettings = lazy(() => import('./AdminSettings'));
 const AdminStudents = lazy(() => import('./AdminStudents'));
@@ -42,6 +44,7 @@ const NAV_ITEMS = [
   { id: 'books', label: 'الكتب', icon: FiBook },
   { id: 'shop', label: 'متجر الكتب', icon: FiShoppingBag },
   { id: 'events', label: 'الفعاليات', icon: FiCalendar },
+  { id: 'testimonials', label: 'قالوا عن الموقع', icon: FiMessageSquare },
   { id: 'students', label: 'الطلاب', icon: FiUsers },
   { id: 'certificates', label: 'الشهادات', icon: FiAward },
   { id: 'questions', label: 'أسئلة الدروس', icon: FiMessageCircle },
@@ -103,6 +106,7 @@ const AdminDashboard = () => {
           {tab === 'books' && <AdminBooks />}
           {tab === 'shop' && <AdminSaleBooks />}
           {tab === 'events' && <AdminEvents />}
+          {tab === 'testimonials' && <AdminTestimonials />}
           {tab === 'students' && <AdminStudents />}
           {tab === 'certificates' && <AdminCertificates />}
           {tab === 'questions' && <AdminQuestions />}

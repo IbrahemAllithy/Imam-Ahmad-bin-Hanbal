@@ -97,6 +97,12 @@ export const uploadEventCover = multer({
   limits: { fileSize: 5 * 1024 * 1024 },
 }).single('coverImage');
 
+export const uploadTestimonialPhoto = multer({
+  storage,
+  fileFilter: imageFileFilter,
+  limits: { fileSize: 3 * 1024 * 1024 },
+}).single('photo');
+
 const brandingStorage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, COVER_DIR),
   filename: (_req, file, cb) => {

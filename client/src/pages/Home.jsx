@@ -13,7 +13,6 @@ import {
   FiCheckCircle,
   FiChevronLeft,
   FiPhoneCall,
-  FiCalendar,
 } from 'react-icons/fi';
 
 const quickLinks = [
@@ -22,7 +21,6 @@ const quickLinks = [
   { label: 'المقالات', href: '/articles', icon: <FiFileText /> },
   { label: 'مقرأة السنة', href: '/sunnah-reading', icon: <FiBookOpen /> },
   { label: 'تعلم عن بعد', href: '/distance-learning', icon: <FiMonitor /> },
-  { label: 'فعاليات', href: '/events', icon: <FiCalendar /> },
 ];
 
 const Home = () => {
