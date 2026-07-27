@@ -63,7 +63,6 @@
 .hero-quote {
   position: relative;
   margin: 0 0 24px;
-  padding: 0 28px;
   font-family: var(--font-heading);
   font-size: 17px;
   font-style: italic;
@@ -71,31 +70,10 @@
   color: var(--accent-color);
 }
 
-.hero-quote::before,
-.hero-quote::after {
-  content: '"';
-  position: absolute;
-  font-family: Georgia, serif;
-  font-size: 34px;
-  font-style: normal;
-  color: var(--accent-gold);
-  line-height: 1;
-}
-
-.hero-quote::before {
-  right: 0;
-  top: -4px;
-}
-
-.hero-quote::after {
-  left: 0;
-  bottom: -14px;
-  transform: rotate(180deg);
-}
-
 .hero-quote-author {
   display: block;
   margin-top: 10px;
+  font-family: inherit;
   font-style: normal;
   font-weight: 700;
   font-size: 14px;

@@ -204,14 +204,14 @@ const Navbar = () => {
           </div>
 
           <div className="mobile-only navbar-auth-mobile">
-            {authActions}
             {extras}
+            {authActions}
           </div>
         </nav>
 
         <div className="navbar-actions desktop-only">
-          {authActions}
           {extras}
+          {authActions}
         </div>
 
         <button
