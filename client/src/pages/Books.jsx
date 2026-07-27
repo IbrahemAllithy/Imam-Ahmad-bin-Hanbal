@@ -9,7 +9,8 @@ import './ListPages.css';
 
 const Books = () => {
   const { settings } = useSiteSettings();
-  const categories = settings.categories || [];
+  const HIDDEN_CATEGORIES = ['دروس عامة', 'فوائد'];
+  const categories = (settings.categories || []).filter((c) => !HIDDEN_CATEGORIES.includes(c.name));
   const [category, setCategory] = useState('الكل');
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebouncedValue(search, 400);
