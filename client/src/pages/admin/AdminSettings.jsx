@@ -10,7 +10,7 @@ const SECTIONS = [
   { id: 'about', label: 'عن الشيخ' },
   { id: 'nav', label: 'القائمة والفوتر' },
   { id: 'categories', label: 'التصنيفات' },
-  { id: 'sunnah', label: 'قراءة السنة' },
+  { id: 'sunnah', label: 'مقرأة السنة' },
   { id: 'contact', label: 'التواصل' },
   { id: 'pages', label: 'صفحات أخرى' },
 ];
@@ -653,7 +653,7 @@ const AdminSettings = () => {
         {section === 'sunnah' && (
           <>
             <p className="settings-hint">
-              هذه الأقسام تظهر ككروت في صفحة "قراءة السنة". أضف كتاب السنة هنا، ثم أضف دروسه من
+              هذه الأقسام تظهر ككروت في صفحة "مقرأة السنة". أضف كتاب السنة هنا، ثم أضف دروسه من
               قسم "المحاضرات" باختيار نفس الاسم في حقل التصنيف.
             </p>
             {(form.sunnahBooks || []).map((book, idx) => (

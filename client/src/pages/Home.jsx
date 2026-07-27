@@ -19,7 +19,7 @@ const quickLinks = [
   { label: 'الدروس', href: '/lectures', icon: <FiVideo /> },
   { label: 'الكتب', href: '/books', icon: <FiBook /> },
   { label: 'المقالات', href: '/articles', icon: <FiFileText /> },
-  { label: 'قراءة السنة', href: '/sunnah-reading', icon: <FiBookOpen /> },
+  { label: 'مقرأة السنة', href: '/sunnah-reading', icon: <FiBookOpen /> },
   { label: 'تعلم عن بعد', href: '/distance-learning', icon: <FiMonitor /> },
 ];
 

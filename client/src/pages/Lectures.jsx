@@ -146,7 +146,7 @@ const Lectures = () => {
         {/* Action & Filter Bar */}
         <div className="courses-actions-row">
           <h2 className="courses-section-title">
-            {category === 'الكل' ? 'الدورات والكتب المتاحة' : `دورات علم: ${category}`}
+            {category === 'الكل' ? 'الدورات والكتب المتاحة' : category}
           </h2>
 
           <div className="courses-search-filter">
