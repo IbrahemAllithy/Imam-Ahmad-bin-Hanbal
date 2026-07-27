@@ -5,8 +5,8 @@
 }
 
 .buy-book-card {
-  background: var(--card-bg, #fff);
-  border: 1px solid oklch(0.9 0.01 255);
+  background: var(--primary-card);
+  border: 1px solid var(--primary-border);
   border-radius: 14px;
   padding: 16px;
   display: flex;
@@ -18,7 +18,7 @@
 
 .buy-book-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 30px oklch(0.2 0.02 255 / 0.12);
+  box-shadow: var(--shadow-hover);
 }
 
 .buy-book-cover {
@@ -27,7 +27,7 @@
   border-radius: 10px;
   overflow: hidden;
   margin-bottom: 14px;
-  background: oklch(0.94 0.01 255);
+  background: var(--gray-light);
 }
 
 .buy-book-cover img {
@@ -40,7 +40,7 @@
 .buy-book-title {
   font-size: 15px;
   font-weight: 700;
-  color: var(--primary-text, oklch(0.25 0.02 255));
+  color: var(--primary-text);
   margin: 0 0 14px;
   line-height: 1.4;
   min-height: 42px;
@@ -63,11 +63,4 @@
 
 .buy-book-btn:hover {
   opacity: 0.9;
-}
-
-@media (prefers-color-scheme: dark) {
-  .buy-book-card {
-    background: oklch(0.22 0.02 255);
-    border-color: oklch(0.3 0.02 255);
-  }
 }
