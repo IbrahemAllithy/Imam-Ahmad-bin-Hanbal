@@ -49,7 +49,6 @@ const Testimonials = () => {
             <div className="testimonials-grid">
               {items.map((t) => (
                 <div className="testimonial-card" key={t._id}>
-                  <p className="testimonial-quote">"{t.quote}"</p>
                   <div className="testimonial-author">
                     {t.photo && (
                       <img src={getStorageUrl(t.photo)} alt={t.name} className="testimonial-photo" />
@@ -59,6 +58,7 @@ const Testimonials = () => {
                       {t.title && <div className="testimonial-title">{t.title}</div>}
                     </div>
                   </div>
+                  <p className="testimonial-quote">"{t.quote}"</p>
                 </div>
               ))}
             </div>
