@@ -24,18 +24,18 @@
 }
 
 .hero-inner {
-  max-width: 1400px;
+  max-width: 1000px;
   margin: 0 auto;
   position: relative;
   display: flex;
   align-items: center;
   gap: 48px;
-  justify-content: center;
+  justify-content: space-between;
 }
 
 .hero-content {
-  flex: none;
-  max-width: 650px;
+  flex: 1;
+  max-width: 500px;
 }
 
 .hero-badge {
