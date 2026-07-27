@@ -5,14 +5,17 @@ const HijabIcon = (props) => (
     height="1em"
     fill="none"
     stroke="currentColor"
-    strokeWidth="2"
+    strokeWidth="1.1"
     strokeLinecap="round"
     strokeLinejoin="round"
     {...props}
   >
-    <circle cx="12" cy="9" r="3.4" />
-    <path d="M6.2 8.8C6.2 4.9 8.8 2.5 12 2.5s5.8 2.4 5.8 6.3c0 2.4 1 4 2.4 5.6a1 1 0 0 1-.75 1.6H4.55a1 1 0 0 1-.75-1.6c1.4-1.6 2.4-3.2 2.4-5.6Z" />
-    <path d="M8.5 14.5v3.2a3.5 3.5 0 0 0 7 0v-3.2" />
+    {/* hijab hood + body, one silhouette */}
+    <path d="M7 13.5C5.8 11 6 6.5 12 1.6c6 4.9 6.2 9.4 5 11.9l1.8 7.7H5.2Z" />
+    {/* face */}
+    <ellipse cx="12" cy="8" rx="2.5" ry="3" />
+    {/* neckline notch */}
+    <path d="M10.3 13.9c.7 1 1.2 1.8 1.7 3 .5-1.2 1-2 1.7-3" />
   </svg>
 );
 
