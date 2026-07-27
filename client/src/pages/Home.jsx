@@ -59,7 +59,7 @@ const Home = () => {
                   {idx < arr.length - 1 && <br />}
                 </span>
               ))}
-              {' '}
+              <br />
               <span className="hero-honorific">حفظه الله</span>
             </h1>
             <p className="hero-quote">
