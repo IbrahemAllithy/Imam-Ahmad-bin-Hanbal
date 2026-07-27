@@ -199,14 +199,14 @@ const Navbar = () => {
           </div>
 
           <div className="mobile-only navbar-auth-mobile">
-            {extras}
             {authActions}
+            {extras}
           </div>
         </nav>
 
         <div className="navbar-actions desktop-only">
-          {extras}
           {authActions}
+          {extras}
         </div>
 
         <button

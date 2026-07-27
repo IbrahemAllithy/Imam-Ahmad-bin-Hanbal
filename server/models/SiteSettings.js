@@ -73,7 +73,6 @@ export const DEFAULT_SETTINGS = {
     links: [
       { to: '/', label: 'الرئيسية' },
       { to: '/about', label: 'عن الشيخ' },
-      { to: '/contact', label: 'التواصل والتسجيل' },
     ],
     ctaText: 'سجّل الآن',
     ctaLink: '/register',
