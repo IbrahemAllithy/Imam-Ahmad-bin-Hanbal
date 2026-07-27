@@ -52,7 +52,6 @@ const Home = () => {
         <div className="hero-pattern"></div>
         <div className="hero-inner">
           <div className="hero-content animate-fade-in-up">
-            <div className="hero-badge">{hero.badge}</div>
             <h1 className="hero-title">
               {(hero.title || '').split('\n').map((line, idx, arr) => (
                 <span key={idx}>
