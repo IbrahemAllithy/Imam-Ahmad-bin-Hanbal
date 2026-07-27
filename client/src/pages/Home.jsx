@@ -46,9 +46,6 @@ const Home = () => {
     }
   }, [location]);
 
-  const secondaryLink = hero.secondaryCtaLink === '#about' ? '/about' : hero.secondaryCtaLink;
-  const secondaryIsHash = (secondaryLink || '').startsWith('#');
-
   return (
     <div className="home-wrapper">
       <section className="home-hero">
@@ -64,17 +61,6 @@ const Home = () => {
                 </span>
               ))}
             </h1>
-            <div className="hero-actions">
-              {secondaryIsHash ? (
-                <a href={secondaryLink} className="btn btn-outline hover-lift">
-                  {hero.secondaryCtaText}
-                </a>
-              ) : (
-                <Link to={secondaryLink || '/about'} className="btn btn-outline hover-lift">
-                  {hero.secondaryCtaText}
-                </Link>
-              )}
-            </div>
           </div>
           <div className="hero-visual animate-fade-in-up delay-200">
             <img src={sheikhImage} alt={settings.branding?.siteName} className="hero-image" />
