@@ -60,6 +60,10 @@ const Home = () => {
                 </span>
               ))}
             </h1>
+            <p className="hero-quote">
+              المَلائِكَةُ حُرَّاسُ السَّماءِ، وأصحابُ الحَديثِ حُرَّاسُ الأرْضِ
+              <span className="hero-quote-author">سُفيانُ الثَّوريُّ رحمه الله</span>
+            </p>
           </div>
           <div className="hero-visual animate-fade-in-up delay-200">
             <img src={sheikhImage} alt={settings.branding?.siteName} className="hero-image" />

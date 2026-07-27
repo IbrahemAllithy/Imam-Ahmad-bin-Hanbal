@@ -52,12 +52,54 @@
 }
 
 .hero-title {
-  font-family: var(--font-heading);
+  font-family: 'Lalezar', var(--font-heading);
   font-size: clamp(34px, 4vw, 48px);
   line-height: 1.35;
-  font-weight: 800;
+  font-weight: 400;
   color: var(--primary-text);
   margin: 0 0 20px;
+}
+
+.hero-quote {
+  position: relative;
+  margin: 0 0 24px;
+  padding: 0 28px;
+  font-family: var(--font-heading);
+  font-size: 17px;
+  font-style: italic;
+  line-height: 1.9;
+  color: var(--accent-color);
+}
+
+.hero-quote::before,
+.hero-quote::after {
+  content: '"';
+  position: absolute;
+  font-family: Georgia, serif;
+  font-size: 34px;
+  font-style: normal;
+  color: var(--accent-gold);
+  line-height: 1;
+}
+
+.hero-quote::before {
+  right: 0;
+  top: -4px;
+}
+
+.hero-quote::after {
+  left: 0;
+  bottom: -14px;
+  transform: rotate(180deg);
+}
+
+.hero-quote-author {
+  display: block;
+  margin-top: 10px;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text-muted);
 }
 
 .hero-desc {
