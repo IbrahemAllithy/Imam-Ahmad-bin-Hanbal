@@ -71,7 +71,6 @@ export const DEFAULT_SITE_SETTINGS = {
     links: [
       { to: '/', label: 'الرئيسية' },
       { to: '/about', label: 'عن الشيخ' },
-      { to: '/buy-books', label: 'شراء الكتب' },
       { to: '/contact', label: 'التواصل والتسجيل' },
     ],
     ctaText: 'سجّل الآن',
@@ -86,8 +85,9 @@ export const DEFAULT_SITE_SETTINGS = {
       'الموقع الرسمي للشيخ شعبان العودة، يقدّم دروسًا وكتبًا ومقالات شرعية مبوّبة.',
     email: 'shbanalwdt48@gmail.com',
     socialLinks: [
-      { label: 'تويتر / X', url: '' },
-      { label: 'تيليجرام', url: '' },
+      { label: 'يوتيوب', url: 'https://www.youtube.com/channel/UCWTK2Gb8WcZW6Q9tWBmmBwA/playlists' },
+      { label: 'فيسبوك', url: 'https://www.facebook.com/profile.php?id=61566515948762' },
+      { label: 'تيليجرام', url: 'https://web.telegram.org/a/#-1001383061907' },
     ],
     copyrightSuffix: 'جميع الحقوق محفوظة.',
     sectionsTitle: 'الأقسام',

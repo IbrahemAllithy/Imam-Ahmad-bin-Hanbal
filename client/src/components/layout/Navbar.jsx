@@ -1,10 +1,17 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { FiMenu, FiX, FiBell, FiAward, FiSun, FiMoon } from 'react-icons/fi';
+import { FiMenu, FiX, FiBell, FiAward, FiSun, FiMoon, FiShoppingCart } from 'react-icons/fi';
+import { FaYoutube, FaFacebookF, FaTelegramPlane } from 'react-icons/fa';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 import './Navbar.css';
+
+const SOCIAL_ICONS = {
+  يوتيوب: FaYoutube,
+  فيسبوك: FaFacebookF,
+  تيليجرام: FaTelegramPlane,
+};
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -16,6 +23,9 @@ const Navbar = () => {
   const { user, logout, isStudent, isAdmin } = useAuth();
   const links = settings.navbar?.links || [];
   const { siteName } = settings.branding || {};
+  const socialLinks = (settings.footer?.socialLinks || []).filter(
+    (link) => link.url && SOCIAL_ICONS[link.label]
+  );
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -137,6 +147,33 @@ const Navbar = () => {
     </>
   );
 
+  const extras = (
+    <>
+      <Link to="/buy-books" className="navbar-store-link" onClick={() => setOpen(false)}>
+        <FiShoppingCart /> المتجر
+      </Link>
+      {socialLinks.length > 0 && (
+        <div className="navbar-socials">
+          {socialLinks.map((link) => {
+            const Icon = SOCIAL_ICONS[link.label];
+            return (
+              <a
+                key={link.label}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="navbar-social-btn"
+                title={link.label}
+              >
+                <Icon />
+              </a>
+            );
+          })}
+        </div>
+      )}
+    </>
+  );
+
   return (
     <header className="navbar">
       <div className="navbar-inner">
@@ -161,10 +198,16 @@ const Navbar = () => {
             ))}
           </div>
 
-          <div className="mobile-only navbar-auth-mobile">{authActions}</div>
+          <div className="mobile-only navbar-auth-mobile">
+            {extras}
+            {authActions}
+          </div>
         </nav>
 
-        <div className="navbar-actions desktop-only">{authActions}</div>
+        <div className="navbar-actions desktop-only">
+          {extras}
+          {authActions}
+        </div>
 
         <button
           className="navbar-toggle"
