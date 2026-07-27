@@ -179,9 +179,6 @@ const Navbar = () => {
       <div className="navbar-inner">
         <Link to="/" className="navbar-brand">
           <img src={sheikhImage} alt={siteName} className="brand-logo" />
-          <div className="brand-text">
-            <div className="brand-title">{siteName}</div>
-          </div>
         </Link>
 
         <nav id="main-nav-menu" className={`navbar-links ${open ? 'open' : ''}`}>
