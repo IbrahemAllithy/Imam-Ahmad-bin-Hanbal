@@ -15,7 +15,7 @@ const Navbar = () => {
   const { settings, sheikhImage } = useSiteSettings();
   const { user, logout, isStudent, isAdmin } = useAuth();
   const links = settings.navbar?.links || [];
-  const { siteName, siteSubtitle } = settings.branding || {};
+  const { siteName } = settings.branding || {};
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -144,7 +144,6 @@ const Navbar = () => {
           <img src={sheikhImage} alt={siteName} className="brand-logo" />
           <div className="brand-text">
             <div className="brand-title">{siteName}</div>
-            <div className="brand-subtitle">{siteSubtitle}</div>
           </div>
         </Link>
 
