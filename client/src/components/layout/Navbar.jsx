@@ -102,9 +102,16 @@ const Navbar = () => {
     </button>
   );
 
+  const storeLink = (
+    <Link to="/buy-books" className="navbar-store-link" onClick={() => setOpen(false)}>
+      <FiShoppingCart /> المتجر
+    </Link>
+  );
+
   const authActions = user ? (
     <>
       {themeBtn}
+      {storeLink}
       {(isStudent || isAdmin) && (
         <Link to="/certificates" className="btn-login desktop-only" onClick={() => setOpen(false)} title="شهاداتي">
           <FiAward style={{ verticalAlign: 'middle' }} />
@@ -138,6 +145,7 @@ const Navbar = () => {
   ) : (
     <>
       {themeBtn}
+      {storeLink}
       <Link to="/login" className="btn-login" onClick={() => setOpen(false)}>
         دخول
       </Link>
@@ -149,9 +157,6 @@ const Navbar = () => {
 
   const extras = (
     <>
-      <Link to="/buy-books" className="navbar-store-link" onClick={() => setOpen(false)}>
-        <FiShoppingCart /> المتجر
-      </Link>
       {socialLinks.length > 0 && (
         <div className="navbar-socials">
           {socialLinks.map((link) => {
