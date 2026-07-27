@@ -91,6 +91,7 @@ export const DEFAULT_SETTINGS = {
       { label: 'يوتيوب', url: 'https://www.youtube.com/channel/UCWTK2Gb8WcZW6Q9tWBmmBwA/playlists' },
       { label: 'فيسبوك', url: 'https://www.facebook.com/profile.php?id=61566515948762' },
       { label: 'تيليجرام', url: 'https://web.telegram.org/a/#-1001383061907' },
+      { label: 'واتساب', url: 'https://whatsapp.com/channel/0029Vb748CD5fM5X14qXvo2o' },
     ],
     copyrightSuffix: 'جميع الحقوق محفوظة.',
     sectionsTitle: 'الأقسام',

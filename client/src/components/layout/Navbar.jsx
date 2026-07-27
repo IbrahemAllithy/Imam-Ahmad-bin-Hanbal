@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { FiMenu, FiX, FiBell, FiAward, FiSun, FiMoon, FiShoppingCart } from 'react-icons/fi';
-import { FaYoutube, FaFacebookF, FaTelegramPlane } from 'react-icons/fa';
+import { FaYoutube, FaFacebookF, FaTelegramPlane, FaWhatsapp } from 'react-icons/fa';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
@@ -11,6 +11,7 @@ const SOCIAL_ICONS = {
   يوتيوب: FaYoutube,
   فيسبوك: FaFacebookF,
   تيليجرام: FaTelegramPlane,
+  واتساب: FaWhatsapp,
 };
 
 const Navbar = () => {
