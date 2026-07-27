@@ -7,10 +7,9 @@ import api from '../services/api';
 import Loader from '../components/ui/Loader';
 import './BuyBooks.css';
 
-const whatsappLink = (number, title) => {
+const whatsappLink = (number) => {
   const digits = (number || '').replace(/[^\d]/g, '');
-  const text = encodeURIComponent(`السلام عليكم، أريد شراء كتاب: ${title}`);
-  return `https://wa.me/${digits}?text=${text}`;
+  return `https://wa.me/${digits}`;
 };
 
 const BuyBooks = () => {
@@ -65,7 +64,7 @@ const BuyBooks = () => {
                   <h3 className="buy-book-title">{b.title}</h3>
                   <a
                     className="buy-book-btn"
-                    href={whatsappLink(whatsappNumber, b.title)}
+                    href={whatsappLink(whatsappNumber)}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
