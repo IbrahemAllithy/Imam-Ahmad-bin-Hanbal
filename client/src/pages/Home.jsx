@@ -14,7 +14,8 @@ import {
   FiChevronLeft,
   FiPhoneCall,
 } from 'react-icons/fi';
-import { FaChild, FaPersonDress } from 'react-icons/fa6';
+import { FaChildren } from 'react-icons/fa6';
+import HijabIcon from '../components/icons/HijabIcon';
 
 const quickLinks = [
   { label: 'الدروس', href: '/lectures', icon: <FiVideo /> },
@@ -22,8 +23,8 @@ const quickLinks = [
   { label: 'المقالات', href: '/articles', icon: <FiFileText /> },
   { label: 'مقرأة السنة', href: '/sunnah-reading', icon: <FiBookOpen /> },
   { label: 'تعلم عن بعد', href: '/distance-learning', icon: <FiMonitor /> },
-  { label: 'البراعم', href: '/kids', icon: <FaChild /> },
-  { label: 'النساء', href: '/women', icon: <FaPersonDress /> },
+  { label: 'البراعم', href: '/kids', icon: <FaChildren /> },
+  { label: 'النساء', href: '/women', icon: <HijabIcon /> },
 ];
 
 const Home = () => {
