@@ -59,8 +59,9 @@ const Home = () => {
                   {idx < arr.length - 1 && <br />}
                 </span>
               ))}
+              {' '}
+              <span className="hero-honorific">حفظه الله</span>
             </h1>
-            <span className="hero-honorific">حفظه الله</span>
             <p className="hero-quote">
               المَلائِكَةُ حُرَّاسُ السَّماءِ، وأصحابُ الحَديثِ حُرَّاسُ الأرْضِ
               <span className="hero-quote-author">سُفيانُ الثَّوريُّ رحمه الله</span>
