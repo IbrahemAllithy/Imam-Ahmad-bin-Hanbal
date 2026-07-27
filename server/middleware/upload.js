@@ -91,6 +91,12 @@ export const uploadSaleBookCover = multer({
   limits: { fileSize: 5 * 1024 * 1024 },
 }).single('coverImage');
 
+export const uploadEventCover = multer({
+  storage,
+  fileFilter: imageFileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 },
+}).single('coverImage');
+
 const brandingStorage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, COVER_DIR),
   filename: (_req, file, cb) => {

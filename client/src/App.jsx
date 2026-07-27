@@ -28,6 +28,7 @@ const Notifications = lazy(() => import('./pages/Notifications'));
 const Search = lazy(() => import('./pages/Search'));
 const SunnahReading = lazy(() => import('./pages/SunnahReading'));
 const BuyBooks = lazy(() => import('./pages/BuyBooks'));
+const Events = lazy(() => import('./pages/Events'));
 const DistanceLearning = lazy(() => import('./pages/DistanceLearning'));
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword'));
@@ -76,6 +77,7 @@ const App = () => {
             <Route path="/search" element={<Search />} />
             <Route path="/sunnah-reading" element={<SunnahReading />} />
             <Route path="/buy-books" element={<BuyBooks />} />
+            <Route path="/events" element={<Events />} />
             <Route path="/distance-learning" element={<DistanceLearning />} />
 
             {/* ── Auth pages (guest only) ─────────────── */}
