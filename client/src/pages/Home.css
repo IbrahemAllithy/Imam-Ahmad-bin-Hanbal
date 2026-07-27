@@ -57,6 +57,15 @@
   line-height: 1.35;
   font-weight: 400;
   color: var(--primary-text);
+  margin: 0 0 8px;
+}
+
+.hero-honorific {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--accent-color);
   margin: 0 0 20px;
 }
 
@@ -65,7 +74,7 @@
   margin: 0 0 24px;
   font-family: var(--font-heading);
   font-size: 17px;
-  font-style: italic;
+  font-style: normal;
   line-height: 1.9;
   color: var(--accent-color);
 }
