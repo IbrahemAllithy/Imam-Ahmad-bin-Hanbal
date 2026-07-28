@@ -3,6 +3,11 @@ import { FiBookOpen, FiBookmark, FiChevronLeft } from 'react-icons/fi';
 import { useSiteSettings } from '../context/SiteSettingsContext';
 import './LectureCategories.css';
 
+const SUNNAH_WHATSAPP = '201157761521';
+
+const whatsappLink = (message) =>
+  `https://wa.me/${SUNNAH_WHATSAPP}?text=${encodeURIComponent(message)}`;
+
 const SunnahReading = () => {
   const { settings } = useSiteSettings();
   const books = settings.sunnahBooks || [];
@@ -57,7 +62,14 @@ const SunnahReading = () => {
         <div className="sunnah-subscribe-card">
           <h3>
             للاشتراك في مقرأة السنة والحصول على إسناد متصل{' '}
-            <span className="sunnah-link-placeholder">(اضغط هنا)</span>
+            <a
+              className="sunnah-whatsapp-link"
+              href={whatsappLink('السلام عليكم، أرغب في الاشتراك في مقرأة السنة والحصول على إسناد متصل.')}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              (اضغط هنا)
+            </a>
           </h3>
           <p className="sunnah-subscribe-label">المطلوب:</p>
           <ol className="sunnah-requirements-list">
@@ -66,7 +78,15 @@ const SunnahReading = () => {
             <li>الإجابة عن أسئلة كل مجلس.</li>
             <li>
               إرسال صور لتعليقاتك على الكتاب الذي تدرسه (لا يزيد عن 10 صور){' '}
-              <span className="sunnah-link-placeholder">(ترسل هنا — اضغط هنا)</span>.
+              <a
+                className="sunnah-whatsapp-link"
+                href={whatsappLink('السلام عليكم، أرسل لكم صور تعليقاتي على الكتاب الذي أدرسه في مقرأة السنة.')}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                (ترسل هنا — اضغط هنا)
+              </a>
+              .
             </li>
             <li>المراسلة بعد الانتهاء للحصول على الإسناد للكتاب الذي تم دراسته.</li>
           </ol>
