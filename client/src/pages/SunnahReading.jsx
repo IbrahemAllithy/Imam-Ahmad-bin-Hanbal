@@ -2,10 +2,6 @@ import { Link } from 'react-router-dom';
 import './LectureCategories.css';
 
 const SUNNAH_BOOKS_PATH = '/sunnah-reading/books';
-const SUNNAH_WHATSAPP = '201157761521';
-
-const whatsappLink = (message) =>
-  `https://wa.me/${SUNNAH_WHATSAPP}?text=${encodeURIComponent(message)}`;
 
 const SunnahReading = () => {
   return (
@@ -62,21 +58,6 @@ const SunnahReading = () => {
               (اضغط هنا)
             </Link>
           </h3>
-          <p className="sunnah-send-note">
-            إرسال صور لتعليقاتك على الكتاب الذي تدرسه (لا يزيد عن 10 صور){' '}
-            <a
-              className="sunnah-inline-link"
-              href={whatsappLink(
-                'السلام عليكم، أرسل لكم صور تعليقاتي على الكتاب الذي أدرسه في مقرأة السنة.'
-              )}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              (ترسل هنا — اضغط هنا)
-            </a>
-            .
-          </p>
-
           <div className="sunnah-cta-row">
             <Link to={SUNNAH_BOOKS_PATH} className="btn btn-primary">
               ابدأ دراسة كتب السنة

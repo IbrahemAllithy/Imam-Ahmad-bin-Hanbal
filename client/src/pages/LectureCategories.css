@@ -232,12 +232,6 @@
   color: oklch(0.3 0.05 45);
 }
 
-.sunnah-send-note {
-  font-size: 15px;
-  line-height: 1.8;
-  color: var(--primary-text);
-  margin: 0 0 22px;
-}
 
 .sunnah-cta-row {
   display: flex;
