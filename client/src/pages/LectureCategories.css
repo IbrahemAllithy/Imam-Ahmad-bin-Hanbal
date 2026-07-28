@@ -177,34 +177,15 @@
   color: oklch(0.3 0.05 45);
 }
 
-/* Sunnah Reading — intro & subscribe cards */
-.sunnah-intro-card,
-.sunnah-subscribe-card {
+/* Sunnah Reading — subscribe & isnad cards */
+.sunnah-subscribe-card,
+.sunnah-isnad-card {
   background: var(--white);
   border: 1.5px solid var(--primary-border);
   border-radius: 20px;
   padding: 32px 30px;
   margin-bottom: 32px;
   text-align: right;
-}
-
-.sunnah-intro-card h2 {
-  font-family: var(--font-heading);
-  font-size: 24px;
-  font-weight: 800;
-  color: var(--primary-text);
-  margin: 0 0 18px;
-}
-
-.sunnah-intro-card p {
-  font-size: 15.5px;
-  line-height: 2;
-  color: var(--primary-text);
-  margin: 0 0 14px;
-}
-
-.sunnah-intro-card p:last-child {
-  margin-bottom: 0;
 }
 
 .sunnah-subscribe-card {
@@ -240,6 +221,28 @@
   align-items: center;
 }
 
+.sunnah-subscribe-label {
+  font-family: var(--font-heading);
+  font-size: 19px;
+  font-weight: 800;
+  margin: 0 0 16px;
+  color: var(--primary-text);
+}
+
+.sunnah-requirements-list {
+  margin: 0;
+  padding-inline-start: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sunnah-requirements-list li {
+  font-size: 15px;
+  line-height: 1.9;
+  color: var(--primary-text);
+}
+
 /* Standalone empty state — .platform-empty lives in PlatformPages.css,
    which these pages don't import, so it would render unstyled. */
 .sunnah-empty {
@@ -259,8 +262,8 @@
   .categories-content {
     padding: 32px 16px;
   }
-  .sunnah-intro-card,
-  .sunnah-subscribe-card {
+  .sunnah-subscribe-card,
+  .sunnah-isnad-card {
     padding: 24px 18px;
   }
 }

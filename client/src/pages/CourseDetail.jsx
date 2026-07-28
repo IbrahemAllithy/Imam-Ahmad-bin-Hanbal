@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useLectures } from '../hooks/useLectures';
 import useProgress from '../hooks/useProgress';
 import { useAuth } from '../context/AuthContext';
+import { useSiteSettings } from '../context/SiteSettingsContext';
 import { FiCheckCircle, FiChevronRight, FiAward } from 'react-icons/fi';
 import Loader from '../components/ui/Loader';
 import './CourseDetail.css';
@@ -20,6 +21,7 @@ const CourseDetail = () => {
   const decodedSeries = decodeURIComponent(seriesName || '');
   const { isStudent, isAdmin } = useAuth();
   const { isCompleted, progressPercent, isLoggedIn } = useProgress();
+  const { settings } = useSiteSettings();
 
   const { data, loading, error } = useLectures({
     series: decodedSeries,
@@ -38,6 +40,13 @@ const CourseDetail = () => {
   const percent = progressPercent(courseLessons);
   const showCertLink = percent === 100 && isLoggedIn && (isStudent || isAdmin);
 
+  // Only the مقرأة السنة books lead to an ijaza, so the isnad call-to-action
+  // replaces the generic blurb there and nowhere else.
+  const sunnahBook = useMemo(() => {
+    const names = (settings.sunnahBooks || []).map((b) => b.name);
+    return courseLessons.find((l) => names.includes(l.category))?.category || '';
+  }, [courseLessons, settings.sunnahBooks]);
+
   if (loading) return <Loader />;
   if (error) return <div className="alert alert-error">{error}</div>;
 
@@ -51,18 +60,33 @@ const CourseDetail = () => {
 
       <div className="course-overview-card">
         <h1 className="course-overview-title">{decodedSeries}</h1>
-        <p className="course-overview-desc">
-          شرح علمي مبارك لفضيلة الشيخ أبو عبيدة شعبان العودة.
-        </p>
 
-        {!isLoggedIn && (
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
-            التقدم على هذا الجهاز مؤقت. سجّل دخولك لحفظه على حسابك والحصول على الشهادات والتنبيهات.
-            {' '}
-            <Link to="/login" style={{ fontWeight: 700, color: 'var(--accent-color)' }}>
-              سجّل دخولك لحفظ تقدمك
+        {sunnahBook ? (
+          <p className="course-overview-desc">
+            للحصول على إسناد متصل للكتاب{' '}
+            <Link
+              to={`/sunnah-reading/isnad?book=${encodeURIComponent(sunnahBook)}`}
+              style={{ fontWeight: 700, color: 'var(--accent-color)' }}
+            >
+              (اضغط هنا)
             </Link>
           </p>
+        ) : (
+          <>
+            <p className="course-overview-desc">
+              شرح علمي مبارك لفضيلة الشيخ أبو عبيدة شعبان العودة.
+            </p>
+
+            {!isLoggedIn && (
+              <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
+                التقدم على هذا الجهاز مؤقت. سجّل دخولك لحفظه على حسابك والحصول على الشهادات والتنبيهات.
+                {' '}
+                <Link to="/login" style={{ fontWeight: 700, color: 'var(--accent-color)' }}>
+                  سجّل دخولك لحفظ تقدمك
+                </Link>
+              </p>
+            )}
+          </>
         )}
 
         {showCertLink && (

@@ -28,6 +28,7 @@ const Notifications = lazy(() => import('./pages/Notifications'));
 const Search = lazy(() => import('./pages/Search'));
 const SunnahReading = lazy(() => import('./pages/SunnahReading'));
 const SunnahBooks = lazy(() => import('./pages/SunnahBooks'));
+const SunnahIsnad = lazy(() => import('./pages/SunnahIsnad'));
 const BuyBooks = lazy(() => import('./pages/BuyBooks'));
 const Events = lazy(() => import('./pages/Events'));
 const Testimonials = lazy(() => import('./pages/Testimonials'));
@@ -80,6 +81,7 @@ const App = () => {
             <Route path="/search" element={<Search />} />
             <Route path="/sunnah-reading" element={<SunnahReading />} />
             <Route path="/sunnah-reading/books" element={<SunnahBooks />} />
+            <Route path="/sunnah-reading/isnad" element={<SunnahIsnad />} />
             <Route path="/buy-books" element={<BuyBooks />} />
             <Route path="/events" element={<Events />} />
             <Route path="/testimonials" element={<Testimonials />} />
