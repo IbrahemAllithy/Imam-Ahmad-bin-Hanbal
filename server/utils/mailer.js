@@ -1,10 +1,10 @@
-import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import logger from './logger.js';
 import AppError from './AppError.js';
 
 const OTP_LENGTH = 6;
 const OTP_TTL_MS = 10 * 60 * 1000;
+const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
 
 export const generateOtp = () => {
   const num = crypto.randomInt(0, 10 ** OTP_LENGTH);
@@ -16,33 +16,53 @@ export const hashOtp = (otp) =>
 
 export const otpExpiresAt = () => new Date(Date.now() + OTP_TTL_MS);
 
-export const hasSmtpConfig = () =>
-  Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+// Cloud hosts commonly block outbound SMTP ports (25/465/587) on free
+// instances, so mail goes out over Brevo's HTTPS API instead — same
+// transport, no port ever gets blocked.
+export const hasSmtpConfig = () => Boolean(process.env.BREVO_API_KEY);
 
-const createTransport = () => {
-  if (!hasSmtpConfig()) return null;
+const parseSender = () => {
+  const raw = process.env.SMTP_FROM || process.env.SMTP_USER || '';
+  const match = raw.match(/^(.*)<(.+)>$/);
+  if (match) {
+    return { name: match[1].trim().replace(/^"|"$/g, ''), email: match[2].trim() };
+  }
+  return { email: raw };
+};
 
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT || 587),
-    secure: process.env.SMTP_SECURE === 'true',
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+const sendViaBrevo = async ({ to, subject, text, html }) => {
+  const res = await fetch(BREVO_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      'api-key': process.env.BREVO_API_KEY,
     },
+    body: JSON.stringify({
+      sender: parseSender(),
+      to: [{ email: to }],
+      subject,
+      textContent: text,
+      htmlContent: html,
+    }),
   });
+
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`Brevo API ${res.status}: ${body}`);
+  }
+
+  return res.json();
 };
 
 export const sendVerificationEmail = async ({ to, name, otp }) => {
   if (!hasSmtpConfig()) {
     throw new AppError(
-      'إرسال البريد غير مفعّل حالياً. يرجى ضبط إعدادات SMTP في الخادم ثم المحاولة مجدداً.',
+      'إرسال البريد غير مفعّل حالياً. يرجى ضبط إعدادات البريد في الخادم ثم المحاولة مجدداً.',
       503
     );
   }
 
-  const transporter = createTransport();
-  const from = process.env.SMTP_FROM || process.env.SMTP_USER;
   const subject = 'رمز تفعيل حسابك — الموقع الرسمي للشيخ شعبان العودة';
   const text = `السلام عليكم ${name}،
 
@@ -62,7 +82,7 @@ export const sendVerificationEmail = async ({ to, name, otp }) => {
   `;
 
   try {
-    await transporter.sendMail({ from, to, subject, text, html });
+    await sendViaBrevo({ to, subject, text, html });
     logger.info('تم إرسال رمز التفعيل إلى البريد', { to });
     return { sent: true };
   } catch (err) {
@@ -77,13 +97,11 @@ export const sendVerificationEmail = async ({ to, name, otp }) => {
 export const sendPasswordResetEmail = async ({ to, name, token }) => {
   if (!hasSmtpConfig()) {
     throw new AppError(
-      'إرسال البريد غير مفعّل حالياً. يرجى ضبط إعدادات SMTP في الخادم ثم المحاولة مجدداً.',
+      'إرسال البريد غير مفعّل حالياً. يرجى ضبط إعدادات البريد في الخادم ثم المحاولة مجدداً.',
       503
     );
   }
 
-  const transporter = createTransport();
-  const from = process.env.SMTP_FROM || process.env.SMTP_USER;
   const clientUrl = (process.env.CLIENT_URL || 'http://localhost:5173').replace(/\/$/, '');
   const resetUrl = `${clientUrl}/reset-password?token=${encodeURIComponent(token)}`;
 
@@ -106,7 +124,7 @@ ${resetUrl}
   `;
 
   try {
-    await transporter.sendMail({ from, to, subject, text, html });
+    await sendViaBrevo({ to, subject, text, html });
     logger.info('تم إرسال بريد إعادة تعيين كلمة المرور', { to });
     return { sent: true };
   } catch (err) {
@@ -129,10 +147,7 @@ export const sendContactNotificationEmail = async ({
     return { sent: false };
   }
 
-  const transporter = createTransport();
-  const from = process.env.SMTP_FROM || process.env.SMTP_USER;
   const topic = subject?.trim() || 'بدون موضوع';
-
   const mailSubject = `رسالة تواصل جديدة: ${topic}`;
   const text = `رسالة جديدة من نموذج التواصل
 
@@ -155,18 +170,44 @@ ${message}`;
   `;
 
   try {
-    await transporter.sendMail({
-      from,
-      to,
-      replyTo: email,
-      subject: mailSubject,
-      text,
-      html,
-    });
+    await sendViaBrevo({ to, subject: mailSubject, text, html });
     logger.info('تم إرسال إشعار رسالة التواصل', { to });
     return { sent: true };
   } catch (err) {
     logger.error('فشل إرسال إشعار رسالة التواصل', { to, error: err.message });
+    return { sent: false };
+  }
+};
+
+export const sendNotificationEmail = async ({ to, name, title, body, link }) => {
+  if (!hasSmtpConfig()) return { sent: false };
+
+  const site = (process.env.CLIENT_URL || 'http://localhost:5173').replace(/\/$/, '');
+  const fullLink = link ? `${site}${link}` : site;
+
+  const text = `السلام عليكم ${name}،\n\n${body}\n\n${fullLink}`;
+  const html = `
+    <div style="font-family:Tahoma,Arial,sans-serif;direction:rtl;text-align:right;line-height:1.8;padding:20px;background:#faf6ee;border:1px solid #e8dfd0;border-radius:12px">
+      <h2 style="color:#6b4f2c;margin-top:0">${title}</h2>
+      <p style="color:#333;font-size:16px">السلام عليكم <strong>${name}</strong>،</p>
+      <div style="background:#fff;padding:16px;border-radius:8px;border-right:4px solid #6b4f2c;margin:15px 0">
+        <p style="margin:0;white-space:pre-wrap;color:#444">${body}</p>
+      </div>
+      ${
+        link
+          ? `<p><a href="${fullLink}" style="display:inline-block;padding:10px 20px;background:#6b4f2c;color:#fff;text-decoration:none;border-radius:6px;font-weight:bold">عرض التفاصيل بالموقع</a></p>`
+          : ''
+      }
+      <hr style="border:none;border-top:1px solid #e8dfd0;margin:20px 0" />
+      <p style="font-size:12px;color:#888;margin:0">الموقع الرسمي لفضيلة الشيخ شعبان العودة</p>
+    </div>
+  `;
+
+  try {
+    await sendViaBrevo({ to, subject: title, text, html });
+    return { sent: true };
+  } catch (err) {
+    logger.error('فشل إرسال بريد التنبيه', { to, error: err.message });
     return { sent: false };
   }
 };
