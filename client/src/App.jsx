@@ -29,11 +29,13 @@ const Search = lazy(() => import('./pages/Search'));
 const SunnahReading = lazy(() => import('./pages/SunnahReading'));
 const SunnahBooks = lazy(() => import('./pages/SunnahBooks'));
 const SunnahIsnad = lazy(() => import('./pages/SunnahIsnad'));
+const SiteSectionHome = lazy(() => import('./pages/SiteSectionHome'));
+const SiteSectionBooks = lazy(() => import('./pages/SiteSectionBooks'));
+const SiteSectionLessons = lazy(() => import('./pages/SiteSectionLessons'));
 const BuyBooks = lazy(() => import('./pages/BuyBooks'));
 const Events = lazy(() => import('./pages/Events'));
 const Testimonials = lazy(() => import('./pages/Testimonials'));
 const DistanceLearning = lazy(() => import('./pages/DistanceLearning'));
-const ComingSoon = lazy(() => import('./pages/ComingSoon'));
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const NotFound = lazy(() => import('./pages/NotFound'));
@@ -86,8 +88,12 @@ const App = () => {
             <Route path="/events" element={<Events />} />
             <Route path="/testimonials" element={<Testimonials />} />
             <Route path="/distance-learning" element={<DistanceLearning />} />
-            <Route path="/kids" element={<ComingSoon title="البراعم" />} />
-            <Route path="/women" element={<ComingSoon title="النساء" />} />
+            <Route path="/kids" element={<SiteSectionHome sectionId="kids" />} />
+            <Route path="/kids/books" element={<SiteSectionBooks sectionId="kids" />} />
+            <Route path="/kids/lessons" element={<SiteSectionLessons sectionId="kids" />} />
+            <Route path="/women" element={<SiteSectionHome sectionId="women" />} />
+            <Route path="/women/books" element={<SiteSectionBooks sectionId="women" />} />
+            <Route path="/women/lessons" element={<SiteSectionLessons sectionId="women" />} />
 
             {/* ── Auth pages (guest only) ─────────────── */}
             <Route path="/register" element={<Register />} />

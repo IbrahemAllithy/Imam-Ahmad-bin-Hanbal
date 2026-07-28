@@ -35,13 +35,17 @@ const toDatetimeLocal = (iso) => {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };
 
-const AdminLectures = () => {
+const AdminLectures = ({ fixedCategory }) => {
   const { data, loading, error: fetchError, refetch } = useFetch('/lectures', {
     limit: 200,
     all: 1,
+    ...(fixedCategory && { category: fixedCategory }),
   });
   const { categoryNames } = useSiteSettings();
-  const [form, setForm] = useState(emptyLecture);
+  const [form, setForm] = useState(() => ({
+    ...emptyLecture,
+    category: fixedCategory || emptyLecture.category,
+  }));
   const [editId, setEditId] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -113,7 +117,7 @@ const AdminLectures = () => {
 
     const payload = {
       title: form.title,
-      category: form.category,
+      category: fixedCategory || form.category,
       series: form.series || form.title.split('—')[0].trim(),
       order: Number(form.order) || 0,
       youtubeUrl: form.youtubeUrl,
@@ -139,7 +143,7 @@ const AdminLectures = () => {
         await api.post('/lectures', payload);
         setSuccess('تم إضافة الدرس — يظهر الآن في صفحات العرض ✓');
       }
-      setForm(emptyLecture);
+      setForm({ ...emptyLecture, category: fixedCategory || emptyLecture.category });
       setEditId(null);
       refetch();
     } catch (err) {
@@ -158,7 +162,7 @@ const AdminLectures = () => {
     setEditId(lecture._id);
     setForm({
       title: lecture.title || '',
-      category: lecture.category || categories[0] || 'العقيدة',
+      category: fixedCategory || lecture.category || categories[0] || 'العقيدة',
       series: lecture.series || '',
       order: lecture.order ?? 0,
       publishedAt: toDatetimeLocal(lecture.publishedAt),
@@ -201,7 +205,7 @@ const AdminLectures = () => {
     <div className="admin-lectures-page">
       <div className="admin-page-header">
         <div>
-          <h2>إدارة الدروس والكتب والدورات</h2>
+          <h2>{fixedCategory ? `إدارة دروس ${fixedCategory}` : 'إدارة الدروس والكتب والدورات'}</h2>
           <p>أي إضافة أو تعديل يُحفظ على السيرفر ويظهر مباشرة للزوار</p>
         </div>
       </div>
@@ -258,17 +262,19 @@ const AdminLectures = () => {
             </small>
           </div>
 
-          <div className="form-group">
-            <label>العلم الشرعي / التصنيف</label>
-            <select
-              value={form.category}
-              onChange={(e) => setForm({ ...form, category: e.target.value })}
-            >
-              {categories.map((c) => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
-          </div>
+          {!fixedCategory && (
+            <div className="form-group">
+              <label>العلم الشرعي / التصنيف</label>
+              <select
+                value={form.category}
+                onChange={(e) => setForm({ ...form, category: e.target.value })}
+              >
+                {categories.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div className="form-group">
             <label>رابط فيديو اليوتيوب *</label>
@@ -378,7 +384,7 @@ const AdminLectures = () => {
               className="btn-admin-cancel"
               onClick={() => {
                 setEditId(null);
-                setForm(emptyLecture);
+                setForm({ ...emptyLecture, category: fixedCategory || emptyLecture.category });
               }}
             >
               إلغاء التعديل

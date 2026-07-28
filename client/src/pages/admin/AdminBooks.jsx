@@ -24,10 +24,17 @@ const toDatetimeLocal = (iso) => {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };
 
-const AdminBooks = () => {
-  const { data, loading, error: fetchError, refetch } = useFetch('/books', { limit: 200, all: 1 });
+const AdminBooks = ({ fixedCategory }) => {
+  const { data, loading, error: fetchError, refetch } = useFetch('/books', {
+    limit: 200,
+    all: 1,
+    ...(fixedCategory && { category: fixedCategory }),
+  });
   const { categoryNames } = useSiteSettings();
-  const [form, setForm] = useState(emptyBook);
+  const [form, setForm] = useState(() => ({
+    ...emptyBook,
+    category: fixedCategory || emptyBook.category,
+  }));
   const [pdfFile, setPdfFile] = useState(null);
   const [editId, setEditId] = useState(null);
   const [error, setError] = useState('');
@@ -55,7 +62,7 @@ const AdminBooks = () => {
       const formData = new FormData();
       formData.append('title', form.title);
       formData.append('author', form.author || 'فضيلة الشيخ شعبان العودة');
-      formData.append('category', form.category);
+      formData.append('category', fixedCategory || form.category);
       formData.append('pages', String(Number(form.pages) || 50));
       formData.append('description', form.description || '');
       if (form.pdfUrl?.trim()) formData.append('pdfUrl', form.pdfUrl.trim());
@@ -71,7 +78,7 @@ const AdminBooks = () => {
         await api.post('/books', formData);
         setSuccess('تم إضافة الكتاب — يظهر الآن في المكتبة ✓');
       }
-      setForm(emptyBook);
+      setForm({ ...emptyBook, category: fixedCategory || emptyBook.category });
       setPdfFile(null);
       setEditId(null);
       refetch();
@@ -93,7 +100,7 @@ const AdminBooks = () => {
     setForm({
       title: book.title || '',
       author: book.author || 'فضيلة الشيخ شعبان العودة',
-      category: book.category || categories[0] || 'العقيدة',
+      category: fixedCategory || book.category || categories[0] || 'العقيدة',
       pages: book.pages || 50,
       pdfUrl: book.pdfUrl || '',
       publishedAt: toDatetimeLocal(book.publishedAt),
@@ -118,7 +125,7 @@ const AdminBooks = () => {
     <div className="admin-books-page">
       <div className="admin-page-header">
         <div>
-          <h2>إدارة المكتبة والكتب PDF</h2>
+          <h2>{fixedCategory ? `إدارة كتب ${fixedCategory}` : 'إدارة المكتبة والكتب PDF'}</h2>
           <p>أي إضافة أو تعديل يُحفظ على السيرفر ويظهر مباشرة للزوار</p>
         </div>
       </div>
@@ -153,17 +160,19 @@ const AdminBooks = () => {
             />
           </div>
 
-          <div className="form-group">
-            <label>التصنيف الشرعي</label>
-            <select
-              value={form.category}
-              onChange={(e) => setForm({ ...form, category: e.target.value })}
-            >
-              {categories.map((c) => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
-          </div>
+          {!fixedCategory && (
+            <div className="form-group">
+              <label>التصنيف الشرعي</label>
+              <select
+                value={form.category}
+                onChange={(e) => setForm({ ...form, category: e.target.value })}
+              >
+                {categories.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div className="form-group">
             <label>عدد الصفحات</label>

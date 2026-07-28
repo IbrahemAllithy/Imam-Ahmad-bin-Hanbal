@@ -5,6 +5,7 @@ import {
   SITE_SETTINGS_STORAGE_KEY,
 } from '../utils/defaultSiteSettings';
 import { sheikh as defaultSheikhImage, logo as defaultLogo } from '../assets';
+import { SECTION_NAMES } from '../utils/siteSections';
 
 const SiteSettingsContext = createContext(null);
 
@@ -124,6 +125,7 @@ export const SiteSettingsProvider = ({ children }) => {
           [...(settings.categories || []), ...(settings.sunnahBooks || [])]
             .map((c) => c.name)
             .filter(Boolean)
+            .concat(SECTION_NAMES)
         ),
       ],
     }),

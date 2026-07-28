@@ -17,9 +17,12 @@ import {
   FiShoppingBag,
   FiCalendar,
   FiMessageSquare,
+  FiSmile,
+  FiUserCheck,
 } from 'react-icons/fi';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import Loader from '../../components/ui/Loader';
+import { SITE_SECTIONS } from '../../utils/siteSections';
 import './Admin.css';
 
 const AdminOverview = lazy(() => import('./AdminOverview'));
@@ -35,6 +38,9 @@ const AdminStudents = lazy(() => import('./AdminStudents'));
 const AdminQuestions = lazy(() => import('./AdminQuestions'));
 const AdminBroadcast = lazy(() => import('./AdminBroadcast'));
 const AdminCertificates = lazy(() => import('./AdminCertificates'));
+const AdminSection = lazy(() => import('./AdminSection'));
+
+const SECTION_ICONS = { kids: FiSmile, women: FiUserCheck };
 
 const NAV_ITEMS = [
   { id: 'overview', label: 'الرئيسية', icon: FiHome },
@@ -45,6 +51,7 @@ const NAV_ITEMS = [
   { id: 'shop', label: 'متجر الكتب', icon: FiShoppingBag },
   { id: 'events', label: 'الفعاليات', icon: FiCalendar },
   { id: 'testimonials', label: 'قالوا عن الموقع', icon: FiMessageSquare },
+  ...SITE_SECTIONS.map((s) => ({ id: `section-${s.id}`, label: s.name, icon: SECTION_ICONS[s.id] || FiBook })),
   { id: 'students', label: 'الطلاب', icon: FiUsers },
   { id: 'certificates', label: 'الشهادات', icon: FiAward },
   { id: 'questions', label: 'أسئلة الدروس', icon: FiMessageCircle },
@@ -107,6 +114,9 @@ const AdminDashboard = () => {
           {tab === 'shop' && <AdminSaleBooks />}
           {tab === 'events' && <AdminEvents />}
           {tab === 'testimonials' && <AdminTestimonials />}
+          {SITE_SECTIONS.map((s) => (
+            tab === `section-${s.id}` && <AdminSection key={s.id} sectionName={s.name} />
+          ))}
           {tab === 'students' && <AdminStudents />}
           {tab === 'certificates' && <AdminCertificates />}
           {tab === 'questions' && <AdminQuestions />}
