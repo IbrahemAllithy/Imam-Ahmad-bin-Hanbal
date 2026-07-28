@@ -21,7 +21,7 @@ export const createTestimonial = async (req, res, next) => {
       quote: req.body.quote,
       order: count,
     };
-    if (req.file) data.photo = `/storage/covers/${req.file.filename}`;
+    if (req.file) data.photo = req.file.publicUrl;
 
     const testimonial = await Testimonial.create(data);
     res.status(201).json({ success: true, data: testimonial });
@@ -39,7 +39,7 @@ export const updateTestimonial = async (req, res, next) => {
     if (req.body.name !== undefined) updates.name = req.body.name;
     if (req.body.title !== undefined) updates.title = req.body.title;
     if (req.body.quote !== undefined) updates.quote = req.body.quote;
-    if (req.file) updates.photo = `/storage/covers/${req.file.filename}`;
+    if (req.file) updates.photo = req.file.publicUrl;
 
     const testimonial = await Testimonial.findByIdAndUpdate(req.params.id, updates, {
       new: true,

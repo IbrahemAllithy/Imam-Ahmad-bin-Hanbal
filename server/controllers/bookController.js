@@ -73,7 +73,7 @@ export const createBook = async (req, res, next) => {
     const data = { ...req.body };
 
     if (req.files?.pdf?.[0]) {
-      data.pdfUrl = `/storage/pdfs/${req.files.pdf[0].filename}`;
+      data.pdfUrl = req.files.pdf[0].publicUrl;
     } else if (req.body.pdfUrl) {
       data.pdfUrl = req.body.pdfUrl;
     } else {
@@ -82,7 +82,7 @@ export const createBook = async (req, res, next) => {
     }
 
     if (req.files?.coverImage?.[0]) {
-      data.coverImage = `/storage/covers/${req.files.coverImage[0].filename}`;
+      data.coverImage = req.files.coverImage[0].publicUrl;
     }
 
     if (data.pages) data.pages = Number(data.pages) || 1;
@@ -115,10 +115,10 @@ export const updateBook = async (req, res, next) => {
     const previous = needsPrevious ? await Book.findById(req.params.id).lean() : null;
 
     if (req.files?.pdf?.[0]) {
-      updates.pdfUrl = `/storage/pdfs/${req.files.pdf[0].filename}`;
+      updates.pdfUrl = req.files.pdf[0].publicUrl;
     }
     if (req.files?.coverImage?.[0]) {
-      updates.coverImage = `/storage/covers/${req.files.coverImage[0].filename}`;
+      updates.coverImage = req.files.coverImage[0].publicUrl;
     }
     if (updates.pages !== undefined) {
       updates.pages = Number(updates.pages) || 1;

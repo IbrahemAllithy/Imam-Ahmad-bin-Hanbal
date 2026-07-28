@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useFetch } from '../../hooks/useFetch';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import api from '../../services/api';
 import { extractYoutubeId, getYoutubeEmbedUrl } from '../../utils/helpers';
 import Loader from '../../components/ui/Loader';
-import { FiEdit2, FiTrash2, FiVideo, FiBookOpen, FiPlus, FiCheck, FiX } from 'react-icons/fi';
+import { FiEdit2, FiTrash2, FiVideo, FiBookOpen, FiPlus, FiCheck, FiX, FiHelpCircle } from 'react-icons/fi';
 import './Admin.css';
 
 const emptyQuizItem = () => ({
@@ -51,7 +51,18 @@ const AdminLectures = ({ fixedCategory }) => {
   const [success, setSuccess] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const lecturesList = data?.data || [];
+  const lecturesList = useMemo(() => {
+    const list = data?.data || [];
+    return [...list].sort((a, b) => {
+      const seriesA = a.series || '';
+      const seriesB = b.series || '';
+      if (seriesA !== seriesB) return seriesA.localeCompare(seriesB, 'ar');
+      const orderA = a.order ?? 0;
+      const orderB = b.order ?? 0;
+      if (orderA !== orderB) return orderA - orderB;
+      return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
+    });
+  }, [data]);
   const categories = categoryNames.length
     ? categoryNames
     : ['العقيدة', 'الفقه', 'أصول فقه', 'التفسير', 'الحديث', 'السيرة', 'آداب طالب العلم', 'الرقائق', 'علوم قرآن', 'عام'];
@@ -324,13 +335,19 @@ const AdminLectures = ({ fixedCategory }) => {
           />
         </div>
 
-        <div className="form-group" style={{ marginTop: '16px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <label>اختبار MCQ (اختيار من متعدد)</label>
+        <div className="admin-form-card quiz-builder-card" style={{ marginTop: '24px', marginBottom: 0 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+            <h3 className="form-card-title" style={{ marginBottom: 0 }}>
+              <FiHelpCircle /> اختبار MCQ (اختيار من متعدد)
+            </h3>
             <button type="button" className="btn-admin-submit" style={{ padding: '6px 12px' }} onClick={addQuizItem}>
               <FiPlus /> إضافة سؤال
             </button>
           </div>
+          <p className="settings-hint" style={{ marginTop: '6px' }}>
+            اختياري — لو أضفت أسئلة هنا، الطالب لازم يحلها ويحصل على 60% على الأقل عشان يقدر يكمّل الدرس ويحصل على الشهادة.
+            التصحيح يتم تلقائياً على السيرفر، وتحديد الإجابة الصحيحة يكون بالضغط على الدائرة بجانب الخيار الصح.
+          </p>
 
           {(form.quizItems || []).map((item, idx) => (
             <div
@@ -410,6 +427,11 @@ const AdminLectures = ({ fixedCategory }) => {
                     <span className="card-pdf-badge">#{item.order}</span>
                   )}
                   {item.pdfUrl && <span className="card-pdf-badge"><FiBookOpen /> PDF مرفق</span>}
+                  {item.quizItems?.length > 0 && (
+                    <span className="card-cat-badge">
+                      <FiHelpCircle /> {item.quizItems.length} سؤال اختبار
+                    </span>
+                  )}
                 </div>
 
                 <h4 className="card-lecture-title">{item.title}</h4>

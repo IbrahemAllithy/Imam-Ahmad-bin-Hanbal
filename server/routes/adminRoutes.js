@@ -10,6 +10,7 @@ import {
   getAllCertificates,
   issueCertificate,
   deleteCertificate,
+  getStorageDiagnostics,
 } from '../controllers/adminController.js';
 import { protect, restrictTo } from '../middleware/auth.js';
 import {
@@ -23,6 +24,7 @@ const router = Router();
 
 router.use(protect, restrictTo('admin'));
 router.get('/stats', getStats);
+router.get('/storage-diagnostics', getStorageDiagnostics);
 
 router.get('/students', listQueryValidation, getStudents);
 router.get('/students/:id/progress', mongoIdParam, getStudentProgress);

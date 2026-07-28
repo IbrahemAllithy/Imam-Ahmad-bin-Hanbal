@@ -279,6 +279,11 @@ export const login = async (req, res, next) => {
       );
     }
 
+    if (req.body.requireAdmin && user.role !== 'admin') {
+      logger.security('محاولة دخول أدمن من حساب غير مصرح له', { email });
+      return next(new AppError('هذا الحساب ليس حساب إدارة', 403));
+    }
+
     await user.resetFailedAttempts();
 
     const accessToken = await issueTokens(user, res);

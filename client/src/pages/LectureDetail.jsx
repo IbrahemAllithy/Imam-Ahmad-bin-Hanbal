@@ -191,7 +191,7 @@ const LectureDetail = () => {
 
   const youtubeId = lecture.youtubeId;
   const pdfUrl = lecture.pdfUrl || 'https://archive.org/embed/20230616_20230616_1912';
-  const audioUrl = lecture.audioUrl || 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
+  const audioUrl = lecture.audioUrl || '';
   const courseLink = seriesName
     ? `/courses/${encodeURIComponent(seriesName)}`
     : '/lectures';
@@ -268,15 +268,17 @@ const LectureDetail = () => {
                 />
               </div>
 
-              <div className="sketch-audio-box">
-                <div className="sketch-audio-header">
-                  <FiVolume2 />
-                  <span>صوتي (الاستماع للدرس)</span>
+              {audioUrl && (
+                <div className="sketch-audio-box">
+                  <div className="sketch-audio-header">
+                    <FiVolume2 />
+                    <span>صوتي (الاستماع للدرس)</span>
+                  </div>
+                  <audio controls className="sketch-audio-player" src={audioUrl}>
+                    متصفحك لا يدعم مشغل الصوت.
+                  </audio>
                 </div>
-                <audio controls className="sketch-audio-player" src={audioUrl}>
-                  متصفحك لا يدعم مشغل الصوت.
-                </audio>
-              </div>
+              )}
             </div>
           </div>
 
@@ -523,16 +525,16 @@ const LectureDetail = () => {
                   </div>
                 )}
               </div>
-            ) : (
+            ) : lecture.quizQuestions?.length ? (
               <ol className="quiz-questions-list">
-                {(lecture.quizQuestions || [
-                  'ما هي المسألة الرئيسية التي تناولها هذا المجلس؟',
-                  'اذكر ثلاثة من القواعد والفوائد المستنبطة من الدرس.',
-                  'ما أهمية كتاب القواعد المثلى في باب أسماء الله وصفاته؟',
-                ]).map((q, i) => (
+                {lecture.quizQuestions.map((q, i) => (
                   <li key={i}>{q}</li>
                 ))}
               </ol>
+            ) : (
+              <p style={{ color: 'var(--text-muted)' }}>
+                لا توجد أسئلة اختبار ذاتي لهذا الدرس بعد.
+              </p>
             )}
 
             <button

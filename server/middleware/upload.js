@@ -5,6 +5,7 @@ import multer from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import { fileTypeFromBuffer } from 'file-type';
 import AppError from '../utils/AppError.js';
+import { R2_ENABLED, uploadBufferToR2, deleteFromR2ByUrl } from '../config/r2.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -20,11 +21,19 @@ const COVER_DIR = path.join(STORAGE_ROOT, 'covers');
 const ALLOWED_IMAGES = ['image/jpeg', 'image/png', 'image/webp'];
 const ALLOWED_PDF = ['application/pdf'];
 
-const storage = multer.diskStorage({
+// Files uploaded via a field named "pdf" go to R2's pdfs/ prefix (or local PDF_DIR); every
+// other upload field is treated as an image and goes to covers/ (or local COVER_DIR).
+const R2_FOLDER = { pdf: 'pdfs' };
+const folderFor = (fieldname) => R2_FOLDER[fieldname] || 'covers';
+
+// R2 configured (production): keep files in memory, upload to the bucket in uploadFilesToR2.
+// R2 not configured (local dev without cloud credentials): fall back to the local disk, exactly
+// as before — /storage is gitignored and not guaranteed to survive a redeploy, so this path is
+// for local development only.
+const diskStorage = multer.diskStorage({
   destination: (_req, file, cb) => {
     if (file.fieldname === 'pdf') cb(null, PDF_DIR);
-    else if (file.fieldname === 'coverImage') cb(null, COVER_DIR);
-    else cb(new AppError('حقل الملف غير مدعوم', 400));
+    else cb(null, COVER_DIR);
   },
   filename: (_req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
@@ -32,6 +41,8 @@ const storage = multer.diskStorage({
     cb(null, `${uuidv4()}${safeExt}`);
   },
 });
+
+const storage = R2_ENABLED ? multer.memoryStorage() : diskStorage;
 
 const fileFilter = (_req, file, cb) => {
   if (file.fieldname === 'pdf') {
@@ -41,18 +52,15 @@ const fileFilter = (_req, file, cb) => {
     if (file.mimetype !== 'application/pdf') {
       return cb(new AppError('نوع الملف غير مدعوم — PDF فقط', 400));
     }
-  }
-
-  if (file.fieldname === 'coverImage') {
+  } else {
     const ext = path.extname(file.originalname).toLowerCase();
     if (!['.jpg', '.jpeg', '.png', '.webp'].includes(ext)) {
-      return cb(new AppError('صورة الغلاف يجب أن تكون jpg أو png أو webp', 400));
+      return cb(new AppError('الصورة يجب أن تكون jpg أو png أو webp', 400));
     }
     if (!ALLOWED_IMAGES.includes(file.mimetype)) {
-      return cb(new AppError('نوع صورة الغلاف غير مدعوم', 400));
+      return cb(new AppError('نوع الصورة غير مدعوم', 400));
     }
   }
-
   cb(null, true);
 };
 
@@ -69,81 +77,47 @@ export const uploadBookFiles = multer({
   { name: 'coverImage', maxCount: 1 },
 ]);
 
-const imageFileFilter = (_req, file, cb) => {
-  const ext = path.extname(file.originalname).toLowerCase();
-  if (!['.jpg', '.jpeg', '.png', '.webp'].includes(ext)) {
-    return cb(new AppError('الصورة يجب أن تكون jpg أو png أو webp', 400));
-  }
-  if (!ALLOWED_IMAGES.includes(file.mimetype)) {
-    return cb(new AppError('نوع الصورة غير مدعوم', 400));
-  }
-  cb(null, true);
-};
-
 export const uploadArticleCover = multer({
   storage,
-  fileFilter: imageFileFilter,
+  fileFilter,
   limits: { fileSize: 2 * 1024 * 1024 },
 }).single('coverImage');
 
 export const uploadSaleBookCover = multer({
   storage,
-  fileFilter: imageFileFilter,
+  fileFilter,
   limits: { fileSize: 5 * 1024 * 1024 },
 }).single('coverImage');
 
 export const uploadEventCover = multer({
   storage,
-  fileFilter: imageFileFilter,
+  fileFilter,
   limits: { fileSize: 5 * 1024 * 1024 },
 }).single('coverImage');
 
 export const uploadTestimonialPhoto = multer({
   storage,
-  fileFilter: imageFileFilter,
+  fileFilter,
   limits: { fileSize: 3 * 1024 * 1024 },
 }).single('photo');
 
-const brandingStorage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, COVER_DIR),
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    const safeExt = ['.jpg', '.jpeg', '.png', '.webp'].includes(ext) ? ext : '.jpg';
-    cb(null, `${uuidv4()}${safeExt}`);
-  },
-});
-
 export const uploadBrandingImages = multer({
-  storage: brandingStorage,
-  fileFilter: imageFileFilter,
+  storage,
+  fileFilter,
   limits: { fileSize: 3 * 1024 * 1024, files: 2 },
 }).fields([
   { name: 'logo', maxCount: 1 },
   { name: 'sheikhImage', maxCount: 1 },
 ]);
 
+const allFiles = (req) => (req.file ? [req.file] : Object.values(req.files || {}).flat());
+
 export const validateMagicBytes = async (req, _res, next) => {
   try {
-    const checks = [];
-
-    if (req.files?.pdf?.[0]) {
-      checks.push({ file: req.files.pdf[0], allowed: ALLOWED_PDF, label: 'PDF' });
-    }
-    if (req.files?.coverImage?.[0]) {
-      checks.push({ file: req.files.coverImage[0], allowed: ALLOWED_IMAGES, label: 'صورة' });
-    }
-    if (req.files?.logo?.[0]) {
-      checks.push({ file: req.files.logo[0], allowed: ALLOWED_IMAGES, label: 'الشعار' });
-    }
-    if (req.files?.sheikhImage?.[0]) {
-      checks.push({ file: req.files.sheikhImage[0], allowed: ALLOWED_IMAGES, label: 'صورة الشيخ' });
-    }
-    if (req.file) {
-      checks.push({ file: req.file, allowed: ALLOWED_IMAGES, label: 'صورة' });
-    }
-
-    for (const { file, allowed, label } of checks) {
-      const buffer = await fs.promises.readFile(file.path);
+    for (const file of allFiles(req)) {
+      const allowed = file.fieldname === 'pdf' ? ALLOWED_PDF : ALLOWED_IMAGES;
+      const label = file.fieldname === 'pdf' ? 'PDF' : 'صورة';
+      const buffer = file.buffer || (await fs.promises.readFile(file.path));
       const type = await fileTypeFromBuffer(buffer);
 
       if (!type || !allowed.includes(type.mime)) {
@@ -151,7 +125,6 @@ export const validateMagicBytes = async (req, _res, next) => {
         return next(new AppError(`محتوى الملف (${label}) لا يطابق النوع المعلن`, 400));
       }
     }
-
     next();
   } catch (err) {
     await removeUploadedFiles(req);
@@ -159,15 +132,43 @@ export const validateMagicBytes = async (req, _res, next) => {
   }
 };
 
-/** Delete every file multer wrote for this request (single `.file` or `.fields()` `.files`). */
+/**
+ * Uploads every parsed file to R2 (when configured) and stamps each with a `publicUrl` —
+ * controllers read `file.publicUrl` uniformly regardless of which storage backend is active.
+ * In local-disk mode, `publicUrl` is just the existing `/storage/<folder>/<filename>` path.
+ */
+export const uploadFilesToR2 = async (req, _res, next) => {
+  try {
+    for (const file of allFiles(req)) {
+      if (R2_ENABLED) {
+        const ext = path.extname(file.originalname).toLowerCase();
+        const safeExt = ['.pdf', '.jpg', '.jpeg', '.png', '.webp'].includes(ext) ? ext : '';
+        const key = `${folderFor(file.fieldname)}/${uuidv4()}${safeExt}`;
+        file.publicUrl = await uploadBufferToR2(key, file.buffer, file.mimetype);
+      } else {
+        file.publicUrl = `/storage/${folderFor(file.fieldname)}/${file.filename}`;
+      }
+    }
+    next();
+  } catch (err) {
+    await removeUploadedFiles(req);
+    next(err);
+  }
+};
+
+/** Cleans up every file this request wrote — R2 objects when in cloud mode, local files otherwise. */
 export const removeUploadedFiles = async (req) => {
-  const files = req.file ? [req.file] : Object.values(req.files || {}).flat();
+  const files = allFiles(req);
   await Promise.all(
-    files.map((file) =>
-      fs.promises.unlink(file.path).catch(() => {
-        // already removed or never written — nothing to clean up
-      })
-    )
+    files.map(async (file) => {
+      if (file.publicUrl && R2_ENABLED) {
+        await deleteFromR2ByUrl(file.publicUrl);
+      } else if (file.path) {
+        await fs.promises.unlink(file.path).catch(() => {
+          // already removed or never written — nothing to clean up
+        });
+      }
+    })
   );
 };
 

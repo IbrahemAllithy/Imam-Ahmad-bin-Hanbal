@@ -21,7 +21,7 @@ export const createSaleBook = async (req, res, next) => {
     const count = await SaleBook.countDocuments();
     const data = {
       title: req.body.title?.trim() || `كتاب ${count + 1}`,
-      coverImage: `/storage/covers/${req.file.filename}`,
+      coverImage: req.file.publicUrl,
       order: count,
     };
 
@@ -39,7 +39,7 @@ export const updateSaleBook = async (req, res, next) => {
 
     const updates = {};
     if (req.body.title !== undefined) updates.title = req.body.title.trim() || 'كتاب بدون عنوان';
-    if (req.file) updates.coverImage = `/storage/covers/${req.file.filename}`;
+    if (req.file) updates.coverImage = req.file.publicUrl;
 
     const book = await SaleBook.findByIdAndUpdate(req.params.id, updates, {
       new: true,

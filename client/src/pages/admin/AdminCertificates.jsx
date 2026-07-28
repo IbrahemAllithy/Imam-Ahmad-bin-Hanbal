@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useFetch } from '../../hooks/useFetch';
 import { useToast } from '../../context/ToastContext';
 import api from '../../services/api';
@@ -7,30 +7,37 @@ import Loader from '../../components/ui/Loader';
 import { FiAward, FiTrash2, FiSend, FiSearch } from 'react-icons/fi';
 import './Admin.css';
 
+const PAGE_SIZE = 20;
+
 const AdminCertificates = () => {
   const { showSuccess, showError } = useToast();
+  const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedSearch(search.trim());
+      setPage(1);
+    }, 350);
+    return () => clearTimeout(t);
+  }, [search]);
+
   const { data, loading, error: fetchError, refetch } = useFetch('/admin/certificates', {
-    limit: 100,
+    limit: PAGE_SIZE,
+    page,
+    ...(debouncedSearch && { search: debouncedSearch }),
   });
   const { data: studentsData } = useFetch('/admin/students', { limit: 500 });
+  const { data: seriesData } = useFetch('/lectures/series/list');
 
   const certificates = data?.data || [];
   const students = studentsData?.data || [];
+  const seriesOptions = seriesData?.data || [];
+  const pagination = data?.pagination || { page: 1, pages: 1, total: certificates.length };
 
-  const [search, setSearch] = useState('');
   const [form, setForm] = useState({ userId: '', series: '' });
   const [submitting, setSubmitting] = useState(false);
-
-  const filtered = certificates.filter((c) => {
-    if (!search.trim()) return true;
-    const q = search.trim().toLowerCase();
-    return (
-      c.series?.toLowerCase().includes(q) ||
-      c.user?.name?.toLowerCase().includes(q) ||
-      c.user?.email?.toLowerCase().includes(q) ||
-      c.code?.toLowerCase().includes(q)
-    );
-  });
 
   const handleIssue = async (e) => {
     e.preventDefault();
@@ -95,12 +102,16 @@ const AdminCertificates = () => {
           </div>
           <div className="form-group">
             <label>اسم الدورة (series)</label>
-            <input
+            <select
               value={form.series}
               onChange={(e) => setForm((f) => ({ ...f, series: e.target.value }))}
-              placeholder="لازم يطابق اسم السلسلة بالظبط كما في صفحة الدروس"
               required
-            />
+            >
+              <option value="">اختر دورة...</option>
+              {seriesOptions.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
           </div>
         </div>
         <div className="form-actions-bar">
@@ -118,9 +129,12 @@ const AdminCertificates = () => {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="اسم الطالب، البريد، الدورة، أو الكود"
+            placeholder="اسم الدورة أو الكود"
           />
         </div>
+        <p style={{ margin: '8px 0 0', color: 'var(--text-muted)' }}>
+          إجمالي الشهادات: {pagination.total} — صفحة {pagination.page} من {pagination.pages || 1}
+        </p>
       </div>
 
       {loading && !certificates.length ? (
@@ -138,7 +152,7 @@ const AdminCertificates = () => {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((c) => (
+              {certificates.map((c) => (
                 <tr key={c._id}>
                   <td>
                     {c.user?.name || '—'}
@@ -159,7 +173,7 @@ const AdminCertificates = () => {
                   </td>
                 </tr>
               ))}
-              {!filtered.length && (
+              {!certificates.length && (
                 <tr>
                   <td colSpan={5} style={{ textAlign: 'center' }}>
                     لا توجد شهادات صادرة بعد.
@@ -168,6 +182,30 @@ const AdminCertificates = () => {
               )}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {pagination.pages > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginTop: 16 }}>
+          <button
+            type="button"
+            className="btn-card-edit"
+            disabled={page <= 1}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+          >
+            السابق
+          </button>
+          <span style={{ alignSelf: 'center', color: 'var(--text-muted)' }}>
+            {pagination.page} / {pagination.pages}
+          </span>
+          <button
+            type="button"
+            className="btn-card-edit"
+            disabled={page >= pagination.pages}
+            onClick={() => setPage((p) => Math.min(pagination.pages, p + 1))}
+          >
+            التالي
+          </button>
         </div>
       )}
     </div>

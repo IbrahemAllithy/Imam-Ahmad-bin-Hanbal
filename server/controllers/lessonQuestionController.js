@@ -44,13 +44,25 @@ export const getAdminLessonQuestions = async (req, res, next) => {
     const filter = {};
     if (req.query.status) filter.status = req.query.status;
 
-    const items = await LessonQuestion.find(filter)
-      .populate('user', 'name email')
-      .populate('lecture', 'title series')
-      .sort({ createdAt: -1 })
-      .limit(100);
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = Math.min(parseInt(req.query.limit, 10) || 50, 100);
+    const skip = (page - 1) * limit;
 
-    res.json({ success: true, data: items });
+    const [items, total] = await Promise.all([
+      LessonQuestion.find(filter)
+        .populate('user', 'name email')
+        .populate('lecture', 'title series')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      LessonQuestion.countDocuments(filter),
+    ]);
+
+    res.json({
+      success: true,
+      data: items,
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) },
+    });
   } catch (err) {
     next(err);
   }

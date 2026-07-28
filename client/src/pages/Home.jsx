@@ -17,14 +17,24 @@ import {
 import { FaChildren } from 'react-icons/fa6';
 import HijabIcon from '../components/icons/HijabIcon';
 
-const quickLinks = [
-  { label: 'الدروس', href: '/lectures', icon: <FiVideo /> },
-  { label: 'الكتب', href: '/books', icon: <FiBook /> },
-  { label: 'المقالات', href: '/articles', icon: <FiFileText /> },
-  { label: 'مقرأة السنة', href: '/sunnah-reading', icon: <FiBookOpen /> },
-  { label: 'تعلم عن بعد', href: '/distance-learning', icon: <FiMonitor /> },
-  { label: 'البراعم', href: '/kids', icon: <FaChildren /> },
-  { label: 'النساء', href: '/women', icon: <HijabIcon /> },
+const EXPLORE_ICONS = {
+  '/lectures': <FiVideo />,
+  '/books': <FiBook />,
+  '/articles': <FiFileText />,
+  '/sunnah-reading': <FiBookOpen />,
+  '/distance-learning': <FiMonitor />,
+  '/kids': <FaChildren />,
+  '/women': <HijabIcon />,
+};
+
+const DEFAULT_EXPLORE_LINKS = [
+  { label: 'الدروس', href: '/lectures' },
+  { label: 'الكتب', href: '/books' },
+  { label: 'المقالات', href: '/articles' },
+  { label: 'مقرأة السنة', href: '/sunnah-reading' },
+  { label: 'تعلم عن بعد', href: '/distance-learning' },
+  { label: 'البراعم', href: '/kids' },
+  { label: 'النساء', href: '/women' },
 ];
 
 const Home = () => {
@@ -34,8 +44,12 @@ const Home = () => {
   const { settings, sheikhImage } = useSiteSettings();
 
   const hero = settings.hero || {};
+  const homeAbout = settings.homeAbout || {};
   const announcements = settings.announcements || [];
   const cta = settings.cta || {};
+  const quickLinks = (settings.exploreLinks?.length ? settings.exploreLinks : DEFAULT_EXPLORE_LINKS).map(
+    (link) => ({ ...link, icon: EXPLORE_ICONS[link.href] || <FiFileText /> })
+  );
 
   useEffect(() => {
     if (location.hash) {
@@ -55,6 +69,7 @@ const Home = () => {
         <div className="hero-pattern"></div>
         <div className="hero-inner">
           <div className="hero-content animate-fade-in-up">
+            {hero.badge && <span className="hero-badge">{hero.badge}</span>}
             <h1 className="hero-title">
               {(hero.title || '').split('\n').map((line, idx, arr) => (
                 <span key={idx}>
@@ -69,12 +84,53 @@ const Home = () => {
               المَلائِكَةُ حُرَّاسُ السَّماءِ، وأصحابُ الحَديثِ حُرَّاسُ الأرْضِ
               <span className="hero-quote-author">سُفيانُ الثَّوريُّ رحمه الله</span>
             </p>
+            {hero.description && <p className="hero-desc">{hero.description}</p>}
+            {(hero.primaryCtaText || hero.secondaryCtaText) && (
+              <div className="hero-actions">
+                {hero.primaryCtaText && (
+                  <Link to={hero.primaryCtaLink || '/lectures'} className="btn btn-primary">
+                    {hero.primaryCtaText}
+                  </Link>
+                )}
+                {hero.secondaryCtaText && (
+                  <Link to={hero.secondaryCtaLink || '#about'} className="btn btn-outline">
+                    {hero.secondaryCtaText}
+                  </Link>
+                )}
+              </div>
+            )}
           </div>
           <div className="hero-visual animate-fade-in-up delay-200">
             <img src={sheikhImage} alt={settings.branding?.siteName} className="hero-image" />
           </div>
         </div>
       </section>
+
+      {(homeAbout.title || homeAbout.subtitle) && (
+        <section id="about" className="home-about">
+          <div className="home-about-inner animate-fade-in-up">
+            {homeAbout.title && <h2>{homeAbout.title}</h2>}
+            {homeAbout.subtitle && <p className="home-about-subtitle">{homeAbout.subtitle}</p>}
+            {homeAbout.bullets?.length > 0 && (
+              <ul className="home-about-bullets">
+                {homeAbout.bullets.map((b, idx) => (
+                  <li key={`${b}-${idx}`}>{b}</li>
+                ))}
+              </ul>
+            )}
+            {homeAbout.stats?.length > 0 && (
+              <div className="home-about-stats">
+                {homeAbout.stats.map((s, idx) => (
+                  <div className="home-about-stat" key={`${s.label}-${idx}`}>
+                    <span className="stat-value">{s.value}</span>
+                    <span className="stat-label">{s.label}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       <section id="explore" className="home-categories">
         <div className="categories-inner">
@@ -97,7 +153,7 @@ const Home = () => {
             <div className="explore-grid">
               {quickLinks.map((link, idx) => (
                 <Link
-                  key={link.href}
+                  key={`${link.href}-${idx}`}
                   to={link.href}
                   className="explore-card animate-fade-in-up"
                   style={{ animationDelay: `${idx * 100}ms` }}

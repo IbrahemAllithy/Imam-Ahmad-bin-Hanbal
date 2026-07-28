@@ -80,42 +80,6 @@ export const getMyProgress = async (req, res, next) => {
   }
 };
 
-export const gradeQuiz = async (req, res, next) => {
-  try {
-    const { lectureId, answers } = req.body;
-    if (!lectureId) return next(new AppError('معرّف الدرس مطلوب', 400));
-    if (!Array.isArray(answers)) return next(new AppError('الإجابات مطلوبة', 400));
-
-    const lecture = await Lecture.findById(lectureId);
-    if (!lecture) return next(new AppError('الدرس غير موجود', 404));
-
-    const items = lecture.quizItems || [];
-    if (!items.length) {
-      return next(new AppError('لا يوجد اختبار متعدد الخيارات لهذا الدرس', 400));
-    }
-
-    let correct = 0;
-    items.forEach((item, idx) => {
-      if (Number(answers[idx]) === item.correctIndex) correct += 1;
-    });
-
-    const score = Math.round((correct / items.length) * 100);
-
-    res.json({
-      success: true,
-      data: {
-        score,
-        correct,
-        total: items.length,
-        passed: score >= QUIZ_PASS_SCORE,
-        passScore: QUIZ_PASS_SCORE,
-      },
-    });
-  } catch (err) {
-    next(err);
-  }
-};
-
 export const markComplete = async (req, res, next) => {
   try {
     const { lectureId, quizScore } = req.body;

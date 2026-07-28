@@ -29,7 +29,7 @@ export const createEvent = async (req, res, next) => {
       description: req.body.description || '',
       eventDate: req.body.eventDate || undefined,
     };
-    if (req.file) data.coverImage = `/storage/covers/${req.file.filename}`;
+    if (req.file) data.coverImage = req.file.publicUrl;
 
     const event = await Event.create(data);
     res.status(201).json({ success: true, data: event });
@@ -47,7 +47,7 @@ export const updateEvent = async (req, res, next) => {
     if (req.body.title !== undefined) updates.title = req.body.title;
     if (req.body.description !== undefined) updates.description = req.body.description;
     if (req.body.eventDate !== undefined) updates.eventDate = req.body.eventDate || null;
-    if (req.file) updates.coverImage = `/storage/covers/${req.file.filename}`;
+    if (req.file) updates.coverImage = req.file.publicUrl;
 
     const event = await Event.findByIdAndUpdate(req.params.id, updates, {
       new: true,

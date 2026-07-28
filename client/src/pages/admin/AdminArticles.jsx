@@ -3,6 +3,8 @@ import { useFetch } from '../../hooks/useFetch';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import api from '../../services/api';
 import Loader from '../../components/ui/Loader';
+import RichTextEditor from '../../components/admin/RichTextEditor';
+import { FiEdit2, FiTrash2, FiPlus, FiCheck, FiFileText } from 'react-icons/fi';
 import './Admin.css';
 
 const emptyArticle = { title: '', content: '', excerpt: '', category: 'عام', publishedAt: '' };
@@ -94,11 +96,15 @@ const AdminArticles = () => {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="admin-form">
+      <form onSubmit={handleSubmit} className="admin-form-card">
+        <h3 className="form-card-title">
+          {editId ? <><FiEdit2 /> تعديل المقال</> : <><FiPlus /> إضافة مقال جديد</>}
+        </h3>
+
         {error && <div className="alert alert-error">{error}</div>}
         {success && <div className="alert alert-success">{success}</div>}
 
-        <div className="form-row">
+        <div className="form-grid">
           <div className="form-group">
             <label>العنوان</label>
             <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
@@ -111,63 +117,89 @@ const AdminArticles = () => {
               ))}
             </select>
           </div>
+
+          <div className="form-group">
+            <label>المقتطف</label>
+            <input value={form.excerpt} onChange={(e) => setForm({ ...form, excerpt: e.target.value })} placeholder="ملخّص قصير يظهر في قائمة المقالات" />
+          </div>
+
+          <div className="form-group">
+            <label>موعد النشر (اتركه فارغاً للنشر الفوري)</label>
+            <input
+              type="datetime-local"
+              value={form.publishedAt || ''}
+              onChange={(e) => setForm({ ...form, publishedAt: e.target.value })}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>صورة الغلاف</label>
+            <input type="file" accept=".jpg,.jpeg,.png,.webp" onChange={(e) => setCover(e.target.files[0])} />
+          </div>
         </div>
 
-        <div className="form-group">
-          <label>المقتطف</label>
-          <input value={form.excerpt} onChange={(e) => setForm({ ...form, excerpt: e.target.value })} />
-        </div>
-
-        <div className="form-group">
-          <label>موعد النشر (اتركه فارغاً للنشر الفوري)</label>
-          <input
-            type="datetime-local"
-            value={form.publishedAt || ''}
-            onChange={(e) => setForm({ ...form, publishedAt: e.target.value })}
+        <div className="form-group" style={{ marginTop: '16px' }}>
+          <label>محتوى المقال</label>
+          <RichTextEditor
+            value={form.content}
+            onChange={(html) => setForm((f) => ({ ...f, content: html }))}
           />
         </div>
 
-        <div className="form-group">
-          <label>المحتوى (HTML)</label>
-          <textarea rows={10} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} required />
-        </div>
-
-        <div className="form-group">
-          <label>صورة الغلاف</label>
-          <input type="file" accept=".jpg,.jpeg,.png,.webp" onChange={(e) => setCover(e.target.files[0])} />
-        </div>
-
-        <div className="form-actions">
-          <button type="submit" className="btn btn-primary" disabled={submitting}>
-            {editId ? 'تحديث' : 'إضافة'}
+        <div className="form-actions-bar">
+          <button type="submit" className="btn-admin-submit" disabled={submitting}>
+            <FiCheck /> {editId ? 'حفظ التعديلات' : 'إضافة المقال'}
           </button>
           {editId && (
-            <button type="button" className="btn btn-outline" onClick={() => { setEditId(null); setForm(emptyArticle); }}>
-              إلغاء
+            <button type="button" className="btn-admin-cancel" onClick={() => { setEditId(null); setForm(emptyArticle); }}>
+              إلغاء التعديل
             </button>
           )}
         </div>
       </form>
 
-      {loading ? <Loader /> : (
-        <table className="admin-table">
-          <thead>
-            <tr><th>العنوان</th><th>التصنيف</th><th>إجراءات</th></tr>
-          </thead>
-          <tbody>
-            {data?.data?.map((a) => (
-              <tr key={a._id}>
-                <td>{a.title}</td>
-                <td>{a.category}</td>
-                <td>
-                  <button type="button" className="btn-sm btn-outline" onClick={() => handleEdit(a)}>تعديل</button>
-                  <button type="button" className="btn-sm btn-outline danger" onClick={() => handleDelete(a._id)}>حذف</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      <div className="admin-list-section">
+        <div className="list-section-header">
+          <h3>المقالات المنشورة ({data?.data?.length || 0})</h3>
+        </div>
+
+        {loading ? (
+          <Loader />
+        ) : (
+          <div className="admin-table-wrap">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th><FiFileText /> العنوان</th>
+                  <th>التصنيف</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {data?.data?.map((a) => (
+                  <tr key={a._id}>
+                    <td>{a.title}</td>
+                    <td>{a.category}</td>
+                    <td style={{ display: 'flex', gap: 8 }}>
+                      <button type="button" className="btn-card-edit" onClick={() => handleEdit(a)}>
+                        <FiEdit2 /> تعديل
+                      </button>
+                      <button type="button" className="btn-card-delete" onClick={() => handleDelete(a._id)}>
+                        <FiTrash2 /> حذف
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {!data?.data?.length && (
+                  <tr>
+                    <td colSpan={3} style={{ textAlign: 'center' }}>لا توجد مقالات مضافة حتى الآن.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

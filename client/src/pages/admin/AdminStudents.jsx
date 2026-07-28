@@ -1,4 +1,4 @@
-import { useState, Fragment } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import { useFetch } from '../../hooks/useFetch';
 import api from '../../services/api';
 import { formatDate } from '../../utils/helpers';
@@ -144,10 +144,27 @@ const StudentProgressPanel = ({ studentId }) => {
   );
 };
 
+const PAGE_SIZE = 20;
+
 const AdminStudents = () => {
-  const { data, loading, error: fetchError, refetch } = useFetch('/admin/students', { limit: 100 });
-  const { data: adminsData, refetch: refetchAdmins } = useFetch('/admin/admins');
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedSearch(search.trim());
+      setPage(1);
+    }, 350);
+    return () => clearTimeout(t);
+  }, [search]);
+
+  const { data, loading, error: fetchError, refetch } = useFetch('/admin/students', {
+    limit: PAGE_SIZE,
+    page,
+    ...(debouncedSearch && { search: debouncedSearch }),
+  });
+  const { data: adminsData, refetch: refetchAdmins } = useFetch('/admin/admins');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [editingId, setEditingId] = useState(null);
@@ -155,16 +172,7 @@ const AdminStudents = () => {
 
   const students = data?.data || [];
   const admins = adminsData?.data || [];
-  const filtered = students.filter((s) => {
-    if (!search.trim()) return true;
-    const q = search.trim().toLowerCase();
-    return (
-      s.name?.toLowerCase().includes(q) ||
-      s.email?.toLowerCase().includes(q) ||
-      s.phone?.toLowerCase().includes(q) ||
-      s.country?.toLowerCase().includes(q)
-    );
-  });
+  const pagination = data?.pagination || { page: 1, pages: 1, total: students.length };
 
   const refreshAll = () => {
     refetch();
@@ -265,7 +273,7 @@ const AdminStudents = () => {
           />
         </div>
         <p style={{ margin: '8px 0 0', color: 'var(--text-muted)' }}>
-          <FiUsers /> العدد الظاهر: {filtered.length}
+          <FiUsers /> إجمالي الطلاب: {pagination.total} — صفحة {pagination.page} من {pagination.pages || 1}
         </p>
       </div>
 
@@ -285,7 +293,7 @@ const AdminStudents = () => {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((student) => (
+              {students.map((student) => (
                 <Fragment key={student._id || student.email}>
                   <tr>
                     <td>{student.name}</td>
@@ -341,15 +349,39 @@ const AdminStudents = () => {
                   )}
                 </Fragment>
               ))}
-              {!filtered.length && (
+              {!students.length && (
                 <tr>
                   <td colSpan={6} style={{ textAlign: 'center' }}>
-                    لا يوجد طلاب مسجّلون بعد.
+                    لا يوجد طلاب مطابقون.
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {pagination.pages > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginTop: 16 }}>
+          <button
+            type="button"
+            className="btn-card-edit"
+            disabled={page <= 1}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+          >
+            السابق
+          </button>
+          <span style={{ alignSelf: 'center', color: 'var(--text-muted)' }}>
+            {pagination.page} / {pagination.pages}
+          </span>
+          <button
+            type="button"
+            className="btn-card-edit"
+            disabled={page >= pagination.pages}
+            onClick={() => setPage((p) => Math.min(pagination.pages, p + 1))}
+          >
+            التالي
+          </button>
         </div>
       )}
     </div>

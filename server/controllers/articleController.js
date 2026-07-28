@@ -72,7 +72,7 @@ export const createArticle = async (req, res, next) => {
   try {
     const data = { ...req.body };
     if (req.file) {
-      data.coverImage = `/storage/covers/${req.file.filename}`;
+      data.coverImage = req.file.publicUrl;
     }
     if (!data.excerpt && data.content) {
       data.excerpt = data.content.replace(/<[^>]+>/g, '').slice(0, 200);
@@ -104,7 +104,7 @@ export const updateArticle = async (req, res, next) => {
     const updates = { ...req.body };
     const previous = req.file ? await Article.findById(req.params.id).lean() : null;
     if (req.file) {
-      updates.coverImage = `/storage/covers/${req.file.filename}`;
+      updates.coverImage = req.file.publicUrl;
     }
 
     const article = await Article.findByIdAndUpdate(req.params.id, updates, {

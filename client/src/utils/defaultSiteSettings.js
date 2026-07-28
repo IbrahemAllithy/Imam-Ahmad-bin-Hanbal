@@ -34,10 +34,13 @@ export const DEFAULT_SITE_SETTINGS = {
     'نرحب بكم في حلة الموقع الجديدة.',
   ],
   exploreLinks: [
-    { label: 'الدروس المرئية', href: '/lectures' },
-    { label: 'مكتبة الكتب', href: '/books' },
-    { label: 'المقالات والبحوث', href: '/articles' },
-    { label: 'جميع التصنيفات', href: '/lectures' },
+    { label: 'الدروس', href: '/lectures' },
+    { label: 'الكتب', href: '/books' },
+    { label: 'المقالات', href: '/articles' },
+    { label: 'مقرأة السنة', href: '/sunnah-reading' },
+    { label: 'تعلم عن بعد', href: '/distance-learning' },
+    { label: 'البراعم', href: '/kids' },
+    { label: 'النساء', href: '/women' },
   ],
   cta: {
     title: 'التواصل والتسجيل',

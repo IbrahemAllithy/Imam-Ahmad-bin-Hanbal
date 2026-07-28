@@ -150,8 +150,8 @@ const Navbar = () => {
       <Link to="/login" className="btn-login" onClick={() => setOpen(false)}>
         دخول
       </Link>
-      <Link to="/register" className="btn-start" onClick={() => setOpen(false)}>
-        سجّل حساباً
+      <Link to={settings.navbar?.ctaLink || '/register'} className="btn-start" onClick={() => setOpen(false)}>
+        {settings.navbar?.ctaText || 'سجّل حساباً'}
       </Link>
     </>
   );
