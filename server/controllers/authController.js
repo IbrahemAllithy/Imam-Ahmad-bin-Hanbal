@@ -48,6 +48,9 @@ const issueTokens = async (user, res) => {
   return accessToken;
 };
 
+// Returns { emailSent } instead of throwing — a mail-server outage should
+// never wipe out a registration that already succeeded in the database;
+// the caller decides how to inform the user when delivery fails.
 const assignAndSendOtp = async (user) => {
   const otp = generateOtp();
   user.emailVerificationOTP = hashOtp(otp);
@@ -55,12 +58,24 @@ const assignAndSendOtp = async (user) => {
   user.isEmailVerified = false;
   await user.save({ validateBeforeSave: false });
 
-  await sendVerificationEmail({
-    to: user.email,
-    name: user.name,
-    otp,
-  });
+  try {
+    await sendVerificationEmail({
+      to: user.email,
+      name: user.name,
+      otp,
+    });
+    return { emailSent: true };
+  } catch (err) {
+    logger.error('تعذر إرسال رمز التفعيل — تم حفظ الحساب والرمز رغم ذلك', {
+      email: user.email,
+      error: err.message,
+    });
+    return { emailSent: false };
+  }
 };
+
+const EMAIL_DOWN_MESSAGE =
+  'تعذّر إرسال رمز التفعيل إلى بريدك الآن بسبب عطل مؤقت في خدمة البريد. حسابك محفوظ — اضغط "إعادة إرسال الرمز" بعد قليل، أو تواصل معنا إذا استمرت المشكلة.';
 
 export const register = async (req, res, next) => {
   try {
@@ -86,12 +101,15 @@ export const register = async (req, res, next) => {
       // Do NOT overwrite name/password/phone here: the caller hasn't proven
       // mailbox ownership yet, so this would let anyone who knows the email
       // silently overwrite another person's in-progress registration.
-      await assignAndSendOtp(exists);
+      const { emailSent } = await assignAndSendOtp(exists);
 
       return res.status(200).json({
         success: true,
         requiresVerification: true,
-        message: 'أُرسل رمز التفعيل إلى بريدك الإلكتروني. افتح بريدك وأدخل الرمز هنا.',
+        emailSent,
+        message: emailSent
+          ? 'أُرسل رمز التفعيل إلى بريدك الإلكتروني. افتح بريدك وأدخل الرمز هنا.'
+          : EMAIL_DOWN_MESSAGE,
         email: exists.email,
       });
     }
@@ -106,14 +124,17 @@ export const register = async (req, res, next) => {
       isEmailVerified: false,
     });
 
-    await assignAndSendOtp(user);
+    const { emailSent } = await assignAndSendOtp(user);
 
-    logger.info('تسجيل طالب بانتظار التفعيل', { email: user.email, id: user._id });
+    logger.info('تسجيل طالب بانتظار التفعيل', { email: user.email, id: user._id, emailSent });
 
     res.status(201).json({
       success: true,
       requiresVerification: true,
-      message: 'تم إنشاء الحساب. أُرسل رمز التفعيل إلى بريدك الإلكتروني.',
+      emailSent,
+      message: emailSent
+        ? 'تم إنشاء الحساب. أُرسل رمز التفعيل إلى بريدك الإلكتروني.'
+        : `تم إنشاء حسابك بنجاح. ${EMAIL_DOWN_MESSAGE}`,
       email: user.email,
     });
   } catch (err) {
@@ -200,11 +221,12 @@ export const resendOtp = async (req, res, next) => {
       return next(new AppError('الحساب مفعّل بالفعل — يمكنك تسجيل الدخول', 400, 'email'));
     }
 
-    await assignAndSendOtp(user);
+    const { emailSent } = await assignAndSendOtp(user);
 
     res.json({
       success: true,
-      message: 'تم إرسال رمز تفعيل جديد إلى بريدك الإلكتروني',
+      emailSent,
+      message: emailSent ? 'تم إرسال رمز تفعيل جديد إلى بريدك الإلكتروني' : EMAIL_DOWN_MESSAGE,
       email: user.email,
     });
   } catch (err) {

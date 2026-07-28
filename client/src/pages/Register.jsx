@@ -69,6 +69,7 @@ const Register = () => {
       if (result.requiresVerification) {
         navigate(`/verify-email?email=${encodeURIComponent(result.email || form.email)}`, {
           replace: true,
+          state: result.emailSent === false ? { emailWarning: result.message } : undefined,
         });
         return;
       }
