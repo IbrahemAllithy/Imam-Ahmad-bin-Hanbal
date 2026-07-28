@@ -21,6 +21,9 @@ if (R2_ENABLED) {
       accessKeyId: R2_ACCESS_KEY_ID,
       secretAccessKey: R2_SECRET_ACCESS_KEY,
     },
+    // R2 doesn't support the AWS SDK v3's default automatic CRC32 checksum trailer —
+    // without this, every PutObject/DeleteObject fails against R2's S3-compatible endpoint.
+    requestChecksumCalculation: 'WHEN_REQUIRED',
   });
 }
 
