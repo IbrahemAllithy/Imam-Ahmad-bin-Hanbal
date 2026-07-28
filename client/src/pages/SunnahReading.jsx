@@ -1,17 +1,9 @@
 import { Link } from 'react-router-dom';
-import { FiBookOpen, FiBookmark, FiChevronLeft } from 'react-icons/fi';
-import { useSiteSettings } from '../context/SiteSettingsContext';
 import './LectureCategories.css';
 
-const SUNNAH_WHATSAPP = '201157761521';
-
-const whatsappLink = (message) =>
-  `https://wa.me/${SUNNAH_WHATSAPP}?text=${encodeURIComponent(message)}`;
+const SUNNAH_BOOKS_PATH = '/sunnah-reading/books';
 
 const SunnahReading = () => {
-  const { settings } = useSiteSettings();
-  const books = settings.sunnahBooks || [];
-
   return (
     <div className="categories-page">
       <div className="categories-hero">
@@ -22,7 +14,7 @@ const SunnahReading = () => {
             <span className="current">مقرأة السنة</span>
           </div>
           <h1>مقرأة السنة</h1>
-          <p>تصفّح كتب السنة المشروحة، مبوّبة كل كتاب على حدة</p>
+          <p>تعريف بالمقرأة وشروط الالتحاق والحصول على الإسناد</p>
         </div>
       </div>
 
@@ -62,14 +54,9 @@ const SunnahReading = () => {
         <div className="sunnah-subscribe-card">
           <h3>
             للاشتراك في مقرأة السنة والحصول على إسناد متصل{' '}
-            <a
-              className="sunnah-whatsapp-link"
-              href={whatsappLink('السلام عليكم، أرغب في الاشتراك في مقرأة السنة والحصول على إسناد متصل.')}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <Link className="sunnah-inline-link" to={SUNNAH_BOOKS_PATH}>
               (اضغط هنا)
-            </a>
+            </Link>
           </h3>
           <p className="sunnah-subscribe-label">المطلوب:</p>
           <ol className="sunnah-requirements-list">
@@ -78,61 +65,24 @@ const SunnahReading = () => {
             <li>الإجابة عن أسئلة كل مجلس.</li>
             <li>
               إرسال صور لتعليقاتك على الكتاب الذي تدرسه (لا يزيد عن 10 صور){' '}
-              <a
-                className="sunnah-whatsapp-link"
-                href={whatsappLink('السلام عليكم، أرسل لكم صور تعليقاتي على الكتاب الذي أدرسه في مقرأة السنة.')}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <Link className="sunnah-inline-link" to={SUNNAH_BOOKS_PATH}>
                 (ترسل هنا — اضغط هنا)
-              </a>
+              </Link>
               .
             </li>
             <li>المراسلة بعد الانتهاء للحصول على الإسناد للكتاب الذي تم دراسته.</li>
           </ol>
-          <Link to="/register" className="btn btn-primary">
-            سجّل حسابك الآن
-          </Link>
-        </div>
 
-        <div className="categories-section-header">
-          <h2>كتب السنة</h2>
-          <p>اضغط على أي كتاب لتصفح دروسه وشروحه</p>
-        </div>
-
-        {books.length ? (
-          <div className="categories-grid-modern">
-            {books.map((b) => (
-              <Link
-                to={`/lectures/list?category=${encodeURIComponent(b.name)}`}
-                key={b.id || b.name}
-                className="category-card-modern"
-              >
-                <div className="cat-card-top">
-                  <div className="cat-icon-box">
-                    <FiBookOpen />
-                  </div>
-                  <span className="cat-count-badge">
-                    <FiBookmark style={{ margin: '0 0 -2px 4px' }} />
-                    {b.count} درسًا
-                  </span>
-                </div>
-
-                <div className="cat-card-center">
-                  <h3>مقرأة {b.name}</h3>
-                  <p>شروح ودروس مفرغة في مقرأة {b.name}</p>
-                </div>
-
-                <div className="cat-card-bottom">
-                  <span>تصفح دروس هذا الكتاب</span>
-                  <FiChevronLeft className="cat-arrow" />
-                </div>
-              </Link>
-            ))}
+          <div className="sunnah-cta-row">
+            <Link to={SUNNAH_BOOKS_PATH} className="btn btn-primary">
+              ابدأ دراسة كتب السنة
+            </Link>
+            <Link to="/register" className="btn btn-outline">
+              سجّل حسابك الآن
+            </Link>
           </div>
-        ) : (
-          <p className="platform-empty">لا توجد أقسام مضافة بعد</p>
-        )}
+        </div>
+
       </div>
     </div>
   );

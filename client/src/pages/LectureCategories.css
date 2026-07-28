@@ -221,14 +221,14 @@
   line-height: 1.6;
 }
 
-.sunnah-whatsapp-link {
+.sunnah-inline-link {
   color: var(--accent-color);
   font-weight: 700;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 
-.sunnah-whatsapp-link:hover {
+.sunnah-inline-link:hover {
   color: oklch(0.3 0.05 45);
 }
 
@@ -250,6 +250,25 @@
   font-size: 15px;
   line-height: 1.8;
   color: var(--primary-text);
+}
+
+.sunnah-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+/* Standalone empty state — .platform-empty lives in PlatformPages.css,
+   which these pages don't import, so it would render unstyled. */
+.sunnah-empty {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 15px;
+  padding: 40px 20px;
+  background: var(--white);
+  border: 1.5px dashed var(--primary-border);
+  border-radius: 16px;
 }
 
 @media (max-width: 768px) {
