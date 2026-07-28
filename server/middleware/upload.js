@@ -60,7 +60,8 @@ export const uploadBookFiles = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 25 * 1024 * 1024,
+    // Scanned Arabic books routinely exceed 25MB.
+    fileSize: 50 * 1024 * 1024,
     files: 2,
   },
 }).fields([

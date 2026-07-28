@@ -22,7 +22,7 @@ export const errorHandler = (err, _req, res, _next) => {
   let error = { ...err, message: err.message, statusCode: err.statusCode };
 
   if (err.code === 'LIMIT_FILE_SIZE') {
-    error = new AppError('حجم الملف أكبر من المسموح', 400);
+    error = new AppError('حجم الملف أكبر من المسموح (الحد الأقصى 50 ميجابايت للـ PDF)', 400);
   }
   if (err.name === 'MulterError') {
     error = new AppError('خطأ في رفع الملف', 400);

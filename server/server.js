@@ -41,6 +41,11 @@ const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 
 app.disable('x-powered-by');
 
+// Render/Vercel put the app behind a proxy. Without this, express-rate-limit
+// sees the proxy's IP for every request and the global 300/15min budget is
+// shared by all visitors at once, which starts rejecting real users with 429.
+app.set('trust proxy', 1);
+
 if (process.env.NODE_ENV === 'production') {
   app.use((req, res, next) => {
     if (req.header('x-forwarded-proto') !== 'https') {

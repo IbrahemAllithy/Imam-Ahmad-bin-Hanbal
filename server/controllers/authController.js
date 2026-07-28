@@ -31,10 +31,14 @@ const signRefreshToken = (userId) =>
 
 const hashToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
 
+// In production the frontend (vercel.app) and API (onrender.com) are
+// different sites, so the refresh cookie must be SameSite=None (with
+// Secure) or the browser will never send it and sessions die after the
+// 15-minute access token expires.
 const cookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict',
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
   maxAge: 7 * 24 * 60 * 60 * 1000,
   path: '/api/auth',
 };
