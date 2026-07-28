@@ -62,27 +62,20 @@ const SunnahReading = () => {
               (اضغط هنا)
             </Link>
           </h3>
-          <p className="sunnah-subscribe-label">المطلوب:</p>
-          <ol className="sunnah-requirements-list">
-            <li>التسجيل بالموقع.</li>
-            <li>سماع كل الدروس.</li>
-            <li>الإجابة عن أسئلة كل مجلس.</li>
-            <li>
-              إرسال صور لتعليقاتك على الكتاب الذي تدرسه (لا يزيد عن 10 صور){' '}
-              <a
-                className="sunnah-inline-link"
-                href={whatsappLink(
-                  'السلام عليكم، أرسل لكم صور تعليقاتي على الكتاب الذي أدرسه في مقرأة السنة.'
-                )}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                (ترسل هنا — اضغط هنا)
-              </a>
-              .
-            </li>
-            <li>المراسلة بعد الانتهاء للحصول على الإسناد للكتاب الذي تم دراسته.</li>
-          </ol>
+          <p className="sunnah-send-note">
+            إرسال صور لتعليقاتك على الكتاب الذي تدرسه (لا يزيد عن 10 صور){' '}
+            <a
+              className="sunnah-inline-link"
+              href={whatsappLink(
+                'السلام عليكم، أرسل لكم صور تعليقاتي على الكتاب الذي أدرسه في مقرأة السنة.'
+              )}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              (ترسل هنا — اضغط هنا)
+            </a>
+            .
+          </p>
 
           <div className="sunnah-cta-row">
             <Link to={SUNNAH_BOOKS_PATH} className="btn btn-primary">
