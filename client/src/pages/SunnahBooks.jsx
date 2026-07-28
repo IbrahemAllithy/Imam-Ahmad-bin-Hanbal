@@ -40,31 +40,42 @@ const SunnahBooks = () => {
             {books.map((b) => {
               const lessons = lessonsByCategory[b.name] ?? b.count ?? 0;
               return (
-              <Link
-                to={`/lectures/list?category=${encodeURIComponent(b.name)}`}
-                key={b.id || b.name}
-                className="category-card-modern"
-              >
-                <div className="cat-card-top">
-                  <div className="cat-icon-box">
-                    <FiBookOpen />
+              // A card holding two destinations, so it is a container rather
+              // than one big link — nesting an anchor inside an anchor is
+              // invalid and breaks the isnad link.
+              <div key={b.id || b.name} className="category-card-modern">
+                <Link
+                  to={`/lectures/list?category=${encodeURIComponent(b.name)}`}
+                  className="cat-card-main"
+                >
+                  <div className="cat-card-top">
+                    <div className="cat-icon-box">
+                      <FiBookOpen />
+                    </div>
+                    <span className="cat-count-badge">
+                      <FiBookmark style={{ margin: '0 0 -2px 4px' }} />
+                      {lessons} درسًا
+                    </span>
                   </div>
-                  <span className="cat-count-badge">
-                    <FiBookmark style={{ margin: '0 0 -2px 4px' }} />
-                    {lessons} درسًا
-                  </span>
-                </div>
 
-                <div className="cat-card-center">
-                  <h3>مقرأة {b.name}</h3>
-                  <p>شروح ودروس مفرغة في مقرأة {b.name}</p>
-                </div>
+                  <div className="cat-card-center">
+                    <h3>مقرأة {b.name}</h3>
+                    <p>شروح ودروس مفرغة في مقرأة {b.name}</p>
+                  </div>
 
-                <div className="cat-card-bottom">
-                  <span>تصفح دروس هذا الكتاب</span>
-                  <FiChevronLeft className="cat-arrow" />
-                </div>
-              </Link>
+                  <div className="cat-card-bottom">
+                    <span>تصفح دروس هذا الكتاب</span>
+                    <FiChevronLeft className="cat-arrow" />
+                  </div>
+                </Link>
+
+                <Link
+                  to={`/sunnah-reading/isnad?book=${encodeURIComponent(b.name)}`}
+                  className="cat-card-isnad"
+                >
+                  للحصول على إسناد متصل للكتاب <span>(اضغط هنا)</span>
+                </Link>
+              </div>
               );
             })}
           </div>

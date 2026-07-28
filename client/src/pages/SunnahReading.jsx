@@ -25,14 +25,6 @@ const SunnahReading = () => {
               (اضغط هنا)
             </Link>
           </h3>
-          <div className="sunnah-cta-row">
-            <Link to={SUNNAH_BOOKS_PATH} className="btn btn-primary">
-              ابدأ دراسة كتب السنة
-            </Link>
-            <Link to="/register" className="btn btn-outline">
-              سجّل حسابك الآن
-            </Link>
-          </div>
         </div>
       </div>
     </div>
