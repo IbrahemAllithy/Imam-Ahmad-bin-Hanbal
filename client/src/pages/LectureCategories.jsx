@@ -1,12 +1,28 @@
 import { Link } from 'react-router-dom';
 import { FiBookOpen, FiBookmark, FiChevronLeft } from 'react-icons/fi';
 import { useSiteSettings } from '../context/SiteSettingsContext';
+import { useFetch } from '../hooks/useFetch';
 import './LectureCategories.css';
 
 const LectureCategories = () => {
   const { settings } = useSiteSettings();
+  const { data: coursesRes } = useFetch('/lectures/courses');
   const categories = settings.categories || [];
   const page = settings.lectureCategoriesPage || {};
+
+  // Derive real lesson totals per category instead of trusting the hand-typed `count`
+  // in site settings, which drifts as soon as lectures are added or moved. Once the
+  // courses have loaded, a category missing from the map genuinely has no lessons —
+  // falling back to `count` there would resurrect a stale number.
+  const coursesLoaded = Array.isArray(coursesRes?.data);
+  const lessonsByCategory = (coursesRes?.data || []).reduce((acc, course) => {
+    acc[course.category] = (acc[course.category] || 0) + (course.lessonsCount || 0);
+    return acc;
+  }, {});
+
+  // Before the fetch resolves, show the settings value so the badge doesn't flash "0".
+  const lessonCount = (category) =>
+    coursesLoaded ? lessonsByCategory[category.name] || 0 : category.count ?? 0;
 
   return (
     <div className="categories-page">
@@ -41,7 +57,7 @@ const LectureCategories = () => {
                 </div>
                 <span className="cat-count-badge">
                   <FiBookmark style={{ margin: '0 0 -2px 4px' }} />
-                  {c.count} دروس ومجالس
+                  {lessonCount(c)} دروس ومجالس
                 </span>
               </div>
 
