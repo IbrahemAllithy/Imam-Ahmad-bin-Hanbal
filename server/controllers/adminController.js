@@ -8,7 +8,7 @@ import Certificate from '../models/Certificate.js';
 import LessonQuestion from '../models/LessonQuestion.js';
 import AppError from '../utils/AppError.js';
 import { escapeRegex } from '../utils/sanitize.js';
-import { R2_ENABLED } from '../config/r2.js';
+import { R2_ENABLED, uploadBufferToR2, deleteFromR2ByUrl } from '../config/r2.js';
 
 // Reports which R2 env vars the running process actually sees, without leaking their values —
 // lets an admin confirm a Render env-var change actually took effect after a deploy.
@@ -140,6 +140,32 @@ export const getStudents = async (req, res, next) => {
     });
   } catch (err) {
     next(err);
+  }
+};
+
+// Attempts a real tiny write+delete against the configured R2 bucket and reports the exact
+// AWS SDK error (name/message only, never the stack or credentials) — for diagnosing a live
+// R2 setup without needing access to server logs.
+export const testR2Upload = async (_req, res, next) => {
+  if (!R2_ENABLED) {
+    return res.json({ success: true, data: { r2Enabled: false, ok: false, error: 'R2 غير مفعّل' } });
+  }
+  try {
+    const key = `diagnostics/test-${Date.now()}.txt`;
+    const url = await uploadBufferToR2(key, Buffer.from('r2 connectivity test'), 'text/plain');
+    await deleteFromR2ByUrl(url);
+    res.json({ success: true, data: { r2Enabled: true, ok: true, testUrl: url } });
+  } catch (err) {
+    res.json({
+      success: true,
+      data: {
+        r2Enabled: true,
+        ok: false,
+        errorName: err.name,
+        errorMessage: err.message,
+        httpStatusCode: err.$metadata?.httpStatusCode,
+      },
+    });
   }
 };
 
