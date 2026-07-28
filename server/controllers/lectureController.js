@@ -263,6 +263,7 @@ export const getCourses = async (req, res, next) => {
         $group: {
           _id: '$groupKey',
           category: { $first: '$category' },
+          seriesOrder: { $max: '$seriesOrder' },
           lessonsCount: { $sum: 1 },
           lessonIds: { $push: '$_id' },
           firstLectureId: { $first: '$_id' },
@@ -275,6 +276,7 @@ export const getCourses = async (req, res, next) => {
           _id: 0,
           seriesName: '$_id',
           category: 1,
+          seriesOrder: 1,
           lessonsCount: 1,
           lessonIds: 1,
           firstLectureId: 1,
@@ -284,7 +286,10 @@ export const getCourses = async (req, res, next) => {
       },
     ]);
 
-    courses.sort((a, b) => a.seriesName.localeCompare(b.seriesName, 'ar'));
+    courses.sort((a, b) => {
+      if (a.seriesOrder !== b.seriesOrder) return (a.seriesOrder || 0) - (b.seriesOrder || 0);
+      return a.seriesName.localeCompare(b.seriesName, 'ar');
+    });
 
     res.json({ success: true, data: courses });
   } catch (err) {
