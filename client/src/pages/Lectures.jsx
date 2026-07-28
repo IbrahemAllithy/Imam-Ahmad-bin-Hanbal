@@ -89,7 +89,15 @@ const Lectures = () => {
           signal: controller.signal,
         });
         if (!alive) return;
-        setCoursesList(res.data?.data || []);
+        const list = res.data?.data || [];
+        // A category with a single course (common for the Sunnah books, one
+        // series per book) should open the lessons directly, skipping this
+        // intermediate courses list.
+        if (category !== 'الكل' && !debouncedSearch && list.length === 1) {
+          navigate(`/courses/${encodeURIComponent(list[0].seriesName)}`, { replace: true });
+          return;
+        }
+        setCoursesList(list);
       } catch (err) {
         if (controller.signal.aborted || err?.code === 'ERR_CANCELED') return;
         if (!alive) return;
