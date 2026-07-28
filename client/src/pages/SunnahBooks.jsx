@@ -1,11 +1,22 @@
 import { Link } from 'react-router-dom';
 import { FiBookOpen, FiBookmark, FiChevronLeft } from 'react-icons/fi';
 import { useSiteSettings } from '../context/SiteSettingsContext';
+import { useFetch } from '../hooks/useFetch';
 import './LectureCategories.css';
 
 const SunnahBooks = () => {
   const { settings } = useSiteSettings();
   const books = settings.sunnahBooks || [];
+
+  // sunnahBooks[].count in site settings is a static number that nobody
+  // updates when lessons are imported, so it read 0 for every book while
+  // hundreds of lessons existed. Derive the real totals from the lessons.
+  const { data: coursesRes } = useFetch('/lectures/courses');
+
+  const lessonsByCategory = (coursesRes?.data || []).reduce((acc, course) => {
+    acc[course.category] = (acc[course.category] || 0) + (course.lessonsCount || 0);
+    return acc;
+  }, {});
 
   return (
     <div className="categories-page">
@@ -26,7 +37,9 @@ const SunnahBooks = () => {
       <div className="categories-content">
         {books.length ? (
           <div className="categories-grid-modern">
-            {books.map((b) => (
+            {books.map((b) => {
+              const lessons = lessonsByCategory[b.name] ?? b.count ?? 0;
+              return (
               <Link
                 to={`/lectures/list?category=${encodeURIComponent(b.name)}`}
                 key={b.id || b.name}
@@ -38,7 +51,7 @@ const SunnahBooks = () => {
                   </div>
                   <span className="cat-count-badge">
                     <FiBookmark style={{ margin: '0 0 -2px 4px' }} />
-                    {b.count} درسًا
+                    {lessons} درسًا
                   </span>
                 </div>
 
@@ -52,7 +65,8 @@ const SunnahBooks = () => {
                   <FiChevronLeft className="cat-arrow" />
                 </div>
               </Link>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <p className="sunnah-empty">لا توجد أقسام مضافة بعد</p>
