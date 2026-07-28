@@ -125,6 +125,7 @@ app.use(
 // Seed cover images checked into the repo (unlike /storage, which is
 // gitignored user-upload content and not guaranteed to survive a redeploy).
 app.use('/seed-covers', express.static(path.join(__dirname, 'seed', 'sale-covers')));
+app.use('/seed-gallery', express.static(path.join(__dirname, 'seed', 'gallery')));
 
 app.get('/api/health', (_req, res) => {
   res.json({ success: true, message: 'الخادم يعمل' });

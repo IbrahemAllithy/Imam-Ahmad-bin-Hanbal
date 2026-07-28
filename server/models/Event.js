@@ -18,9 +18,10 @@ const eventSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    // Optional: photo-only gallery entries (e.g. old event albums with no
+    // known date) don't have one, and the UI hides the date badge for them.
     eventDate: {
       type: Date,
-      required: [true, 'تاريخ الفعالية مطلوب'],
     },
   },
   { timestamps: true }

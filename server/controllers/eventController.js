@@ -27,7 +27,7 @@ export const createEvent = async (req, res, next) => {
     const data = {
       title: req.body.title,
       description: req.body.description || '',
-      eventDate: req.body.eventDate,
+      eventDate: req.body.eventDate || undefined,
     };
     if (req.file) data.coverImage = `/storage/covers/${req.file.filename}`;
 
@@ -46,7 +46,7 @@ export const updateEvent = async (req, res, next) => {
     const updates = {};
     if (req.body.title !== undefined) updates.title = req.body.title;
     if (req.body.description !== undefined) updates.description = req.body.description;
-    if (req.body.eventDate !== undefined) updates.eventDate = req.body.eventDate;
+    if (req.body.eventDate !== undefined) updates.eventDate = req.body.eventDate || null;
     if (req.file) updates.coverImage = `/storage/covers/${req.file.filename}`;
 
     const event = await Event.findByIdAndUpdate(req.params.id, updates, {

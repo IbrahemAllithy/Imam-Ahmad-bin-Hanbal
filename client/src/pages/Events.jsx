@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiCalendar } from 'react-icons/fi';
+import { FiCalendar, FiX } from 'react-icons/fi';
 import { getStorageUrl } from '../services/api';
 import api from '../services/api';
 import Loader from '../components/ui/Loader';
@@ -16,6 +16,7 @@ const Events = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [lightbox, setLightbox] = useState(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -29,6 +30,15 @@ const Events = () => {
       .finally(() => setLoading(false));
     return () => controller.abort();
   }, []);
+
+  useEffect(() => {
+    if (!lightbox) return undefined;
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') setLightbox(null);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [lightbox]);
 
   return (
     <div className="categories-page events-page">
@@ -57,14 +67,21 @@ const Events = () => {
               {events.map((e) => (
                 <div className="event-card" key={e._id}>
                   {e.coverImage && (
-                    <div className="event-cover">
+                    <button
+                      type="button"
+                      className="event-cover"
+                      onClick={() => setLightbox({ src: getStorageUrl(e.coverImage), title: e.title })}
+                      aria-label={`تكبير صورة: ${e.title}`}
+                    >
                       <img src={getStorageUrl(e.coverImage)} alt={e.title} loading="lazy" />
-                    </div>
+                    </button>
                   )}
                   <div className="event-body">
-                    <span className="event-date">
-                      <FiCalendar /> {formatDate(e.eventDate)}
-                    </span>
+                    {e.eventDate && (
+                      <span className="event-date">
+                        <FiCalendar /> {formatDate(e.eventDate)}
+                      </span>
+                    )}
                     <h3 className="event-title">{e.title}</h3>
                     {e.description && <p className="event-desc">{e.description}</p>}
                   </div>
@@ -76,6 +93,23 @@ const Events = () => {
           </>
         )}
       </div>
+
+      {lightbox && (
+        <div className="event-lightbox" onClick={() => setLightbox(null)}>
+          <button
+            type="button"
+            className="event-lightbox-close"
+            onClick={() => setLightbox(null)}
+            aria-label="إغلاق"
+          >
+            <FiX />
+          </button>
+          <figure onClick={(e) => e.stopPropagation()}>
+            <img src={lightbox.src} alt={lightbox.title} />
+            <figcaption>{lightbox.title}</figcaption>
+          </figure>
+        </div>
+      )}
     </div>
   );
 };

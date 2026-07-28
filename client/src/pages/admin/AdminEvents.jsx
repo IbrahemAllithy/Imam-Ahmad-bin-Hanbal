@@ -42,10 +42,6 @@ const AdminEvents = () => {
       setError('عنوان الفعالية مطلوب');
       return;
     }
-    if (!form.eventDate) {
-      setError('تاريخ الفعالية مطلوب');
-      return;
-    }
 
     setSubmitting(true);
     try {
@@ -122,12 +118,15 @@ const AdminEvents = () => {
           </div>
 
           <div className="form-group">
-            <label>تاريخ الفعالية *</label>
+            <label>تاريخ الفعالية (اختياري)</label>
             <input
               type="date"
               value={form.eventDate}
               onChange={(e) => setForm({ ...form, eventDate: e.target.value })}
             />
+            <small style={{ color: 'var(--text-muted)' }}>
+              اتركه فارغًا لصور المعرض التي لا تتبع تاريخًا محددًا
+            </small>
           </div>
         </div>
 
@@ -197,9 +196,11 @@ const AdminEvents = () => {
                   </div>
                 )}
 
-                <span className="card-cat-badge">
-                  <FiCalendar /> {toDateInput(item.eventDate)}
-                </span>
+                {item.eventDate && (
+                  <span className="card-cat-badge">
+                    <FiCalendar /> {toDateInput(item.eventDate)}
+                  </span>
+                )}
                 <h4 className="card-lecture-title">{item.title}</h4>
 
                 <div className="card-actions-footer">
