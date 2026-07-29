@@ -82,20 +82,6 @@ const Home = () => {
               المَلائِكَةُ حُرَّاسُ السَّماءِ، وأصحابُ الحَديثِ حُرَّاسُ الأرْضِ
               <span className="hero-quote-author">سُفيانُ الثَّوريُّ رحمه الله</span>
             </p>
-            {(hero.primaryCtaText || hero.secondaryCtaText) && (
-              <div className="hero-actions">
-                {hero.primaryCtaText && (
-                  <Link to={hero.primaryCtaLink || '/lectures'} className="btn btn-primary">
-                    {hero.primaryCtaText}
-                  </Link>
-                )}
-                {hero.secondaryCtaText && (
-                  <Link to={hero.secondaryCtaLink || '#about'} className="btn btn-outline">
-                    {hero.secondaryCtaText}
-                  </Link>
-                )}
-              </div>
-            )}
           </div>
           <div className="hero-visual animate-fade-in-up delay-200">
             <img src={sheikhImage} alt={settings.branding?.siteName} className="hero-image" />

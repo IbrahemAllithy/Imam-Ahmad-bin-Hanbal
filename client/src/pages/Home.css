@@ -74,12 +74,6 @@
   color: var(--text-muted);
 }
 
-.hero-actions {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
 .hero-visual {
   width: clamp(300px, 40vw, 420px);
   flex-shrink: 0;
@@ -412,10 +406,6 @@
     flex-direction: column;
     text-align: center;
     gap: 40px;
-  }
-  
-  .hero-actions {
-    justify-content: center;
   }
   
   .categories-inner {
