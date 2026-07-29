@@ -11,7 +11,13 @@ const Login = () => {
   const from = location.state?.from?.pathname || '/account';
   const [form, setForm] = useState({ email: '', password: '' });
   const [fieldErrors, setFieldErrors] = useState({ email: '', password: '' });
-  const [error, setError] = useState('');
+  const [error, setError] = useState(() => {
+    // Set by the API layer when a session ends mid-action. Without it the admin is bounced
+    // here with no explanation, which reads as the page simply not responding.
+    const reason = sessionStorage.getItem('authLogoutReason');
+    if (reason) sessionStorage.removeItem('authLogoutReason');
+    return reason || '';
+  });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
