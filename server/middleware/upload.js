@@ -5,6 +5,7 @@ import multer from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import { fileTypeFromBuffer } from 'file-type';
 import AppError from '../utils/AppError.js';
+import { sanitizeObject } from '../utils/sanitize.js';
 import { R2_ENABLED, uploadBufferToR2, deleteFromR2ByUrl } from '../config/r2.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -110,7 +111,13 @@ const FIELD_LABEL = {
  */
 const withUploadErrors = (middleware, limitMB) => (req, res, next) =>
   middleware(req, res, (err) => {
-    if (!err) return next();
+    if (!err) {
+      // multer has only just populated req.body. The app-level xssSanitize ran long before
+      // this point, when a multipart body was still an unparsed stream, so without this the
+      // text fields of every upload form reach the controllers exactly as they were typed.
+      if (req.body) req.body = sanitizeObject(req.body);
+      return next();
+    }
     if (err.code === 'LIMIT_FILE_SIZE') {
       const label = FIELD_LABEL[err.field] || 'الملف';
       return next(
