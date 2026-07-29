@@ -9,12 +9,18 @@ import {
   getSeries,
   getCourses,
   gradeLectureQuiz,
+  importPlaylist,
+  reorderLessons,
+  reorderSeries,
 } from '../controllers/lectureController.js';
 import { protect, restrictTo, optionalAuth } from '../middleware/auth.js';
 import {
   lectureValidation,
   mongoIdParam,
   listQueryValidation,
+  importPlaylistValidation,
+  reorderLessonsValidation,
+  reorderSeriesValidation,
 } from '../middleware/validators.js';
 
 const router = Router();
@@ -47,6 +53,9 @@ router.post(
 
 router.use(protect, restrictTo('admin'));
 router.post('/', lectureValidation, createLecture);
+router.post('/import-playlist', importPlaylistValidation, importPlaylist);
+router.put('/reorder-lessons', reorderLessonsValidation, reorderLessons);
+router.put('/reorder-series', reorderSeriesValidation, reorderSeries);
 router.put('/:id', mongoIdParam, lectureValidation, updateLecture);
 router.delete('/:id', mongoIdParam, deleteLecture);
 

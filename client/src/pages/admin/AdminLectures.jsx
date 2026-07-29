@@ -1,10 +1,36 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useFetch } from '../../hooks/useFetch';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import api from '../../services/api';
 import { extractYoutubeId, getYoutubeEmbedUrl } from '../../utils/helpers';
 import Loader from '../../components/ui/Loader';
-import { FiEdit2, FiTrash2, FiVideo, FiBookOpen, FiPlus, FiCheck, FiX, FiHelpCircle } from 'react-icons/fi';
+import {
+  FiEdit2,
+  FiTrash2,
+  FiVideo,
+  FiBookOpen,
+  FiPlus,
+  FiCheck,
+  FiX,
+  FiHelpCircle,
+  FiMove,
+  FiChevronDown,
+  FiDownload,
+} from 'react-icons/fi';
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+  arrayMove,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import './Admin.css';
 
 const emptyQuizItem = () => ({
@@ -27,6 +53,8 @@ const emptyLecture = {
   quizItems: [],
 };
 
+const emptyImportForm = { playlistUrl: '', category: '', series: '' };
+
 const toDatetimeLocal = (iso) => {
   if (!iso) return '';
   const d = new Date(iso);
@@ -35,9 +63,140 @@ const toDatetimeLocal = (iso) => {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };
 
+// Groups lectures by series, sorted the same way the public site orders them
+// (seriesOrder for the series block, order for lessons inside it), so drag
+// handles here match what a visitor actually sees.
+const buildSeriesGroups = (list) => {
+  const bySeries = new Map();
+  list.forEach((lecture) => {
+    const key = lecture.series || 'بدون سلسلة';
+    if (!bySeries.has(key)) {
+      bySeries.set(key, { series: key, seriesOrder: lecture.seriesOrder || 0, lectures: [] });
+    }
+    const group = bySeries.get(key);
+    group.seriesOrder = Math.max(group.seriesOrder, lecture.seriesOrder || 0);
+    group.lectures.push(lecture);
+  });
+  const groups = [...bySeries.values()];
+  groups.forEach((g) => {
+    g.lectures.sort((a, b) => {
+      const orderA = a.order ?? 0;
+      const orderB = b.order ?? 0;
+      if (orderA !== orderB) return orderA - orderB;
+      return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
+    });
+  });
+  groups.sort((a, b) => {
+    if (a.seriesOrder !== b.seriesOrder) return a.seriesOrder - b.seriesOrder;
+    return a.series.localeCompare(b.series, 'ar');
+  });
+  return groups;
+};
+
+// seriesOrder is scoped per category, and the "كل الدروس" admin tab lists every
+// category together — so series must be grouped (and reordered) one category
+// at a time, never mixed across categories in a single sortable list.
+const buildCategoryBlocks = (list, fixedCategory) => {
+  if (fixedCategory) {
+    return [{ category: fixedCategory, groups: buildSeriesGroups(list) }];
+  }
+  const byCategory = new Map();
+  list.forEach((lecture) => {
+    const key = lecture.category || 'عام';
+    if (!byCategory.has(key)) byCategory.set(key, []);
+    byCategory.get(key).push(lecture);
+  });
+  return [...byCategory.entries()]
+    .sort(([a], [b]) => a.localeCompare(b, 'ar'))
+    .map(([category, lectures]) => ({ category, groups: buildSeriesGroups(lectures) }));
+};
+
+const LessonRow = ({ lecture, onEdit, onDelete }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: lecture._id,
+  });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="admin-lecture-card lesson-sortable-row">
+      <div className="card-badge-row">
+        <span className="card-cat-badge">{lecture.category}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {lecture.order != null && <span className="card-pdf-badge">#{lecture.order}</span>}
+          <button type="button" className="drag-handle" {...attributes} {...listeners} aria-label="اسحب لإعادة الترتيب">
+            <FiMove />
+          </button>
+        </div>
+      </div>
+      <h4 className="card-lecture-title">{lecture.title}</h4>
+      <div className="card-actions-footer">
+        <button type="button" className="btn-card-edit" onClick={() => onEdit(lecture)}>
+          <FiEdit2 /> تعديل
+        </button>
+        <button type="button" className="btn-card-delete" onClick={() => onDelete(lecture._id)}>
+          <FiTrash2 /> حذف
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const SeriesGroup = ({ group, expanded, onToggle, onReorderLessons, onEdit, onDelete }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: group.series,
+  });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
+
+  const handleLessonDragEnd = (event) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = group.lectures.findIndex((l) => l._id === active.id);
+    const newIndex = group.lectures.findIndex((l) => l._id === over.id);
+    const reordered = arrayMove(group.lectures, oldIndex, newIndex);
+    onReorderLessons(group.series, reordered);
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="series-group">
+      <div className="series-group-header">
+        <button type="button" className="drag-handle" {...attributes} {...listeners} aria-label="اسحب لإعادة ترتيب السلسلة">
+          <FiMove />
+        </button>
+        <button type="button" className="series-toggle" onClick={() => onToggle(group.series)}>
+          <FiChevronDown className={expanded ? 'chevron-open' : ''} />
+          <FiVideo /> {group.series}
+          <span className="card-cat-badge">{group.lectures.length} درس</span>
+        </button>
+      </div>
+
+      {expanded && (
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleLessonDragEnd}>
+          <SortableContext items={group.lectures.map((l) => l._id)} strategy={verticalListSortingStrategy}>
+            <div className="series-group-body admin-cards-grid">
+              {group.lectures.map((lecture) => (
+                <LessonRow key={lecture._id} lecture={lecture} onEdit={onEdit} onDelete={onDelete} />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
+      )}
+    </div>
+  );
+};
+
 const AdminLectures = ({ fixedCategory }) => {
   const { data, loading, error: fetchError, refetch } = useFetch('/lectures', {
-    limit: 200,
+    limit: 1000,
     all: 1,
     ...(fixedCategory && { category: fixedCategory }),
   });
@@ -51,22 +210,83 @@ const AdminLectures = ({ fixedCategory }) => {
   const [success, setSuccess] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const lecturesList = useMemo(() => {
-    const list = data?.data || [];
-    return [...list].sort((a, b) => {
-      const seriesA = a.series || '';
-      const seriesB = b.series || '';
-      if (seriesA !== seriesB) return seriesA.localeCompare(seriesB, 'ar');
-      const orderA = a.order ?? 0;
-      const orderB = b.order ?? 0;
-      if (orderA !== orderB) return orderA - orderB;
-      return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
-    });
-  }, [data]);
+  const [importForm, setImportForm] = useState(() => ({
+    ...emptyImportForm,
+    category: fixedCategory || '',
+  }));
+  const [importing, setImporting] = useState(false);
+  const [importError, setImportError] = useState('');
+  const [importSuccess, setImportSuccess] = useState('');
+
   const categories = categoryNames.length
     ? categoryNames
     : ['العقيدة', 'الفقه', 'أصول فقه', 'التفسير', 'الحديث', 'السيرة', 'آداب طالب العلم', 'الرقائق', 'علوم قرآن', 'عام'];
+
+  const [categoryBlocks, setCategoryBlocks] = useState([]);
+  useEffect(() => {
+    setCategoryBlocks(buildCategoryBlocks(data?.data || [], fixedCategory));
+  }, [data, fixedCategory]);
+
+  const [expandedSeries, setExpandedSeries] = useState(() => new Set());
+  const toggleSeries = (series) => {
+    setExpandedSeries((prev) => {
+      const next = new Set(prev);
+      if (next.has(series)) next.delete(series);
+      else next.add(series);
+      return next;
+    });
+  };
+
   const previewId = extractYoutubeId(form.youtubeUrl);
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
+
+  const resetCategoryBlocks = () => setCategoryBlocks(buildCategoryBlocks(data?.data || [], fixedCategory));
+
+  const handleSeriesDragEnd = (category) => async (event) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const block = categoryBlocks.find((b) => b.category === category);
+    const oldIndex = block.groups.findIndex((g) => g.series === active.id);
+    const newIndex = block.groups.findIndex((g) => g.series === over.id);
+    const reorderedGroups = arrayMove(block.groups, oldIndex, newIndex);
+    setCategoryBlocks((prev) =>
+      prev.map((b) => (b.category === category ? { ...b, groups: reorderedGroups } : b))
+    );
+
+    try {
+      await api.put('/lectures/reorder-series', {
+        category,
+        seriesNames: reorderedGroups.map((g) => g.series),
+      });
+      refetch();
+    } catch (err) {
+      setError(err.response?.data?.message || 'فشل حفظ ترتيب السلاسل');
+      resetCategoryBlocks();
+    }
+  };
+
+  const handleReorderLessons = (category) => async (seriesName, reorderedLessons) => {
+    setCategoryBlocks((prev) =>
+      prev.map((b) =>
+        b.category !== category
+          ? b
+          : {
+              ...b,
+              groups: b.groups.map((g) =>
+                g.series === seriesName ? { ...g, lectures: reorderedLessons } : g
+              ),
+            }
+      )
+    );
+    try {
+      await api.put('/lectures/reorder-lessons', { ids: reorderedLessons.map((l) => l._id) });
+      refetch();
+    } catch (err) {
+      setError(err.response?.data?.message || 'فشل حفظ ترتيب الدروس');
+      resetCategoryBlocks();
+    }
+  };
 
   const updateQuizItem = (idx, field, value) => {
     setForm((prev) => {
@@ -98,6 +318,30 @@ const AdminLectures = ({ fixedCategory }) => {
       ...prev,
       quizItems: (prev.quizItems || []).filter((_, i) => i !== idx),
     }));
+  };
+
+  const handleImportSubmit = async (e) => {
+    e.preventDefault();
+    setImportError('');
+    setImportSuccess('');
+    setImporting(true);
+    try {
+      const res = await api.post('/lectures/import-playlist', {
+        playlistUrl: importForm.playlistUrl,
+        category: fixedCategory || importForm.category,
+        series: importForm.series,
+      });
+      const d = res.data?.data;
+      setImportSuccess(
+        `تم الاستيراد: ${d.videosFound} فيديو — أضيف ${d.created} / حُدّث ${d.updated} / تخطّي ${d.skipped}. السلسلة "${d.seriesName}" أُضيفت بترتيب ${d.seriesOrder} داخل فئة ${d.category}.`
+      );
+      setImportForm({ ...emptyImportForm, category: fixedCategory || '' });
+      refetch();
+    } catch (err) {
+      setImportError(err.response?.data?.message || 'فشل استيراد قائمة التشغيل');
+    } finally {
+      setImporting(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -220,6 +464,63 @@ const AdminLectures = ({ fixedCategory }) => {
           <p>أي إضافة أو تعديل يُحفظ على السيرفر ويظهر مباشرة للزوار</p>
         </div>
       </div>
+
+      <form onSubmit={handleImportSubmit} className="admin-form-card">
+        <h3 className="form-card-title">
+          <FiDownload /> استيراد سلسلة كاملة من قائمة تشغيل يوتيوب
+        </h3>
+        <p className="settings-hint">
+          الصق رابط قائمة التشغيل، اختر الفئة واكتب اسم السلسلة — يُستورد كل الفيديوهات تلقائيًا
+          وتُضاف السلسلة في آخر ترتيب فئتها مباشرة.
+        </p>
+
+        {importError && <div className="alert alert-error">{importError}</div>}
+        {importSuccess && <div className="alert alert-success">{importSuccess}</div>}
+
+        <div className="form-grid">
+          <div className="form-group">
+            <label>رابط قائمة التشغيل *</label>
+            <input
+              value={importForm.playlistUrl}
+              onChange={(e) => setImportForm({ ...importForm, playlistUrl: e.target.value })}
+              required
+              placeholder="https://www.youtube.com/playlist?list=..."
+            />
+          </div>
+
+          {!fixedCategory && (
+            <div className="form-group">
+              <label>الفئة *</label>
+              <select
+                value={importForm.category}
+                onChange={(e) => setImportForm({ ...importForm, category: e.target.value })}
+                required
+              >
+                <option value="" disabled>اختر الفئة</option>
+                {categories.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <div className="form-group">
+            <label>اسم السلسلة *</label>
+            <input
+              value={importForm.series}
+              onChange={(e) => setImportForm({ ...importForm, series: e.target.value })}
+              required
+              placeholder="مثال: شرح كتاب التوحيد"
+            />
+          </div>
+        </div>
+
+        <div className="form-actions-bar">
+          <button type="submit" className="btn-admin-submit" disabled={importing}>
+            <FiDownload /> {importing ? 'جارٍ الاستيراد…' : 'استيراد القائمة'}
+          </button>
+        </div>
+      </form>
 
       <form onSubmit={handleSubmit} className="admin-form-card">
         <h3 className="form-card-title">
@@ -412,48 +713,41 @@ const AdminLectures = ({ fixedCategory }) => {
 
       <div className="admin-list-section">
         <div className="list-section-header">
-          <h3>قائمة الدروس المتاحة ({lecturesList.length})</h3>
+          <h3>السلاسل والدروس ({data?.data?.length || 0}) — اسحب لإعادة الترتيب</h3>
         </div>
 
-        {loading && !lecturesList.length ? (
+        {loading && !categoryBlocks.length ? (
           <Loader />
         ) : (
-          <div className="admin-cards-grid">
-            {lecturesList.map((item) => (
-              <div key={item._id} className="admin-lecture-card">
-                <div className="card-badge-row">
-                  <span className="card-cat-badge">{item.category}</span>
-                  {item.order != null && (
-                    <span className="card-pdf-badge">#{item.order}</span>
-                  )}
-                  {item.pdfUrl && <span className="card-pdf-badge"><FiBookOpen /> PDF مرفق</span>}
-                  {item.quizItems?.length > 0 && (
-                    <span className="card-cat-badge">
-                      <FiHelpCircle /> {item.quizItems.length} سؤال اختبار
-                    </span>
-                  )}
-                </div>
-
-                <h4 className="card-lecture-title">{item.title}</h4>
-                <p className="card-series-name">
-                  <FiVideo /> {item.series || 'بدون سلسلة'}
-                </p>
-
-                <div className="card-actions-footer">
-                  <button type="button" className="btn-card-edit" onClick={() => handleEdit(item)}>
-                    <FiEdit2 /> تعديل
-                  </button>
-                  <button type="button" className="btn-card-delete" onClick={() => handleDelete(item._id)}>
-                    <FiTrash2 /> حذف
-                  </button>
-                </div>
+          <>
+            {categoryBlocks.map((block) => (
+              <div key={block.category} className="category-block">
+                {!fixedCategory && <h4 className="category-block-title">{block.category}</h4>}
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleSeriesDragEnd(block.category)}
+                >
+                  <SortableContext items={block.groups.map((g) => g.series)} strategy={verticalListSortingStrategy}>
+                    <div className="series-groups-list">
+                      {block.groups.map((group) => (
+                        <SeriesGroup
+                          key={group.series}
+                          group={group}
+                          expanded={expandedSeries.has(group.series)}
+                          onToggle={toggleSeries}
+                          onReorderLessons={handleReorderLessons(block.category)}
+                          onEdit={handleEdit}
+                          onDelete={handleDelete}
+                        />
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
               </div>
             ))}
-
-            {!lecturesList.length && (
-              <p className="empty-list-msg">لا توجد دروس مضافة حتى الآن.</p>
-            )}
-          </div>
+            {!categoryBlocks.length && <p className="empty-list-msg">لا توجد دروس مضافة حتى الآن.</p>}
+          </>
         )}
       </div>
     </div>

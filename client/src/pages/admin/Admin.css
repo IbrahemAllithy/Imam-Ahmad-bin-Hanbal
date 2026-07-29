@@ -815,6 +815,90 @@
   grid-column: 1 / -1;
 }
 
+.category-block {
+  margin-bottom: 28px;
+}
+
+.category-block-title {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--accent-color);
+  margin: 0 0 12px;
+}
+
+.series-groups-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.series-group {
+  background: var(--white);
+  border: 1.5px solid var(--primary-border);
+  border-radius: 16px;
+  padding: 14px 18px;
+}
+
+.series-group-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.series-toggle {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 0;
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--primary-text);
+  text-align: right;
+}
+
+.series-toggle svg:first-child {
+  transition: transform 0.2s ease;
+  color: var(--text-muted);
+}
+
+.series-toggle svg.chevron-open {
+  transform: rotate(180deg);
+}
+
+.drag-handle {
+  background: var(--primary-bg);
+  border: 1px solid var(--primary-border);
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.series-group-body {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1.5px dashed var(--primary-border);
+}
+
+.lesson-sortable-row {
+  cursor: default;
+}
+
 @media (max-width: 900px) {
   .admin-layout {
     grid-template-columns: 1fr;

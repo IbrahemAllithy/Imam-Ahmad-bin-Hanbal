@@ -4,6 +4,12 @@ import AppError from '../utils/AppError.js';
 import { notifyAllStudents } from './notificationController.js';
 import { publishedFilter, normalizePublishedAt } from '../utils/publish.js';
 import { escapeRegex } from '../utils/sanitize.js';
+import { extractPlaylistId, fetchPlaylistVideos } from '../utils/youtubePlaylist.js';
+
+const truncate = (s, max = 200) => {
+  const t = String(s || '').trim();
+  return t.length <= max ? t : `${t.slice(0, max - 1)}…`;
+};
 
 const buildFilter = (query, { includeUnpublished = false } = {}) => {
   const filter = includeUnpublished ? {} : { ...publishedFilter() };
@@ -319,6 +325,126 @@ export const getSeries = async (_req, res, next) => {
       ...publishedFilter(),
     });
     res.json({ success: true, data: series });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const importPlaylist = async (req, res, next) => {
+  try {
+    const { playlistUrl, category, series } = req.body;
+    const playlistId = extractPlaylistId(playlistUrl);
+    if (!playlistId) return next(new AppError('رابط قائمة التشغيل غير صالح', 400));
+
+    const existingSeriesNames = await Lecture.distinct('series', { category });
+    let seriesOrder;
+    if (existingSeriesNames.includes(series)) {
+      const existingLecture = await Lecture.findOne({ category, series });
+      seriesOrder = existingLecture?.seriesOrder || 0;
+    } else {
+      const maxSeriesOrderDoc = await Lecture.findOne({ category })
+        .sort({ seriesOrder: -1 })
+        .select('seriesOrder')
+        .lean();
+      seriesOrder = (maxSeriesOrderDoc?.seriesOrder || 0) + 1;
+    }
+
+    const videos = await fetchPlaylistVideos(playlistId);
+    if (!videos.length) {
+      return next(new AppError('لم يتم العثور على فيديوهات في قائمة التشغيل', 400));
+    }
+
+    const now = new Date();
+    let created = 0;
+    let updated = 0;
+    let skipped = 0;
+
+    for (const v of videos) {
+      const youtubeId = v.id;
+      const order = Number(v.index) || 0;
+      const youtubeUrl = `https://www.youtube.com/watch?v=${youtubeId}&list=${playlistId}`;
+      const title = truncate(v.title || `${series} — الدرس ${order}`);
+      const description = truncate(
+        `الدرس ${order} من سلسلة (${series}).\n\nالعنوان على يوتيوب: ${v.title}`,
+        5000
+      );
+
+      const existing = await Lecture.findOne({ youtubeId, series });
+
+      if (existing) {
+        const needsUpdate = existing.category !== category || existing.order !== order;
+        if (needsUpdate) {
+          existing.category = category;
+          existing.order = order;
+          existing.youtubeUrl = youtubeUrl;
+          await existing.save();
+          updated += 1;
+        } else {
+          skipped += 1;
+        }
+        continue;
+      }
+
+      await Lecture.create({
+        title,
+        youtubeUrl,
+        youtubeId,
+        category,
+        series,
+        description,
+        order,
+        seriesOrder,
+        publishedAt: now,
+        quizQuestions: [],
+        quizItems: [],
+      });
+      created += 1;
+    }
+
+    res.json({
+      success: true,
+      data: {
+        seriesName: series,
+        category,
+        seriesOrder,
+        videosFound: videos.length,
+        created,
+        updated,
+        skipped,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const reorderLessons = async (req, res, next) => {
+  try {
+    const { ids } = req.body;
+    const ops = ids.map((id, index) => ({
+      updateOne: {
+        filter: { _id: id },
+        update: { $set: { order: index + 1 } },
+      },
+    }));
+    await Lecture.bulkWrite(ops);
+    res.json({ success: true, message: 'تم حفظ ترتيب الدروس' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const reorderSeries = async (req, res, next) => {
+  try {
+    const { category, seriesNames } = req.body;
+    const ops = seriesNames.map((name, index) => ({
+      updateMany: {
+        filter: { category, series: name },
+        update: { $set: { seriesOrder: index + 1 } },
+      },
+    }));
+    await Lecture.bulkWrite(ops);
+    res.json({ success: true, message: 'تم حفظ ترتيب السلاسل' });
   } catch (err) {
     next(err);
   }

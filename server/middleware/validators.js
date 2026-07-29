@@ -64,6 +64,26 @@ export const lectureValidation = [
   validate,
 ];
 
+export const importPlaylistValidation = [
+  body('playlistUrl').trim().notEmpty().withMessage('رابط قائمة التشغيل مطلوب'),
+  body('category').trim().notEmpty().withMessage('التصنيف مطلوب').isLength({ max: 100 }).withMessage('التصنيف طويل جداً'),
+  body('series').trim().notEmpty().withMessage('اسم السلسلة مطلوب').isLength({ max: 150 }).withMessage('اسم السلسلة طويل جداً'),
+  validate,
+];
+
+export const reorderLessonsValidation = [
+  body('ids').isArray({ min: 1 }).withMessage('قائمة الدروس مطلوبة'),
+  body('ids.*').isMongoId().withMessage('معرّف درس غير صالح'),
+  validate,
+];
+
+export const reorderSeriesValidation = [
+  body('category').trim().notEmpty().withMessage('التصنيف مطلوب'),
+  body('seriesNames').isArray({ min: 1 }).withMessage('قائمة السلاسل مطلوبة'),
+  body('seriesNames.*').trim().notEmpty().withMessage('اسم سلسلة غير صالح'),
+  validate,
+];
+
 export const articleValidation = [
   body('title').trim().notEmpty().withMessage('عنوان المقال مطلوب').isLength({ max: 200 }).withMessage('العنوان طويل جداً'),
   body('content').trim().notEmpty().withMessage('محتوى المقال مطلوب').isLength({ max: 50000 }).withMessage('المحتوى طويل جداً'),
