@@ -96,6 +96,10 @@
   min-width: 0;
 }
 
+.sketch-media-columns.no-pdf {
+  grid-template-columns: 1fr;
+}
+
 /* Book PDF Box (Left Column matching handwritten sketch) */
 .sketch-book-box {
   background: #ede1d1; /* Light beige matching screenshot */
