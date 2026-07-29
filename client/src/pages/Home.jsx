@@ -44,7 +44,6 @@ const Home = () => {
   const { settings, sheikhImage } = useSiteSettings();
 
   const hero = settings.hero || {};
-  const homeAbout = settings.homeAbout || {};
   const announcements = settings.announcements || [];
   const cta = settings.cta || {};
   const quickLinks = (settings.exploreLinks?.length ? settings.exploreLinks : DEFAULT_EXPLORE_LINKS).map(
@@ -84,7 +83,6 @@ const Home = () => {
               المَلائِكَةُ حُرَّاسُ السَّماءِ، وأصحابُ الحَديثِ حُرَّاسُ الأرْضِ
               <span className="hero-quote-author">سُفيانُ الثَّوريُّ رحمه الله</span>
             </p>
-            {hero.description && <p className="hero-desc">{hero.description}</p>}
             {(hero.primaryCtaText || hero.secondaryCtaText) && (
               <div className="hero-actions">
                 {hero.primaryCtaText && (
@@ -105,32 +103,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
-      {(homeAbout.title || homeAbout.subtitle) && (
-        <section id="about" className="home-about">
-          <div className="home-about-inner animate-fade-in-up">
-            {homeAbout.title && <h2>{homeAbout.title}</h2>}
-            {homeAbout.subtitle && <p className="home-about-subtitle">{homeAbout.subtitle}</p>}
-            {homeAbout.bullets?.length > 0 && (
-              <ul className="home-about-bullets">
-                {homeAbout.bullets.map((b, idx) => (
-                  <li key={`${b}-${idx}`}>{b}</li>
-                ))}
-              </ul>
-            )}
-            {homeAbout.stats?.length > 0 && (
-              <div className="home-about-stats">
-                {homeAbout.stats.map((s, idx) => (
-                  <div className="home-about-stat" key={`${s.label}-${idx}`}>
-                    <span className="stat-value">{s.value}</span>
-                    <span className="stat-label">{s.label}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
-      )}
 
       <section id="explore" className="home-categories">
         <div className="categories-inner">

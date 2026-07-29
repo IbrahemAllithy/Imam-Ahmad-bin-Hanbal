@@ -87,13 +87,6 @@
   color: var(--text-muted);
 }
 
-.hero-desc {
-  font-size: 18px;
-  color: var(--text-muted);
-  line-height: 1.8;
-  margin: 0 0 40px;
-}
-
 .hero-actions {
   display: flex;
   gap: 16px;
@@ -135,78 +128,6 @@
 }
 .hero-image:hover {
   transform: scale(1.02);
-}
-
-/* --- Home About Section --- */
-.home-about {
-  padding: 70px 4%;
-  background: var(--white);
-  border-bottom: 1px solid var(--primary-border);
-  text-align: center;
-}
-
-.home-about-inner {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.home-about-inner h2 {
-  font-family: var(--font-heading);
-  font-size: 30px;
-  color: var(--primary-text);
-  margin: 0 0 12px;
-}
-
-.home-about-subtitle {
-  color: var(--text-muted);
-  font-size: 16px;
-  line-height: 1.8;
-  margin: 0 0 20px;
-}
-
-.home-about-bullets {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
-  list-style: none;
-  padding: 0;
-  margin: 0 0 32px;
-}
-
-.home-about-bullets li {
-  background: var(--primary-bg);
-  border: 1px solid var(--primary-border);
-  border-radius: 999px;
-  padding: 8px 18px;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--accent-color);
-}
-
-.home-about-stats {
-  display: flex;
-  justify-content: center;
-  gap: 40px;
-  flex-wrap: wrap;
-}
-
-.home-about-stat {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.home-about-stat .stat-value {
-  font-family: var(--font-heading);
-  font-size: 28px;
-  font-weight: 800;
-  color: var(--accent-color);
-}
-
-.home-about-stat .stat-label {
-  font-size: 13.5px;
-  color: var(--text-muted);
 }
 
 /* --- Categories Section --- */

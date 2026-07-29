@@ -89,7 +89,7 @@ export const DEFAULT_SETTINGS = {
     title: 'الموقع الرسمي للشيخ شعبان العودة',
     description:
       'الموقع الرسمي للشيخ شعبان العودة، يقدّم دروسًا وكتبًا ومقالات شرعية مبوّبة.',
-    email: 'shbanalwdt48@gmail.com',
+    email: '',
     socialLinks: [
       { label: 'يوتيوب', url: 'https://www.youtube.com/channel/UCWTK2Gb8WcZW6Q9tWBmmBwA/playlists' },
       { label: 'فيسبوك', url: 'https://www.facebook.com/profile.php?id=61566515948762' },
