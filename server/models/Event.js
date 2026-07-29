@@ -23,11 +23,17 @@ const eventSchema = new mongoose.Schema(
     eventDate: {
       type: Date,
     },
+    // Manual display position, set by dragging in the admin panel.
+    order: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );
 
 eventSchema.index({ eventDate: -1 });
+eventSchema.index({ order: 1 });
 
 const Event = mongoose.model('Event', eventSchema);
 

@@ -137,7 +137,7 @@ img {
   font-family: var(--font-body);
   font-size: 15px;
   background: var(--primary-border);
-  color: var(--primary-bg);
+  color: var(--primary-text);
   transition: all 0.3s;
 }
 

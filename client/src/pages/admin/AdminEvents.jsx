@@ -1,9 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useFetch } from '../../hooks/useFetch';
 import { getStorageUrl } from '../../services/api';
 import api from '../../services/api';
 import Loader from '../../components/ui/Loader';
-import { FiEdit2, FiTrash2, FiPlus, FiCheck, FiCalendar } from 'react-icons/fi';
+import { FiEdit2, FiTrash2, FiPlus, FiCheck, FiCalendar, FiMove } from 'react-icons/fi';
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+  arrayMove,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import './Admin.css';
 
 const emptyForm = { title: '', description: '', eventDate: '' };
@@ -16,6 +30,63 @@ const toDateInput = (iso) => {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 };
 
+const EventCard = ({ item, onEdit, onDelete }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: item._id,
+  });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="admin-lecture-card">
+      {item.coverImage && (
+        <div
+          style={{
+            width: '100%',
+            aspectRatio: '16/9',
+            borderRadius: 10,
+            overflow: 'hidden',
+            marginBottom: 10,
+            background: 'oklch(0.94 0.01 255)',
+          }}
+        >
+          <img
+            src={getStorageUrl(item.coverImage)}
+            alt={item.title}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        </div>
+      )}
+
+      <div className="card-badge-row">
+        {item.eventDate ? (
+          <span className="card-cat-badge">
+            <FiCalendar /> {toDateInput(item.eventDate)}
+          </span>
+        ) : (
+          <span />
+        )}
+        <button type="button" className="drag-handle" {...attributes} {...listeners} aria-label="اسحب لإعادة الترتيب">
+          <FiMove />
+        </button>
+      </div>
+      <h4 className="card-lecture-title">{item.title}</h4>
+
+      <div className="card-actions-footer">
+        <button type="button" className="btn-card-edit" onClick={() => onEdit(item)}>
+          <FiEdit2 /> تعديل
+        </button>
+        <button type="button" className="btn-card-delete" onClick={() => onDelete(item._id)}>
+          <FiTrash2 /> حذف
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const AdminEvents = () => {
   const { data, loading, error: fetchError, refetch } = useFetch('/events');
   const [form, setForm] = useState(emptyForm);
@@ -25,7 +96,28 @@ const AdminEvents = () => {
   const [success, setSuccess] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const events = data?.data || [];
+  const [events, setEvents] = useState([]);
+  useEffect(() => {
+    setEvents(data?.data || []);
+  }, [data]);
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
+
+  const handleDragEnd = async (event) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = events.findIndex((e) => e._id === active.id);
+    const newIndex = events.findIndex((e) => e._id === over.id);
+    const reordered = arrayMove(events, oldIndex, newIndex);
+    setEvents(reordered);
+    try {
+      await api.put('/events/reorder', { ids: reordered.map((e) => e._id) });
+      refetch();
+    } catch (err) {
+      setError(err.response?.data?.message || 'فشل حفظ ترتيب الفعاليات');
+      setEvents(data?.data || []);
+    }
+  };
 
   const resetForm = () => {
     setForm(emptyForm);
@@ -168,54 +260,22 @@ const AdminEvents = () => {
 
       <div className="admin-list-section">
         <div className="list-section-header">
-          <h3>الفعاليات ({events.length})</h3>
+          <h3>الفعاليات ({events.length}) — اسحب لإعادة الترتيب</h3>
         </div>
 
         {loading && !events.length ? (
           <Loader />
         ) : (
-          <div className="admin-cards-grid">
-            {events.map((item) => (
-              <div key={item._id} className="admin-lecture-card">
-                {item.coverImage && (
-                  <div
-                    style={{
-                      width: '100%',
-                      aspectRatio: '16/9',
-                      borderRadius: 10,
-                      overflow: 'hidden',
-                      marginBottom: 10,
-                      background: 'oklch(0.94 0.01 255)',
-                    }}
-                  >
-                    <img
-                      src={getStorageUrl(item.coverImage)}
-                      alt={item.title}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  </div>
-                )}
-
-                {item.eventDate && (
-                  <span className="card-cat-badge">
-                    <FiCalendar /> {toDateInput(item.eventDate)}
-                  </span>
-                )}
-                <h4 className="card-lecture-title">{item.title}</h4>
-
-                <div className="card-actions-footer">
-                  <button type="button" className="btn-card-edit" onClick={() => handleEdit(item)}>
-                    <FiEdit2 /> تعديل
-                  </button>
-                  <button type="button" className="btn-card-delete" onClick={() => handleDelete(item._id)}>
-                    <FiTrash2 /> حذف
-                  </button>
-                </div>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={events.map((e) => e._id)} strategy={verticalListSortingStrategy}>
+              <div className="admin-cards-grid">
+                {events.map((item) => (
+                  <EventCard key={item._id} item={item} onEdit={handleEdit} onDelete={handleDelete} />
+                ))}
+                {!events.length && <p className="empty-list-msg">لا توجد فعاليات مضافة حتى الآن.</p>}
               </div>
-            ))}
-
-            {!events.length && <p className="empty-list-msg">لا توجد فعاليات مضافة حتى الآن.</p>}
-          </div>
+            </SortableContext>
+          </DndContext>
         )}
       </div>
     </div>

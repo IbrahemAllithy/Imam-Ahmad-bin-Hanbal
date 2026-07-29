@@ -5,7 +5,7 @@ import { removeUploadedFiles } from '../middleware/upload.js';
 
 export const getEvents = async (_req, res, next) => {
   try {
-    const events = await Event.find({}).sort({ eventDate: -1 }).lean();
+    const events = await Event.find({}).sort({ order: 1, eventDate: -1 }).lean();
     res.json({ success: true, data: events });
   } catch (err) {
     next(err);
@@ -73,6 +73,22 @@ export const deleteEvent = async (req, res, next) => {
     if (!event) return next(new AppError('الفعالية غير موجودة', 404));
     removeStorageFile(event.coverImage);
     res.json({ success: true, message: 'تم حذف الفعالية' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const reorderEvents = async (req, res, next) => {
+  try {
+    const { ids } = req.body;
+    const ops = ids.map((id, index) => ({
+      updateOne: {
+        filter: { _id: id },
+        update: { $set: { order: index + 1 } },
+      },
+    }));
+    await Event.bulkWrite(ops);
+    res.json({ success: true, message: 'تم حفظ ترتيب الفعاليات' });
   } catch (err) {
     next(err);
   }

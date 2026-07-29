@@ -45,26 +45,22 @@ const Testimonials = () => {
         {error && <div className="alert alert-error">{error}</div>}
 
         {!loading && !error && (
-          <>
-            <div className="testimonials-grid">
-              {items.map((t) => (
-                <div className="testimonial-card" key={t._id}>
-                  <div className="testimonial-author">
-                    {t.photo && (
-                      <img src={getStorageUrl(t.photo)} alt={t.name} className="testimonial-photo" />
-                    )}
-                    <div>
-                      <div className="testimonial-name">{t.name}</div>
-                      {t.title && <div className="testimonial-title">{t.title}</div>}
-                    </div>
+          <div className="testimonials-grid">
+            {items.map((t) => (
+              <div className="testimonial-card" key={t._id}>
+                <div className="testimonial-author">
+                  {t.photo && (
+                    <img src={getStorageUrl(t.photo)} alt={t.name} className="testimonial-photo" />
+                  )}
+                  <div>
+                    <div className="testimonial-name">{t.name}</div>
+                    {t.title && <div className="testimonial-title">{t.title}</div>}
                   </div>
-                  <p className="testimonial-quote">"{t.quote}"</p>
                 </div>
-              ))}
-            </div>
-
-            {!items.length && <p className="platform-empty">لا توجد شهادات مضافة بعد</p>}
-          </>
+                <p className="testimonial-quote">"{t.quote}"</p>
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>
