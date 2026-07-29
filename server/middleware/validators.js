@@ -90,6 +90,12 @@ export const reorderEventsValidation = [
   validate,
 ];
 
+export const reorderTestimonialsValidation = [
+  body('ids').isArray({ min: 1 }).withMessage('قائمة الشهادات مطلوبة'),
+  body('ids.*').isMongoId().withMessage('معرّف شهادة غير صالح'),
+  validate,
+];
+
 export const articleValidation = [
   body('title').trim().notEmpty().withMessage('عنوان المقال مطلوب').isLength({ max: 200 }).withMessage('العنوان طويل جداً'),
   body('content').trim().notEmpty().withMessage('محتوى المقال مطلوب').isLength({ max: 50000 }).withMessage('المحتوى طويل جداً'),

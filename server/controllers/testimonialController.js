@@ -12,6 +12,22 @@ export const getTestimonials = async (_req, res, next) => {
   }
 };
 
+export const reorderTestimonials = async (req, res, next) => {
+  try {
+    const { ids } = req.body;
+    const ops = ids.map((id, index) => ({
+      updateOne: {
+        filter: { _id: id },
+        update: { $set: { order: index + 1 } },
+      },
+    }));
+    await Testimonial.bulkWrite(ops);
+    res.json({ success: true, message: 'تم حفظ ترتيب الشهادات' });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const createTestimonial = async (req, res, next) => {
   try {
     const count = await Testimonial.countDocuments();
@@ -19,7 +35,9 @@ export const createTestimonial = async (req, res, next) => {
       name: req.body.name,
       title: req.body.title || '',
       quote: req.body.quote,
-      order: count,
+      // Reordering writes 1-based positions, so a new entry has to start past the last one
+      // to land at the end rather than tying with it.
+      order: count + 1,
     };
     if (req.files?.photo?.[0]) data.photo = req.files.photo[0].publicUrl;
     if (req.files?.video?.[0]) data.video = req.files.video[0].publicUrl;

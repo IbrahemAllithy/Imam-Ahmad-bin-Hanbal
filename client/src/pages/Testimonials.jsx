@@ -47,7 +47,10 @@ const Testimonials = () => {
         {!loading && !error && (
           <div className="testimonials-grid">
             {items.map((t) => (
-              <div className="testimonial-card" key={t._id}>
+              <div
+                className={`testimonial-card ${t.video ? 'has-video' : 'text-only'}`}
+                key={t._id}
+              >
                 {t.video && (
                   <video
                     src={getStorageUrl(t.video)}

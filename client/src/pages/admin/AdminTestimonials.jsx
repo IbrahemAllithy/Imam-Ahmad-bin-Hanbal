@@ -1,9 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useFetch } from '../../hooks/useFetch';
 import { getStorageUrl } from '../../services/api';
 import api from '../../services/api';
 import Loader from '../../components/ui/Loader';
-import { FiEdit2, FiTrash2, FiPlus, FiCheck, FiMessageSquare } from 'react-icons/fi';
+import { FiEdit2, FiTrash2, FiPlus, FiCheck, FiMessageSquare, FiMove } from 'react-icons/fi';
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+  arrayMove,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import './Admin.css';
 
 const emptyForm = { name: '', title: '', quote: '' };
@@ -17,6 +31,81 @@ const PHOTO_EXTS = ['.jpg', '.jpeg', '.png', '.webp'];
 
 const extOf = (filename) => (filename.match(/\.[^.]+$/)?.[0] || '').toLowerCase();
 const sizeMB = (file) => file.size / (1024 * 1024);
+
+const TestimonialCard = ({ item, onEdit, onDelete }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: item._id,
+  });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="admin-lecture-card">
+      <div className="card-badge-row">
+        <span className="card-cat-badge">#{item.order}</span>
+        <button
+          type="button"
+          className="drag-handle"
+          {...attributes}
+          {...listeners}
+          aria-label="اسحب لإعادة الترتيب"
+        >
+          <FiMove />
+        </button>
+      </div>
+
+      {item.photo && (
+        <div
+          style={{ width: 56, height: 56, borderRadius: '50%', overflow: 'hidden', marginBottom: 10 }}
+        >
+          <img
+            src={getStorageUrl(item.photo)}
+            alt={item.name}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        </div>
+      )}
+
+      <h4 className="card-lecture-title">
+        <FiMessageSquare style={{ verticalAlign: 'middle', marginLeft: 4 }} />
+        {item.name}
+      </h4>
+      {item.title && <p className="card-series-name">{item.title}</p>}
+      <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>"{item.quote}"</p>
+
+      {item.video && (
+        <video
+          src={getStorageUrl(item.video)}
+          controls
+          playsInline
+          preload="metadata"
+          style={{
+            width: '100%',
+            // Phone-shot testimonials are portrait; without a cap one clip makes the admin
+            // card taller than the screen.
+            maxHeight: 280,
+            objectFit: 'contain',
+            borderRadius: 8,
+            background: '#0c0c0c',
+            marginBottom: 10,
+          }}
+        />
+      )}
+
+      <div className="card-actions-footer">
+        <button type="button" className="btn-card-edit" onClick={() => onEdit(item)}>
+          <FiEdit2 /> تعديل
+        </button>
+        <button type="button" className="btn-card-delete" onClick={() => onDelete(item._id)}>
+          <FiTrash2 /> حذف
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const AdminTestimonials = () => {
   const { data, loading, error: fetchError, refetch } = useFetch('/testimonials');
@@ -32,7 +121,28 @@ const AdminTestimonials = () => {
   // native inputs still showing the previous filename.
   const [fileInputKey, setFileInputKey] = useState(0);
 
-  const items = data?.data || [];
+  const [items, setItems] = useState([]);
+  useEffect(() => {
+    setItems(data?.data || []);
+  }, [data]);
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
+
+  const handleDragEnd = async ({ active, over }) => {
+    if (!over || active.id === over.id) return;
+    const oldIndex = items.findIndex((t) => t._id === active.id);
+    const newIndex = items.findIndex((t) => t._id === over.id);
+    const reordered = arrayMove(items, oldIndex, newIndex);
+    setItems(reordered); // optimistic — reverted below if the save fails
+    setError('');
+    try {
+      await api.put('/testimonials/reorder', { ids: reordered.map((t) => t._id) });
+      refetch();
+    } catch (err) {
+      setError(err.response?.data?.message || 'فشل حفظ ترتيب الشهادات');
+      setItems(data?.data || []);
+    }
+  };
 
   const resetForm = () => {
     setForm(emptyForm);
@@ -256,70 +366,27 @@ const AdminTestimonials = () => {
 
       <div className="admin-list-section">
         <div className="list-section-header">
-          <h3>الشهادات ({items.length})</h3>
+          <h3>الشهادات ({items.length}) — اسحب لإعادة الترتيب</h3>
         </div>
 
         {loading && !items.length ? (
           <Loader />
         ) : (
-          <div className="admin-cards-grid">
-            {items.map((item) => (
-              <div key={item._id} className="admin-lecture-card">
-                {item.photo && (
-                  <div
-                    style={{
-                      width: 56,
-                      height: 56,
-                      borderRadius: '50%',
-                      overflow: 'hidden',
-                      marginBottom: 10,
-                    }}
-                  >
-                    <img
-                      src={getStorageUrl(item.photo)}
-                      alt={item.name}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  </div>
-                )}
-                <h4 className="card-lecture-title">
-                  <FiMessageSquare style={{ verticalAlign: 'middle', marginLeft: 4 }} />
-                  {item.name}
-                </h4>
-                {item.title && <p className="card-series-name">{item.title}</p>}
-                <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>"{item.quote}"</p>
-                {item.video && (
-                  <video
-                    src={getStorageUrl(item.video)}
-                    controls
-                    playsInline
-                    preload="metadata"
-                    style={{
-                      width: '100%',
-                      // Phone-shot testimonials are portrait; without a cap one clip makes the
-                      // admin card taller than the screen.
-                      maxHeight: 280,
-                      objectFit: 'contain',
-                      borderRadius: 8,
-                      background: '#0c0c0c',
-                      marginBottom: 10,
-                    }}
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={items.map((t) => t._id)} strategy={verticalListSortingStrategy}>
+              <div className="admin-cards-grid">
+                {items.map((item) => (
+                  <TestimonialCard
+                    key={item._id}
+                    item={item}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
                   />
-                )}
-
-                <div className="card-actions-footer">
-                  <button type="button" className="btn-card-edit" onClick={() => handleEdit(item)}>
-                    <FiEdit2 /> تعديل
-                  </button>
-                  <button type="button" className="btn-card-delete" onClick={() => handleDelete(item._id)}>
-                    <FiTrash2 /> حذف
-                  </button>
-                </div>
+                ))}
+                {!items.length && <p className="empty-list-msg">لا توجد شهادات مضافة حتى الآن.</p>}
               </div>
-            ))}
-
-            {!items.length && <p className="empty-list-msg">لا توجد شهادات مضافة حتى الآن.</p>}
-          </div>
+            </SortableContext>
+          </DndContext>
         )}
       </div>
     </div>

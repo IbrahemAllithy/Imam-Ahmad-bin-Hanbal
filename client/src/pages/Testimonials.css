@@ -4,6 +4,9 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(290px, 380px));
   justify-content: center;
+  /* The page mixes tall video entries with short text-only ones, so cards keep their own
+     height instead of every card in a row stretching to match the tallest. */
+  align-items: start;
   gap: 28px;
 }
 
@@ -82,6 +85,28 @@
   line-height: 1.85;
   font-style: italic;
   margin: 0 22px;
+}
+
+/* A card carrying no video is a written post, and the text is the whole point of it — so it
+   is set as body copy rather than as a caption sitting under a video. */
+.testimonial-card.text-only .testimonial-quote {
+  font-size: 16px;
+  font-style: normal;
+  color: var(--primary-text);
+  position: relative;
+  padding-top: 6px;
+}
+
+.testimonial-card.text-only .testimonial-quote::before {
+  content: '”';
+  position: absolute;
+  top: -18px;
+  inset-inline-start: -6px;
+  font-size: 46px;
+  line-height: 1;
+  color: var(--accent-gold);
+  opacity: 0.35;
+  pointer-events: none;
 }
 
 @media (max-width: 520px) {
