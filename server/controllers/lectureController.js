@@ -227,9 +227,24 @@ export const deleteLecture = async (req, res, next) => {
   }
 };
 
+// The six مقرأة السنة books keep their own `category` (matched by SunnahBooks.jsx
+// and CourseDetail.jsx for isnad links), but the reference PDF files them under
+// الحديث, so folding them into a الحديث browse request here is display-only.
+const HADITH_SUNNAH_BOOK_CATEGORIES = [
+  'صحيح البخاري',
+  'صحيح مسلم',
+  'سنن أبي داود',
+  'سنن الترمذي',
+  'سنن النسائي',
+  'سنن ابن ماجه',
+];
+
 export const getCourses = async (req, res, next) => {
   try {
     const filter = buildFilter(req.query);
+    if (req.query.category === 'الحديث') {
+      filter.category = { $in: ['الحديث', ...HADITH_SUNNAH_BOOK_CATEGORIES] };
+    }
 
     const courses = await Lecture.aggregate([
       { $match: filter },

@@ -20,6 +20,16 @@ const LectureCategories = () => {
     return acc;
   }, {});
 
+  // مقرأة السنة books live under their own category (for isnad matching) but the
+  // الحديث browse page folds them in, so mirror that here for a consistent badge count.
+  const sunnahBookNames = (settings.sunnahBooks || []).map((b) => b.name);
+  if (coursesLoaded) {
+    lessonsByCategory['الحديث'] = sunnahBookNames.reduce(
+      (sum, name) => sum + (lessonsByCategory[name] || 0),
+      lessonsByCategory['الحديث'] || 0
+    );
+  }
+
   // Before the fetch resolves, show the settings value so the badge doesn't flash "0".
   const lessonCount = (category) =>
     coursesLoaded ? lessonsByCategory[category.name] || 0 : category.count ?? 0;
