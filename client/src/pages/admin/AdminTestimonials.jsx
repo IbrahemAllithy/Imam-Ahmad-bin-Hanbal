@@ -292,8 +292,18 @@ const AdminTestimonials = () => {
                   <video
                     src={getStorageUrl(item.video)}
                     controls
+                    playsInline
                     preload="metadata"
-                    style={{ width: '100%', borderRadius: 8, background: '#000', marginBottom: 10 }}
+                    style={{
+                      width: '100%',
+                      // Phone-shot testimonials are portrait; without a cap one clip makes the
+                      // admin card taller than the screen.
+                      maxHeight: 280,
+                      objectFit: 'contain',
+                      borderRadius: 8,
+                      background: '#0c0c0c',
+                      marginBottom: 10,
+                    }}
                   />
                 )}
 

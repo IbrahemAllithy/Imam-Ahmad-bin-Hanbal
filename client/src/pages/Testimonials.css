@@ -1,17 +1,21 @@
+/* Capped rather than 1fr: a lone testimonial stretched across the full row looked stranded,
+   and centring the tracks keeps one, two or five cards balanced on the page. */
 .testimonials-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(290px, 380px));
+  justify-content: center;
   gap: 28px;
 }
 
 .testimonial-card {
   background: var(--primary-card);
   border: 1px solid var(--primary-border);
-  border-radius: 16px;
-  padding: 28px 24px;
+  border-radius: 18px;
+  padding-bottom: 24px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
   box-shadow: var(--shadow);
   transition: transform 0.2s, box-shadow 0.2s;
 }
@@ -21,20 +25,31 @@
   box-shadow: var(--shadow-hover);
 }
 
+/* Testimonials are filmed on phones as often as on cameras, so nothing here may assume a
+   shape: height follows the source and `contain` guarantees the speaker is never cropped.
+   The cap stops a 9:16 clip from turning the card into a column. */
 .testimonial-video {
+  display: block;
   width: 100%;
-  aspect-ratio: 16/9;
-  border-radius: 10px;
-  background: #000;
-  object-fit: cover;
+  height: auto;
+  max-height: 560px;
+  object-fit: contain;
+  background: #0c0c0c;
+  border-bottom: 1px solid var(--primary-border);
 }
 
 .testimonial-author {
   display: flex;
   align-items: center;
   gap: 14px;
+  margin: 0 22px;
   padding-bottom: 14px;
   border-bottom: 1px solid var(--primary-border);
+}
+
+/* Only matches when the card has no video, i.e. the author row is the first thing in it. */
+.testimonial-author:first-child {
+  margin-top: 26px;
 }
 
 .testimonial-photo {
@@ -66,5 +81,16 @@
   color: var(--text-muted);
   line-height: 1.85;
   font-style: italic;
-  margin: 0;
+  margin: 0 22px;
+}
+
+@media (max-width: 520px) {
+  .testimonials-grid {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+  .testimonial-video {
+    max-height: 70vh;
+  }
 }

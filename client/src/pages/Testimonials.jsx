@@ -52,6 +52,7 @@ const Testimonials = () => {
                   <video
                     src={getStorageUrl(t.video)}
                     controls
+                    playsInline
                     className="testimonial-video"
                     preload="metadata"
                   />
