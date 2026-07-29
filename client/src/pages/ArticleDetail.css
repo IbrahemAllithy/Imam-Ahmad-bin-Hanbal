@@ -9,7 +9,7 @@
 
 .article-breadcrumb {
   padding: 16px 48px;
-  background: #ffffff;
+  background: var(--white);
   border-bottom: 1.5px solid var(--primary-border);
   font-size: 13.5px;
   color: var(--text-muted);
@@ -78,7 +78,7 @@
 .article-main {
   flex: 1;
   min-width: 0;
-  background: #ffffff;
+  background: var(--white);
   border: 1.5px solid var(--primary-border);
   border-radius: 20px;
   padding: 36px;
@@ -162,7 +162,7 @@
 }
 
 .author-card {
-  background: #ffffff;
+  background: var(--white);
   border: 1.5px solid var(--primary-border);
   border-radius: 18px;
   padding: 24px;
@@ -199,7 +199,7 @@
 }
 
 .related-articles {
-  background: #ffffff;
+  background: var(--white);
   border: 1.5px solid var(--primary-border);
   border-radius: 18px;
   padding: 24px;

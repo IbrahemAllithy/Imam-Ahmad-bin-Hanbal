@@ -604,7 +604,7 @@
 .admin-form-card select:focus,
 .admin-form-card textarea:focus {
   border-color: var(--accent-color);
-  background: #ffffff;
+  background: var(--white);
   box-shadow: 0 0 0 3px rgba(166, 124, 82, 0.15);
 }
 
