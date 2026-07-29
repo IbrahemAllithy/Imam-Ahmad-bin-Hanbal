@@ -1,5 +1,106 @@
 /* Capped rather than 1fr: a lone testimonial stretched across the full row looked stranded,
    and centring the tracks keeps one, two or five cards balanced on the page. */
+/* ── Featured entry (the one ordered first in the admin) ───────────────── */
+
+.testimonial-featured {
+  display: grid;
+  /* The video column is sized for a portrait clip; the text takes whatever is left, which
+     is what stops a single testimonial from reading as one small card adrift on the page. */
+  grid-template-columns: minmax(0, 330px) minmax(0, 1fr);
+  gap: 36px;
+  align-items: center;
+  background: var(--primary-card);
+  border: 1px solid var(--primary-border);
+  border-radius: 22px;
+  padding: 30px;
+  margin-bottom: 44px;
+  box-shadow: var(--shadow);
+}
+
+.testimonial-featured.text-only {
+  grid-template-columns: minmax(0, 1fr);
+  text-align: center;
+  padding: 48px 40px;
+}
+
+.testimonial-featured-media {
+  border-radius: 16px;
+  overflow: hidden;
+  background: #0c0c0c;
+  line-height: 0;
+}
+
+.testimonial-featured .testimonial-video {
+  max-height: 520px;
+  border-bottom: none;
+}
+
+.testimonial-featured-body {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.testimonial-featured-quote {
+  position: relative;
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: clamp(19px, 2.1vw, 26px);
+  font-weight: 700;
+  line-height: 1.8;
+  color: var(--primary-text);
+  padding-top: 26px;
+}
+
+.testimonial-featured-quote::before {
+  content: '”';
+  position: absolute;
+  top: -14px;
+  inset-inline-start: -4px;
+  font-size: 68px;
+  line-height: 1;
+  color: var(--accent-gold);
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.testimonial-featured.text-only .testimonial-featured-quote::before {
+  position: static;
+  display: block;
+  margin-bottom: -18px;
+}
+
+.testimonial-featured .testimonial-author {
+  margin: 0;
+  padding: 18px 0 0;
+  border-bottom: none;
+  border-top: 1px solid var(--primary-border);
+}
+
+.testimonial-featured.text-only .testimonial-author {
+  justify-content: center;
+}
+
+@media (max-width: 860px) {
+  .testimonial-featured {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    padding: 22px;
+  }
+
+  .testimonial-featured-media {
+    max-width: 330px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .testimonial-featured-quote {
+    padding-top: 22px;
+  }
+}
+
+/* ── The rest of the entries ───────────────────────────────────────────── */
+
 .testimonials-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(290px, 380px));
@@ -107,6 +208,13 @@
   color: var(--accent-gold);
   opacity: 0.35;
   pointer-events: none;
+}
+
+.testimonials-empty {
+  text-align: center;
+  padding: 70px 20px;
+  color: var(--text-muted);
+  font-size: 16px;
 }
 
 @media (max-width: 520px) {
