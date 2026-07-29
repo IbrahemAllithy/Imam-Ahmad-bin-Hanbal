@@ -19,10 +19,19 @@ const VIDEO_DIR = path.join(STORAGE_ROOT, 'videos');
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 });
 
+const MB = 1024 * 1024;
+
 const ALLOWED_IMAGES = ['image/jpeg', 'image/png', 'image/webp'];
 const ALLOWED_PDF = ['application/pdf'];
 const ALLOWED_VIDEOS = ['video/mp4', 'video/webm', 'video/quicktime'];
 const VIDEO_EXTS = ['.mp4', '.webm', '.mov'];
+const IMAGE_EXTS = ['.jpg', '.jpeg', '.png', '.webp'];
+
+// A testimonial video is a real camera clip, not a thumbnail. Kept well under the 512MB
+// container: with R2 on, multer buffers the whole file in memory before the bucket upload.
+export const MAX_VIDEO_MB = 150;
+export const MAX_PDF_MB = 50;
+export const MAX_IMAGE_MB = 5;
 
 // Files uploaded via a field named "pdf" go to R2's pdfs/ prefix (or local PDF_DIR); a field
 // named "video" goes to videos/ (or local VIDEO_DIR); every other upload field is treated as
@@ -49,89 +58,122 @@ const diskStorage = multer.diskStorage({
 
 const storage = R2_ENABLED ? multer.memoryStorage() : diskStorage;
 
+// The browser's declared mimetype is only a hint: Windows reports an empty string or
+// application/octet-stream for .mov/.webm whenever the type isn't registered in the
+// registry, which used to reject perfectly valid videos. The extension is checked here and
+// validateMagicBytes checks the actual bytes, so a missing or generic hint is not fatal.
+const GENERIC_MIMES = ['', 'application/octet-stream', 'binary/octet-stream'];
+const mimeAllowed = (mimetype, allowed) =>
+  allowed.includes(mimetype) || GENERIC_MIMES.includes(mimetype || '');
+
 const fileFilter = (_req, file, cb) => {
+  const ext = path.extname(file.originalname).toLowerCase();
+
   if (file.fieldname === 'pdf') {
-    if (path.extname(file.originalname).toLowerCase() !== '.pdf') {
+    if (ext !== '.pdf') {
       return cb(new AppError('يجب أن يكون الملف بصيغة PDF', 400));
     }
-    if (file.mimetype !== 'application/pdf') {
+    if (!mimeAllowed(file.mimetype, ALLOWED_PDF)) {
       return cb(new AppError('نوع الملف غير مدعوم — PDF فقط', 400));
     }
   } else if (file.fieldname === 'video') {
-    const ext = path.extname(file.originalname).toLowerCase();
     if (!VIDEO_EXTS.includes(ext)) {
       return cb(new AppError('الفيديو يجب أن يكون mp4 أو webm أو mov', 400));
     }
-    if (!ALLOWED_VIDEOS.includes(file.mimetype)) {
-      return cb(new AppError('نوع الفيديو غير مدعوم', 400));
+    if (!mimeAllowed(file.mimetype, ALLOWED_VIDEOS)) {
+      return cb(new AppError('نوع الفيديو غير مدعوم — mp4 أو webm أو mov فقط', 400));
     }
   } else {
-    const ext = path.extname(file.originalname).toLowerCase();
-    if (!['.jpg', '.jpeg', '.png', '.webp'].includes(ext)) {
+    if (!IMAGE_EXTS.includes(ext)) {
       return cb(new AppError('الصورة يجب أن تكون jpg أو png أو webp', 400));
     }
-    if (!ALLOWED_IMAGES.includes(file.mimetype)) {
+    if (!mimeAllowed(file.mimetype, ALLOWED_IMAGES)) {
       return cb(new AppError('نوع الصورة غير مدعوم', 400));
     }
   }
   cb(null, true);
 };
 
-export const uploadBookFiles = multer({
-  storage,
-  fileFilter,
-  limits: {
-    // Scanned Arabic books routinely exceed 25MB.
-    fileSize: 50 * 1024 * 1024,
-    files: 2,
-  },
-}).fields([
-  { name: 'pdf', maxCount: 1 },
-  { name: 'coverImage', maxCount: 1 },
-]);
+const FIELD_LABEL = {
+  pdf: 'ملف PDF',
+  video: 'الفيديو',
+  photo: 'الصورة',
+  coverImage: 'صورة الغلاف',
+  logo: 'الشعار',
+  sheikhImage: 'صورة الشيخ',
+};
 
-export const uploadArticleCover = multer({
-  storage,
-  fileFilter,
-  limits: { fileSize: 2 * 1024 * 1024 },
-}).single('coverImage');
+/**
+ * Wraps a multer middleware so an oversized upload reports the field that actually blew up
+ * and that route's real limit. The shared handler used to answer every LIMIT_FILE_SIZE with
+ * "الحد الأقصى 50 ميجابايت للـ PDF", which is wrong (and baffling) for a testimonial video.
+ */
+const withUploadErrors = (middleware, limitMB) => (req, res, next) =>
+  middleware(req, res, (err) => {
+    if (!err) return next();
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      const label = FIELD_LABEL[err.field] || 'الملف';
+      return next(
+        new AppError(`حجم ${label} أكبر من المسموح — الحد الأقصى ${limitMB} ميجابايت`, 400)
+      );
+    }
+    if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+      return next(new AppError(`حقل ملف غير متوقع (${err.field})`, 400));
+    }
+    next(err);
+  });
 
-export const uploadSaleBookCover = multer({
-  storage,
-  fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 },
-}).single('coverImage');
+export const uploadBookFiles = withUploadErrors(
+  multer({
+    storage,
+    fileFilter,
+    limits: {
+      // Scanned Arabic books routinely exceed 25MB.
+      fileSize: MAX_PDF_MB * MB,
+      files: 2,
+    },
+  }).fields([
+    { name: 'pdf', maxCount: 1 },
+    { name: 'coverImage', maxCount: 1 },
+  ]),
+  MAX_PDF_MB
+);
 
-export const uploadEventCover = multer({
-  storage,
-  fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 },
-}).single('coverImage');
+export const uploadArticleCover = withUploadErrors(
+  multer({ storage, fileFilter, limits: { fileSize: 2 * MB } }).single('coverImage'),
+  2
+);
 
-export const uploadTestimonialPhoto = multer({
-  storage,
-  fileFilter,
-  limits: { fileSize: 3 * 1024 * 1024 },
-}).single('photo');
+export const uploadSaleBookCover = withUploadErrors(
+  multer({ storage, fileFilter, limits: { fileSize: MAX_IMAGE_MB * MB } }).single('coverImage'),
+  MAX_IMAGE_MB
+);
 
-export const uploadTestimonialMedia = multer({
-  storage,
-  fileFilter,
-  // Shared limit covers both fields; a testimonial video needs much more room than the photo.
-  limits: { fileSize: 80 * 1024 * 1024, files: 2 },
-}).fields([
-  { name: 'photo', maxCount: 1 },
-  { name: 'video', maxCount: 1 },
-]);
+export const uploadEventCover = withUploadErrors(
+  multer({ storage, fileFilter, limits: { fileSize: MAX_IMAGE_MB * MB } }).single('coverImage'),
+  MAX_IMAGE_MB
+);
 
-export const uploadBrandingImages = multer({
-  storage,
-  fileFilter,
-  limits: { fileSize: 3 * 1024 * 1024, files: 2 },
-}).fields([
-  { name: 'logo', maxCount: 1 },
-  { name: 'sheikhImage', maxCount: 1 },
-]);
+export const uploadTestimonialMedia = withUploadErrors(
+  multer({
+    storage,
+    fileFilter,
+    // Shared limit covers both fields; a testimonial video needs much more room than the photo.
+    limits: { fileSize: MAX_VIDEO_MB * MB, files: 2 },
+  }).fields([
+    { name: 'photo', maxCount: 1 },
+    { name: 'video', maxCount: 1 },
+  ]),
+  MAX_VIDEO_MB
+);
+
+export const uploadBrandingImages = withUploadErrors(
+  multer({ storage, fileFilter, limits: { fileSize: 3 * MB, files: 2 } }).fields([
+    { name: 'logo', maxCount: 1 },
+    { name: 'sheikhImage', maxCount: 1 },
+  ]),
+  3
+);
 
 const allFiles = (req) => (req.file ? [req.file] : Object.values(req.files || {}).flat());
 

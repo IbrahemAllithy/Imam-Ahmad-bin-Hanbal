@@ -8,6 +8,16 @@ import './Admin.css';
 
 const emptyForm = { name: '', title: '', quote: '' };
 
+// Must stay in step with the limits in server/middleware/upload.js — catching an oversized
+// file here saves the admin from uploading it for minutes only to be refused at the end.
+const MAX_VIDEO_MB = 150;
+const MAX_PHOTO_MB = 5;
+const VIDEO_EXTS = ['.mp4', '.webm', '.mov'];
+const PHOTO_EXTS = ['.jpg', '.jpeg', '.png', '.webp'];
+
+const extOf = (filename) => (filename.match(/\.[^.]+$/)?.[0] || '').toLowerCase();
+const sizeMB = (file) => file.size / (1024 * 1024);
+
 const AdminTestimonials = () => {
   const { data, loading, error: fetchError, refetch } = useFetch('/testimonials');
   const [form, setForm] = useState(emptyForm);
@@ -17,6 +27,10 @@ const AdminTestimonials = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [progress, setProgress] = useState(0);
+  // Bumped on reset to remount the file inputs — clearing React state alone leaves the
+  // native inputs still showing the previous filename.
+  const [fileInputKey, setFileInputKey] = useState(0);
 
   const items = data?.data || [];
 
@@ -25,6 +39,35 @@ const AdminTestimonials = () => {
     setPhotoFile(null);
     setVideoFile(null);
     setEditId(null);
+    setFileInputKey((k) => k + 1);
+  };
+
+  // Rejects the file in the picker rather than at submit time, so the reason is tied to the
+  // field the admin just touched.
+  const pickFile = (kind) => (e) => {
+    const file = e.target.files?.[0] || null;
+    const setFile = kind === 'video' ? setVideoFile : setPhotoFile;
+    setError('');
+
+    if (!file) return setFile(null);
+
+    const allowedExts = kind === 'video' ? VIDEO_EXTS : PHOTO_EXTS;
+    const maxMB = kind === 'video' ? MAX_VIDEO_MB : MAX_PHOTO_MB;
+    const label = kind === 'video' ? 'الفيديو' : 'الصورة';
+
+    if (!allowedExts.includes(extOf(file.name))) {
+      e.target.value = '';
+      setFile(null);
+      return setError(`صيغة ${label} غير مدعومة — المسموح: ${allowedExts.join('، ')}`);
+    }
+    if (sizeMB(file) > maxMB) {
+      e.target.value = '';
+      setFile(null);
+      return setError(
+        `حجم ${label} ${sizeMB(file).toFixed(1)} ميجابايت — الحد الأقصى ${maxMB} ميجابايت. اضغط الملف أو اختر مقطعاً أقصر.`
+      );
+    }
+    setFile(file);
   };
 
   const handleSubmit = async (e) => {
@@ -38,6 +81,7 @@ const AdminTestimonials = () => {
     }
 
     setSubmitting(true);
+    setProgress(0);
     try {
       const formData = new FormData();
       formData.append('name', form.name);
@@ -46,11 +90,18 @@ const AdminTestimonials = () => {
       if (photoFile) formData.append('photo', photoFile);
       if (videoFile) formData.append('video', videoFile);
 
+      // A video takes minutes on a slow connection; without this the page looks frozen.
+      const config = {
+        onUploadProgress: (e) => {
+          if (e.total) setProgress(Math.round((e.loaded / e.total) * 100));
+        },
+      };
+
       if (editId) {
-        await api.put(`/testimonials/${editId}`, formData);
+        await api.put(`/testimonials/${editId}`, formData, config);
         setSuccess('تم تحديث الشهادة ✓');
       } else {
-        await api.post('/testimonials', formData);
+        await api.post('/testimonials', formData, config);
         setSuccess('تم إضافة الشهادة ✓');
       }
       resetForm();
@@ -59,6 +110,7 @@ const AdminTestimonials = () => {
       setError(err.response?.data?.message || 'فشل الحفظ على السيرفر');
     } finally {
       setSubmitting(false);
+      setProgress(0);
     }
   };
 
@@ -67,6 +119,7 @@ const AdminTestimonials = () => {
     setForm({ name: item.name || '', title: item.title || '', quote: item.quote || '' });
     setPhotoFile(null);
     setVideoFile(null);
+    setFileInputKey((k) => k + 1);
     window.scrollTo({ top: 120, behavior: 'smooth' });
   };
 
@@ -129,36 +182,69 @@ const AdminTestimonials = () => {
         </div>
 
         <div className="form-group" style={{ marginTop: '16px' }}>
-          <label>صورة (اختياري)</label>
+          <label>صورة (اختياري) — حتى {MAX_PHOTO_MB} ميجابايت</label>
           <input
+            key={`photo-${fileInputKey}`}
             type="file"
-            accept="image/jpeg,image/png,image/webp"
-            onChange={(e) => setPhotoFile(e.target.files?.[0] || null)}
+            accept={PHOTO_EXTS.join(',')}
+            onChange={pickFile('photo')}
           />
           {photoFile && (
             <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-              الملف المختار: {photoFile.name}
+              الملف المختار: {photoFile.name} ({sizeMB(photoFile).toFixed(1)} م.ب)
             </span>
           )}
         </div>
 
         <div className="form-group" style={{ marginTop: '16px' }}>
-          <label>فيديو (اختياري)</label>
+          <label>فيديو (اختياري) — mp4 أو webm أو mov، حتى {MAX_VIDEO_MB} ميجابايت</label>
           <input
+            key={`video-${fileInputKey}`}
             type="file"
-            accept="video/mp4,video/webm,video/quicktime"
-            onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+            accept={VIDEO_EXTS.join(',')}
+            onChange={pickFile('video')}
           />
           {videoFile && (
             <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-              الملف المختار: {videoFile.name}
+              الملف المختار: {videoFile.name} ({sizeMB(videoFile).toFixed(1)} م.ب)
+            </span>
+          )}
+          {editId && (
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+              اترك الحقل فارغاً للإبقاء على الفيديو الحالي.
             </span>
           )}
         </div>
 
+        {submitting && progress > 0 && (
+          <div style={{ marginTop: '16px' }}>
+            <div
+              style={{
+                height: 8,
+                borderRadius: 4,
+                background: 'var(--primary-border)',
+                overflow: 'hidden',
+              }}
+            >
+              <div
+                style={{
+                  width: `${progress}%`,
+                  height: '100%',
+                  background: 'var(--accent-color)',
+                  transition: 'width 0.2s',
+                }}
+              />
+            </div>
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+              {progress < 100 ? `جارٍ الرفع… ${progress}%` : 'تمت عملية الرفع، جارٍ الحفظ…'}
+            </span>
+          </div>
+        )}
+
         <div className="form-actions-bar">
           <button type="submit" className="btn-admin-submit" disabled={submitting}>
-            <FiCheck /> {editId ? 'حفظ التعديلات' : 'إضافة الشهادة'}
+            <FiCheck />{' '}
+            {submitting ? 'جارٍ الحفظ…' : editId ? 'حفظ التعديلات' : 'إضافة الشهادة'}
           </button>
           {editId && (
             <button type="button" className="btn-admin-cancel" onClick={resetForm}>
@@ -202,6 +288,14 @@ const AdminTestimonials = () => {
                 </h4>
                 {item.title && <p className="card-series-name">{item.title}</p>}
                 <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>"{item.quote}"</p>
+                {item.video && (
+                  <video
+                    src={getStorageUrl(item.video)}
+                    controls
+                    preload="metadata"
+                    style={{ width: '100%', borderRadius: 8, background: '#000', marginBottom: 10 }}
+                  />
+                )}
 
                 <div className="card-actions-footer">
                   <button type="button" className="btn-card-edit" onClick={() => handleEdit(item)}>
