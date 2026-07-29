@@ -11,6 +11,7 @@ import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 
 import connectDB from './config/db.js';
+import { R2_ENABLED } from './config/r2.js';
 import { xssSanitize } from './utils/sanitize.js';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
 import { STORAGE_PATHS } from './middleware/upload.js';
@@ -155,6 +156,15 @@ const start = async () => {
     await connectDB();
     app.listen(PORT, () => {
       logger.info(`الخادم يعمل على المنفذ ${PORT}`);
+      // Without R2 the uploads land on the host's ephemeral disk and disappear on the next
+      // deploy — a silent failure that looks like "the video was published, then vanished".
+      if (R2_ENABLED) {
+        logger.info('تخزين الملفات: Cloudflare R2');
+      } else {
+        logger.warn(
+          'تخزين الملفات: القرص المحلي — متغيرات R2_* غير مضبوطة. الملفات المرفوعة ستُفقد عند إعادة النشر.'
+        );
+      }
     });
   } catch (err) {
     logger.error('فشل تشغيل الخادم', { error: err.message });
