@@ -21,6 +21,14 @@
   box-shadow: var(--shadow-hover);
 }
 
+.testimonial-video {
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 10px;
+  background: #000;
+  object-fit: cover;
+}
+
 .testimonial-author {
   display: flex;
   align-items: center;

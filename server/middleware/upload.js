@@ -13,17 +13,21 @@ const __dirname = path.dirname(__filename);
 const STORAGE_ROOT = path.join(__dirname, '..', 'storage');
 const PDF_DIR = path.join(STORAGE_ROOT, 'pdfs');
 const COVER_DIR = path.join(STORAGE_ROOT, 'covers');
+const VIDEO_DIR = path.join(STORAGE_ROOT, 'videos');
 
-[STORAGE_ROOT, PDF_DIR, COVER_DIR].forEach((dir) => {
+[STORAGE_ROOT, PDF_DIR, COVER_DIR, VIDEO_DIR].forEach((dir) => {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 });
 
 const ALLOWED_IMAGES = ['image/jpeg', 'image/png', 'image/webp'];
 const ALLOWED_PDF = ['application/pdf'];
+const ALLOWED_VIDEOS = ['video/mp4', 'video/webm', 'video/quicktime'];
+const VIDEO_EXTS = ['.mp4', '.webm', '.mov'];
 
-// Files uploaded via a field named "pdf" go to R2's pdfs/ prefix (or local PDF_DIR); every
-// other upload field is treated as an image and goes to covers/ (or local COVER_DIR).
-const R2_FOLDER = { pdf: 'pdfs' };
+// Files uploaded via a field named "pdf" go to R2's pdfs/ prefix (or local PDF_DIR); a field
+// named "video" goes to videos/ (or local VIDEO_DIR); every other upload field is treated as
+// an image and goes to covers/ (or local COVER_DIR).
+const R2_FOLDER = { pdf: 'pdfs', video: 'videos' };
 const folderFor = (fieldname) => R2_FOLDER[fieldname] || 'covers';
 
 // R2 configured (production): keep files in memory, upload to the bucket in uploadFilesToR2.
@@ -33,11 +37,12 @@ const folderFor = (fieldname) => R2_FOLDER[fieldname] || 'covers';
 const diskStorage = multer.diskStorage({
   destination: (_req, file, cb) => {
     if (file.fieldname === 'pdf') cb(null, PDF_DIR);
+    else if (file.fieldname === 'video') cb(null, VIDEO_DIR);
     else cb(null, COVER_DIR);
   },
   filename: (_req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
-    const safeExt = ['.pdf', '.jpg', '.jpeg', '.png', '.webp'].includes(ext) ? ext : '';
+    const safeExt = ['.pdf', '.jpg', '.jpeg', '.png', '.webp', ...VIDEO_EXTS].includes(ext) ? ext : '';
     cb(null, `${uuidv4()}${safeExt}`);
   },
 });
@@ -51,6 +56,14 @@ const fileFilter = (_req, file, cb) => {
     }
     if (file.mimetype !== 'application/pdf') {
       return cb(new AppError('نوع الملف غير مدعوم — PDF فقط', 400));
+    }
+  } else if (file.fieldname === 'video') {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (!VIDEO_EXTS.includes(ext)) {
+      return cb(new AppError('الفيديو يجب أن يكون mp4 أو webm أو mov', 400));
+    }
+    if (!ALLOWED_VIDEOS.includes(file.mimetype)) {
+      return cb(new AppError('نوع الفيديو غير مدعوم', 400));
     }
   } else {
     const ext = path.extname(file.originalname).toLowerCase();
@@ -101,6 +114,16 @@ export const uploadTestimonialPhoto = multer({
   limits: { fileSize: 3 * 1024 * 1024 },
 }).single('photo');
 
+export const uploadTestimonialMedia = multer({
+  storage,
+  fileFilter,
+  // Shared limit covers both fields; a testimonial video needs much more room than the photo.
+  limits: { fileSize: 80 * 1024 * 1024, files: 2 },
+}).fields([
+  { name: 'photo', maxCount: 1 },
+  { name: 'video', maxCount: 1 },
+]);
+
 export const uploadBrandingImages = multer({
   storage,
   fileFilter,
@@ -115,8 +138,9 @@ const allFiles = (req) => (req.file ? [req.file] : Object.values(req.files || {}
 export const validateMagicBytes = async (req, _res, next) => {
   try {
     for (const file of allFiles(req)) {
-      const allowed = file.fieldname === 'pdf' ? ALLOWED_PDF : ALLOWED_IMAGES;
-      const label = file.fieldname === 'pdf' ? 'PDF' : 'صورة';
+      const allowed =
+        file.fieldname === 'pdf' ? ALLOWED_PDF : file.fieldname === 'video' ? ALLOWED_VIDEOS : ALLOWED_IMAGES;
+      const label = file.fieldname === 'pdf' ? 'PDF' : file.fieldname === 'video' ? 'الفيديو' : 'صورة';
       const buffer = file.buffer || (await fs.promises.readFile(file.path));
       const type = await fileTypeFromBuffer(buffer);
 
@@ -142,7 +166,7 @@ export const uploadFilesToR2 = async (req, _res, next) => {
     for (const file of allFiles(req)) {
       if (R2_ENABLED) {
         const ext = path.extname(file.originalname).toLowerCase();
-        const safeExt = ['.pdf', '.jpg', '.jpeg', '.png', '.webp'].includes(ext) ? ext : '';
+        const safeExt = ['.pdf', '.jpg', '.jpeg', '.png', '.webp', ...VIDEO_EXTS].includes(ext) ? ext : '';
         const key = `${folderFor(file.fieldname)}/${uuidv4()}${safeExt}`;
         file.publicUrl = await uploadBufferToR2(key, file.buffer, file.mimetype);
       } else {
@@ -172,4 +196,4 @@ export const removeUploadedFiles = async (req) => {
   );
 };
 
-export const STORAGE_PATHS = { STORAGE_ROOT, PDF_DIR, COVER_DIR };
+export const STORAGE_PATHS = { STORAGE_ROOT, PDF_DIR, COVER_DIR, VIDEO_DIR };

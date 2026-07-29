@@ -24,6 +24,10 @@ const testimonialSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    video: {
+      type: String,
+      default: '',
+    },
     order: {
       type: Number,
       default: 0,

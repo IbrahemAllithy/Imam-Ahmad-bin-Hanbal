@@ -21,7 +21,8 @@ export const createTestimonial = async (req, res, next) => {
       quote: req.body.quote,
       order: count,
     };
-    if (req.file) data.photo = req.file.publicUrl;
+    if (req.files?.photo?.[0]) data.photo = req.files.photo[0].publicUrl;
+    if (req.files?.video?.[0]) data.video = req.files.video[0].publicUrl;
 
     const testimonial = await Testimonial.create(data);
     res.status(201).json({ success: true, data: testimonial });
@@ -33,13 +34,15 @@ export const createTestimonial = async (req, res, next) => {
 
 export const updateTestimonial = async (req, res, next) => {
   try {
-    const previous = req.file ? await Testimonial.findById(req.params.id).lean() : null;
+    const hasNewFile = req.files?.photo?.[0] || req.files?.video?.[0];
+    const previous = hasNewFile ? await Testimonial.findById(req.params.id).lean() : null;
 
     const updates = {};
     if (req.body.name !== undefined) updates.name = req.body.name;
     if (req.body.title !== undefined) updates.title = req.body.title;
     if (req.body.quote !== undefined) updates.quote = req.body.quote;
-    if (req.file) updates.photo = req.file.publicUrl;
+    if (req.files?.photo?.[0]) updates.photo = req.files.photo[0].publicUrl;
+    if (req.files?.video?.[0]) updates.video = req.files.video[0].publicUrl;
 
     const testimonial = await Testimonial.findByIdAndUpdate(req.params.id, updates, {
       new: true,
@@ -50,7 +53,8 @@ export const updateTestimonial = async (req, res, next) => {
       return next(new AppError('الشهادة غير موجودة', 404));
     }
 
-    if (previous && req.file) removeStorageFile(previous.photo);
+    if (previous && req.files?.photo?.[0]) removeStorageFile(previous.photo);
+    if (previous && req.files?.video?.[0]) removeStorageFile(previous.video);
 
     res.json({ success: true, data: testimonial });
   } catch (err) {
@@ -64,6 +68,7 @@ export const deleteTestimonial = async (req, res, next) => {
     const testimonial = await Testimonial.findByIdAndDelete(req.params.id);
     if (!testimonial) return next(new AppError('الشهادة غير موجودة', 404));
     removeStorageFile(testimonial.photo);
+    removeStorageFile(testimonial.video);
     res.json({ success: true, message: 'تم حذف الشهادة' });
   } catch (err) {
     next(err);

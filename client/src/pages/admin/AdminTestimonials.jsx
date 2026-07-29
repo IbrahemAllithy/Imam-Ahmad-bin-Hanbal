@@ -12,6 +12,7 @@ const AdminTestimonials = () => {
   const { data, loading, error: fetchError, refetch } = useFetch('/testimonials');
   const [form, setForm] = useState(emptyForm);
   const [photoFile, setPhotoFile] = useState(null);
+  const [videoFile, setVideoFile] = useState(null);
   const [editId, setEditId] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -22,6 +23,7 @@ const AdminTestimonials = () => {
   const resetForm = () => {
     setForm(emptyForm);
     setPhotoFile(null);
+    setVideoFile(null);
     setEditId(null);
   };
 
@@ -42,6 +44,7 @@ const AdminTestimonials = () => {
       formData.append('title', form.title || '');
       formData.append('quote', form.quote);
       if (photoFile) formData.append('photo', photoFile);
+      if (videoFile) formData.append('video', videoFile);
 
       if (editId) {
         await api.put(`/testimonials/${editId}`, formData);
@@ -63,6 +66,7 @@ const AdminTestimonials = () => {
     setEditId(item._id);
     setForm({ name: item.name || '', title: item.title || '', quote: item.quote || '' });
     setPhotoFile(null);
+    setVideoFile(null);
     window.scrollTo({ top: 120, behavior: 'smooth' });
   };
 
@@ -134,6 +138,20 @@ const AdminTestimonials = () => {
           {photoFile && (
             <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
               الملف المختار: {photoFile.name}
+            </span>
+          )}
+        </div>
+
+        <div className="form-group" style={{ marginTop: '16px' }}>
+          <label>فيديو (اختياري)</label>
+          <input
+            type="file"
+            accept="video/mp4,video/webm,video/quicktime"
+            onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+          />
+          {videoFile && (
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+              الملف المختار: {videoFile.name}
             </span>
           )}
         </div>

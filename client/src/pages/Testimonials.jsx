@@ -48,6 +48,14 @@ const Testimonials = () => {
           <div className="testimonials-grid">
             {items.map((t) => (
               <div className="testimonial-card" key={t._id}>
+                {t.video && (
+                  <video
+                    src={getStorageUrl(t.video)}
+                    controls
+                    className="testimonial-video"
+                    preload="metadata"
+                  />
+                )}
                 <div className="testimonial-author">
                   {t.photo && (
                     <img src={getStorageUrl(t.photo)} alt={t.name} className="testimonial-photo" />
