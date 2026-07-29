@@ -7,6 +7,10 @@
   padding-bottom: 60px;
 }
 
+[data-theme='dark'] .sketch-lecture-page {
+  background: var(--primary-bg);
+}
+
 /* Header Banner */
 .sketch-page-header {
   background: #3c2415; /* Dark brown header from screenshot */
@@ -101,6 +105,11 @@
   display: flex;
   flex-direction: column;
   height: 420px;
+}
+
+[data-theme='dark'] .sketch-book-box {
+  background: var(--white);
+  border-color: var(--primary-border);
 }
 
 .sketch-box-header {
@@ -232,9 +241,18 @@
   transition: all 0.2s;
 }
 
+[data-theme='dark'] .sketch-playlist-item {
+  background: var(--white);
+}
+
 .sketch-playlist-item.active {
   background: #ebd8c1;
   border-color: #5d3a22;
+}
+
+[data-theme='dark'] .sketch-playlist-item.active {
+  background: var(--primary-border);
+  border-color: var(--accent-color);
 }
 
 .sketch-item-title {
@@ -309,6 +327,10 @@
   border-radius: 999px;
   overflow: hidden;
   margin-top: 10px;
+}
+
+[data-theme='dark'] .sketch-content-line {
+  background: var(--primary-border);
 }
 
 .sketch-line-fill {

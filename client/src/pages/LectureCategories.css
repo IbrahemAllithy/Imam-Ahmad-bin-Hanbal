@@ -98,7 +98,7 @@
   transform: translateY(-5px);
   border-color: var(--accent-color);
   box-shadow: var(--shadow-hover);
-  background: #fffdf9;
+  background: var(--white);
 }
 
 /* Sunnah book cards carry a second destination (the isnad page), so the
@@ -224,6 +224,10 @@
 .sunnah-subscribe-card {
   background: #f8f2e9;
   border-color: var(--accent-color);
+}
+
+[data-theme='dark'] .sunnah-subscribe-card {
+  background: var(--white);
 }
 
 .sunnah-subscribe-card h3 {
