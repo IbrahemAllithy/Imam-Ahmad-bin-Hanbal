@@ -146,6 +146,11 @@ export const uploadBookFiles = withUploadErrors(
   MAX_PDF_MB
 );
 
+export const uploadLecturePdf = withUploadErrors(
+  multer({ storage, fileFilter, limits: { fileSize: MAX_PDF_MB * MB, files: 1 } }).single('pdf'),
+  MAX_PDF_MB
+);
+
 export const uploadArticleCover = withUploadErrors(
   multer({ storage, fileFilter, limits: { fileSize: 2 * MB } }).single('coverImage'),
   2

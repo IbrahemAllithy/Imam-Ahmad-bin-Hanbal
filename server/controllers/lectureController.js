@@ -5,6 +5,7 @@ import { notifyAllStudents } from './notificationController.js';
 import { publishedFilter, normalizePublishedAt } from '../utils/publish.js';
 import { escapeRegex } from '../utils/sanitize.js';
 import { extractPlaylistId, fetchPlaylistVideos } from '../utils/youtubePlaylist.js';
+import { removeUploadedFiles } from '../middleware/upload.js';
 
 const truncate = (s, max = 200) => {
   const t = String(s || '').trim();
@@ -219,6 +220,31 @@ export const updateLecture = async (req, res, next) => {
 
     res.json({ success: true, data: lecture });
   } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Uploads a book PDF and returns its public URL for the lesson's `pdfUrl` field. A series is
+ * one book, so passing `series` stamps that URL onto every lesson of it in one go — otherwise
+ * the same file would have to be re-uploaded per lesson, leaving duplicate copies in storage.
+ */
+export const uploadLecturePdfFile = async (req, res, next) => {
+  try {
+    if (!req.file?.publicUrl) return next(new AppError('ملف PDF مطلوب', 400));
+
+    const url = req.file.publicUrl;
+    const series = String(req.body.series || '').trim();
+    let updated = 0;
+
+    if (series) {
+      const result = await Lecture.updateMany({ series }, { $set: { pdfUrl: url } });
+      updated = result.modifiedCount;
+    }
+
+    res.status(201).json({ success: true, data: { url, updated, series } });
+  } catch (err) {
+    await removeUploadedFiles(req);
     next(err);
   }
 };

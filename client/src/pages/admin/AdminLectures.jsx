@@ -16,6 +16,7 @@ import {
   FiMove,
   FiChevronDown,
   FiDownload,
+  FiUpload,
 } from 'react-icons/fi';
 import {
   DndContext,
@@ -210,6 +211,14 @@ const AdminLectures = ({ fixedCategory }) => {
   const [success, setSuccess] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
+  // The picked file lives outside `form` — it is uploaded on its own, before the lesson is saved,
+  // and the URL it returns is what the lesson actually stores. The key resets the file input,
+  // which cannot be cleared by state alone.
+  const [pdfFile, setPdfFile] = useState(null);
+  const [pdfInputKey, setPdfInputKey] = useState(0);
+  const [pdfUploading, setPdfUploading] = useState(false);
+  const [applyPdfToSeries, setApplyPdfToSeries] = useState(true);
+
   const [importForm, setImportForm] = useState(() => ({
     ...emptyImportForm,
     category: fixedCategory || '',
@@ -344,6 +353,42 @@ const AdminLectures = ({ fixedCategory }) => {
     }
   };
 
+  const seriesName = (form.series || '').trim();
+
+  const handlePdfUpload = async () => {
+    if (!pdfFile) return;
+    setError('');
+    setSuccess('');
+    setPdfUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('pdf', pdfFile);
+      if (applyPdfToSeries && seriesName) formData.append('series', seriesName);
+
+      const res = await api.post('/lectures/pdf', formData);
+      const { url, updated } = res.data?.data || {};
+
+      setForm((prev) => ({ ...prev, pdfUrl: url }));
+      setPdfFile(null);
+      setPdfInputKey((k) => k + 1);
+      setSuccess(
+        updated
+          ? `تم رفع الكتاب وربطه بـ ${updated} درساً في سلسلة "${seriesName}" ✓`
+          : 'تم رفع الكتاب — الرابط جاهز في الحقل بالأسفل، اضغط حفظ لربطه بهذا الدرس ✓'
+      );
+    } catch (err) {
+      setError(
+        err.response?.data?.message ||
+          (err.response?.status === 401
+            ? 'انتهت الجلسة — سجّل دخول الأدمن بحساب حقيقي من السيرفر'
+            : 'فشل رفع ملف PDF')
+      );
+    } finally {
+      setPdfUploading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -400,6 +445,8 @@ const AdminLectures = ({ fixedCategory }) => {
       }
       setForm({ ...emptyLecture, category: fixedCategory || emptyLecture.category });
       setEditId(null);
+      setPdfFile(null);
+      setPdfInputKey((k) => k + 1);
       refetch();
     } catch (err) {
       setError(
@@ -415,6 +462,8 @@ const AdminLectures = ({ fixedCategory }) => {
 
   const handleEdit = (lecture) => {
     setEditId(lecture._id);
+    setPdfFile(null);
+    setPdfInputKey((k) => k + 1);
     setForm({
       title: lecture.title || '',
       category: fixedCategory || lecture.category || categories[0] || 'العقيدة',
@@ -599,12 +648,48 @@ const AdminLectures = ({ fixedCategory }) => {
           </div>
 
           <div className="form-group">
-            <label>رابط الكتاب PDF (مثلاً Archive.org)</label>
+            <label>كتاب الدرس PDF — ارفع الملف أو ضع رابطاً</label>
+            <input
+              key={pdfInputKey}
+              type="file"
+              accept="application/pdf,.pdf"
+              onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
+            />
+            {pdfFile && (
+              <div className="pdf-upload-row">
+                <button
+                  type="button"
+                  className="btn-admin-submit"
+                  style={{ padding: '6px 12px' }}
+                  onClick={handlePdfUpload}
+                  disabled={pdfUploading}
+                >
+                  <FiUpload /> {pdfUploading ? 'جارٍ الرفع…' : 'رفع الكتاب'}
+                </button>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                  {pdfFile.name} — {(pdfFile.size / (1024 * 1024)).toFixed(1)} ميجابايت
+                </span>
+              </div>
+            )}
+            {pdfFile && seriesName && (
+              <label className="pdf-series-toggle">
+                <input
+                  type="checkbox"
+                  checked={applyPdfToSeries}
+                  onChange={(e) => setApplyPdfToSeries(e.target.checked)}
+                />
+                ربط الكتاب بكل دروس سلسلة &quot;{seriesName}&quot; دفعة واحدة
+              </label>
+            )}
             <input
               value={form.pdfUrl}
               onChange={(e) => setForm({ ...form, pdfUrl: e.target.value })}
               placeholder="https://archive.org/embed/..."
+              style={{ marginTop: '8px' }}
             />
+            <small style={{ color: 'var(--text-muted)' }}>
+              الحد الأقصى للملف 50 ميجابايت. الرفع يملأ حقل الرابط تلقائياً.
+            </small>
           </div>
 
           <div className="form-group">
@@ -703,6 +788,8 @@ const AdminLectures = ({ fixedCategory }) => {
               onClick={() => {
                 setEditId(null);
                 setForm({ ...emptyLecture, category: fixedCategory || emptyLecture.category });
+                setPdfFile(null);
+                setPdfInputKey((k) => k + 1);
               }}
             >
               إلغاء التعديل

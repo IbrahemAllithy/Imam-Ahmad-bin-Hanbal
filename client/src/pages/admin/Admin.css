@@ -612,6 +612,32 @@
   margin-top: 16px;
 }
 
+/* The lesson PDF picker: upload button beside the chosen file, then the
+   "apply to the whole series" toggle. Both selectors are scoped to the card so
+   they outrank its blanket `label { display: block }` / `input { width: 100% }`. */
+.admin-form-card .pdf-upload-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.admin-form-card .pdf-series-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 0;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-form-card .pdf-series-toggle input[type='checkbox'] {
+  width: auto;
+  accent-color: var(--accent-color);
+  cursor: pointer;
+}
+
 .youtube-preview-frame {
   max-width: 400px;
   height: 220px;
