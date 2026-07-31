@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
@@ -147,6 +148,21 @@ app.use('/api/certificates', certificateRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/lesson-questions', lessonQuestionRoutes);
 app.use('/api/search', searchRoutes);
+
+const clientDist = path.join(__dirname, '../client/dist');
+const clientIndex = path.join(clientDist, 'index.html');
+
+if (fs.existsSync(clientIndex)) {
+  app.use(express.static(clientDist));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/storage')) {
+      return next();
+    }
+    res.sendFile(clientIndex, (err) => {
+      if (err) next(err);
+    });
+  });
+}
 
 app.use(notFound);
 app.use(errorHandler);
