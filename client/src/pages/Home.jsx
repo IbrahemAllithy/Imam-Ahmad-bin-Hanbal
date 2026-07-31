@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useFetch } from '../hooks/useFetch';
 import { useSiteSettings } from '../context/SiteSettingsContext';
-import { getStorageUrl, getBookCoverUrl } from '../services/api';
+import { getStorageUrl } from '../services/api';
 import './Home.css';
 import {
   FiBook,
@@ -14,25 +14,41 @@ import {
   FiChevronLeft,
   FiPhoneCall,
 } from 'react-icons/fi';
+import { FaChildren } from 'react-icons/fa6';
+import HijabIcon from '../components/icons/HijabIcon';
 
-const quickLinks = [
-  { label: 'الدروس', href: '/lectures', icon: <FiVideo /> },
-  { label: 'الكتب', href: '/books', icon: <FiBook /> },
-  { label: 'المقالات', href: '/articles', icon: <FiFileText /> },
-  { label: 'قراءة السنة', href: '/sunnah-reading', icon: <FiBookOpen /> },
-  { label: 'تعلم عن بعد', href: '/distance-learning', icon: <FiMonitor /> },
+const EXPLORE_ICONS = {
+  '/lectures': <FiVideo />,
+  '/books': <FiBook />,
+  '/articles': <FiFileText />,
+  '/sunnah-reading': <FiBookOpen />,
+  '/distance-learning': <FiMonitor />,
+  '/kids': <FaChildren />,
+  '/women': <HijabIcon />,
+};
+
+const DEFAULT_EXPLORE_LINKS = [
+  { label: 'الدروس', href: '/lectures' },
+  { label: 'الكتب', href: '/books' },
+  { label: 'المقالات', href: '/articles' },
+  { label: 'مقرأة السنة', href: '/sunnah-reading' },
+  { label: 'تعلم عن بعد', href: '/distance-learning' },
+  { label: 'البراعم', href: '/kids' },
+  { label: 'النساء', href: '/women' },
 ];
 
 const Home = () => {
   const { data: lectures, loading: l1 } = useFetch('/lectures', { limit: 4 });
   const { data: articles, loading: l2 } = useFetch('/articles', { limit: 4 });
-  const { data: books, loading: l3 } = useFetch('/books', { limit: 4 });
   const location = useLocation();
   const { settings, sheikhImage } = useSiteSettings();
 
   const hero = settings.hero || {};
   const announcements = settings.announcements || [];
   const cta = settings.cta || {};
+  const quickLinks = (settings.exploreLinks?.length ? settings.exploreLinks : DEFAULT_EXPLORE_LINKS).map(
+    (link) => ({ ...link, icon: EXPLORE_ICONS[link.href] || <FiFileText /> })
+  );
 
   useEffect(() => {
     if (location.hash) {
@@ -46,16 +62,12 @@ const Home = () => {
     }
   }, [location]);
 
-  const secondaryLink = hero.secondaryCtaLink === '#about' ? '/about' : hero.secondaryCtaLink;
-  const secondaryIsHash = (secondaryLink || '').startsWith('#');
-
   return (
     <div className="home-wrapper">
       <section className="home-hero">
         <div className="hero-pattern"></div>
         <div className="hero-inner">
           <div className="hero-content animate-fade-in-up">
-            <div className="hero-badge">{hero.badge}</div>
             <h1 className="hero-title">
               {(hero.title || '').split('\n').map((line, idx, arr) => (
                 <span key={idx}>
@@ -63,22 +75,13 @@ const Home = () => {
                   {idx < arr.length - 1 && <br />}
                 </span>
               ))}
+              <br />
+              <span className="hero-honorific">حفظه الله</span>
             </h1>
-            <p className="hero-desc">{hero.description}</p>
-            <div className="hero-actions">
-              <Link to={hero.primaryCtaLink || '/lectures'} className="btn btn-primary hover-lift">
-                {hero.primaryCtaText}
-              </Link>
-              {secondaryIsHash ? (
-                <a href={secondaryLink} className="btn btn-outline hover-lift">
-                  {hero.secondaryCtaText}
-                </a>
-              ) : (
-                <Link to={secondaryLink || '/about'} className="btn btn-outline hover-lift">
-                  {hero.secondaryCtaText}
-                </Link>
-              )}
-            </div>
+            <p className="hero-quote">
+              المَلائِكَةُ حُرَّاسُ السَّماءِ، وأصحابُ الحَديثِ حُرَّاسُ الأرْضِ
+              <span className="hero-quote-author">سُفيانُ الثَّوريُّ رحمه الله</span>
+            </p>
           </div>
           <div className="hero-visual animate-fade-in-up delay-200">
             <img src={sheikhImage} alt={settings.branding?.siteName} className="hero-image" />
@@ -107,7 +110,7 @@ const Home = () => {
             <div className="explore-grid">
               {quickLinks.map((link, idx) => (
                 <Link
-                  key={link.href}
+                  key={`${link.href}-${idx}`}
                   to={link.href}
                   className="explore-card animate-fade-in-up"
                   style={{ animationDelay: `${idx * 100}ms` }}
@@ -150,28 +153,6 @@ const Home = () => {
                       </div>
                       <div className="latest-info">
                         <div className="latest-title">{ls.title}</div>
-                      </div>
-                    </Link>
-                  ))}
-              </div>
-            </div>
-
-            <div className="latest-section-col animate-fade-in-up delay-100">
-              <div className="latest-header">
-                <h3>جديد الكتب</h3>
-                <Link to="/books">
-                  الكل <FiChevronLeft />
-                </Link>
-              </div>
-              <div className="latest-list">
-                {!l3 &&
-                  books?.data?.map((bk) => (
-                    <Link to={`/books/${bk._id}`} key={bk._id} className="latest-item">
-                      <div className="latest-thumb book">
-                        {getBookCoverUrl(bk) && <img src={getBookCoverUrl(bk)} alt="" />}
-                      </div>
-                      <div className="latest-info">
-                        <div className="latest-title">{bk.title}</div>
                       </div>
                     </Link>
                   ))}

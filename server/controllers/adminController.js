@@ -8,6 +8,29 @@ import Certificate from '../models/Certificate.js';
 import LessonQuestion from '../models/LessonQuestion.js';
 import AppError from '../utils/AppError.js';
 import { escapeRegex } from '../utils/sanitize.js';
+import { R2_ENABLED, uploadBufferToR2, deleteFromR2ByUrl } from '../config/r2.js';
+
+// Reports which R2 env vars the running process actually sees, without leaking their values —
+// lets an admin confirm a Render env-var change actually took effect after a deploy.
+export const getStorageDiagnostics = async (_req, res, next) => {
+  try {
+    res.json({
+      success: true,
+      data: {
+        r2Enabled: R2_ENABLED,
+        r2Vars: {
+          R2_ACCOUNT_ID: Boolean(process.env.R2_ACCOUNT_ID),
+          R2_ACCESS_KEY_ID: Boolean(process.env.R2_ACCESS_KEY_ID),
+          R2_SECRET_ACCESS_KEY: Boolean(process.env.R2_SECRET_ACCESS_KEY),
+          R2_BUCKET_NAME: Boolean(process.env.R2_BUCKET_NAME),
+          R2_PUBLIC_URL: Boolean(process.env.R2_PUBLIC_URL),
+        },
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
 export const getStats = async (_req, res, next) => {
   try {
@@ -99,18 +122,20 @@ export const getStudents = async (req, res, next) => {
       ];
     }
 
-    const [students, total] = await Promise.all([
+    const [students, total, verifiedTotal] = await Promise.all([
       User.find(filter)
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
         .select('name email phone country isEmailVerified createdAt'),
       User.countDocuments(filter),
+      User.countDocuments({ ...filter, isEmailVerified: true }),
     ]);
 
     res.json({
       success: true,
       data: students,
+      verifiedTotal,
       pagination: { page, limit, total, pages: Math.ceil(total / limit) },
     });
   } catch (err) {
@@ -118,11 +143,44 @@ export const getStudents = async (req, res, next) => {
   }
 };
 
+// Attempts a real tiny write+delete against the configured R2 bucket and reports the exact
+// AWS SDK error (name/message only, never the stack or credentials) — for diagnosing a live
+// R2 setup without needing access to server logs.
+export const testR2Upload = async (_req, res, next) => {
+  if (!R2_ENABLED) {
+    return res.json({ success: true, data: { r2Enabled: false, ok: false, error: 'R2 غير مفعّل' } });
+  }
+  try {
+    const key = `diagnostics/test-${Date.now()}.txt`;
+    const url = await uploadBufferToR2(key, Buffer.from('r2 connectivity test'), 'text/plain');
+    await deleteFromR2ByUrl(url);
+    res.json({ success: true, data: { r2Enabled: true, ok: true, testUrl: url } });
+  } catch (err) {
+    res.json({
+      success: true,
+      data: {
+        r2Enabled: true,
+        ok: false,
+        errorName: err.name,
+        errorMessage: err.message,
+        httpStatusCode: err.$metadata?.httpStatusCode,
+      },
+    });
+  }
+};
+
 export const deleteStudent = async (req, res, next) => {
   try {
     const student = await User.findOneAndDelete({ _id: req.params.id, role: 'student' });
     if (!student) return next(new AppError('الطالب غير موجود', 404));
-    res.json({ success: true, message: 'تم حذف حساب الطالب' });
+
+    await Promise.all([
+      Certificate.deleteMany({ user: student._id }),
+      Progress.deleteMany({ user: student._id }),
+      LessonQuestion.deleteMany({ user: student._id }),
+    ]);
+
+    res.json({ success: true, message: 'تم حذف حساب الطالب وكل بياناته المرتبطة' });
   } catch (err) {
     next(err);
   }
@@ -219,7 +277,10 @@ export const getAllCertificates = async (req, res, next) => {
     const filter = {};
     if (search) {
       const safeSearch = escapeRegex(search.slice(0, 100));
-      filter.series = { $regex: safeSearch, $options: 'i' };
+      filter.$or = [
+        { series: { $regex: safeSearch, $options: 'i' } },
+        { code: { $regex: safeSearch, $options: 'i' } },
+      ];
     }
 
     const [certificates, total] = await Promise.all([
@@ -246,6 +307,11 @@ export const issueCertificate = async (req, res, next) => {
     const { userId, series } = req.body;
     const student = await User.findOne({ _id: userId, role: 'student' });
     if (!student) return next(new AppError('الطالب غير موجود', 404));
+
+    const seriesExists = await Lecture.exists({ series });
+    if (!seriesExists) {
+      return next(new AppError('اسم السلسلة غير مطابق لأي دورة موجودة فعلياً', 400));
+    }
 
     const existing = await Certificate.findOne({ user: userId, series });
     if (existing) return next(new AppError('الطالب لديه شهادة لهذه الدورة بالفعل', 400));

@@ -26,7 +26,11 @@ const router = Router();
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: process.env.NODE_ENV === 'production' ? 5 : 50,
+  max: process.env.NODE_ENV === 'production' ? 12 : 50,
+  // Only failed attempts count toward the limit, so someone signing in
+  // normally (or an admin working across several sessions) is never locked
+  // out — the budget exists to slow password guessing.
+  skipSuccessfulRequests: true,
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res) => {

@@ -16,12 +16,13 @@ const AdminContacts = () => {
 
   const handleOpen = async (contact) => {
     setSelected(contact);
+    setError('');
     if (!contact.read) {
       try {
         await api.patch(`/contact/${contact._id}/read`);
         refetch();
-      } catch {
-        /* ignore */
+      } catch (err) {
+        setError(err.response?.data?.message || 'فشل تحديث حالة القراءة — الرسالة قد لا تزال ظاهرة كغير مقروءة');
       }
     }
   };

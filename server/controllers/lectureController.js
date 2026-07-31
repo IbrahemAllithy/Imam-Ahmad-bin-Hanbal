@@ -4,6 +4,13 @@ import AppError from '../utils/AppError.js';
 import { notifyAllStudents } from './notificationController.js';
 import { publishedFilter, normalizePublishedAt } from '../utils/publish.js';
 import { escapeRegex } from '../utils/sanitize.js';
+import { extractPlaylistId, fetchPlaylistVideos } from '../utils/youtubePlaylist.js';
+import { removeUploadedFiles } from '../middleware/upload.js';
+
+const truncate = (s, max = 200) => {
+  const t = String(s || '').trim();
+  return t.length <= max ? t : `${t.slice(0, max - 1)}…`;
+};
 
 const buildFilter = (query, { includeUnpublished = false } = {}) => {
   const filter = includeUnpublished ? {} : { ...publishedFilter() };
@@ -217,6 +224,31 @@ export const updateLecture = async (req, res, next) => {
   }
 };
 
+/**
+ * Uploads a book PDF and returns its public URL for the lesson's `pdfUrl` field. A series is
+ * one book, so passing `series` stamps that URL onto every lesson of it in one go — otherwise
+ * the same file would have to be re-uploaded per lesson, leaving duplicate copies in storage.
+ */
+export const uploadLecturePdfFile = async (req, res, next) => {
+  try {
+    if (!req.file?.publicUrl) return next(new AppError('ملف PDF مطلوب', 400));
+
+    const url = req.file.publicUrl;
+    const series = String(req.body.series || '').trim();
+    let updated = 0;
+
+    if (series) {
+      const result = await Lecture.updateMany({ series }, { $set: { pdfUrl: url } });
+      updated = result.modifiedCount;
+    }
+
+    res.status(201).json({ success: true, data: { url, updated, series } });
+  } catch (err) {
+    await removeUploadedFiles(req);
+    next(err);
+  }
+};
+
 export const deleteLecture = async (req, res, next) => {
   try {
     const lecture = await Lecture.findByIdAndDelete(req.params.id);
@@ -227,9 +259,24 @@ export const deleteLecture = async (req, res, next) => {
   }
 };
 
+// The six مقرأة السنة books keep their own `category` (matched by SunnahBooks.jsx
+// and CourseDetail.jsx for isnad links), but the reference PDF files them under
+// الحديث, so folding them into a الحديث browse request here is display-only.
+const HADITH_SUNNAH_BOOK_CATEGORIES = [
+  'صحيح البخاري',
+  'صحيح مسلم',
+  'سنن أبي داود',
+  'سنن الترمذي',
+  'سنن النسائي',
+  'سنن ابن ماجه',
+];
+
 export const getCourses = async (req, res, next) => {
   try {
     const filter = buildFilter(req.query);
+    if (req.query.category === 'الحديث') {
+      filter.category = { $in: ['الحديث', ...HADITH_SUNNAH_BOOK_CATEGORIES] };
+    }
 
     const courses = await Lecture.aggregate([
       { $match: filter },
@@ -263,6 +310,7 @@ export const getCourses = async (req, res, next) => {
         $group: {
           _id: '$groupKey',
           category: { $first: '$category' },
+          seriesOrder: { $max: '$seriesOrder' },
           lessonsCount: { $sum: 1 },
           lessonIds: { $push: '$_id' },
           firstLectureId: { $first: '$_id' },
@@ -275,6 +323,7 @@ export const getCourses = async (req, res, next) => {
           _id: 0,
           seriesName: '$_id',
           category: 1,
+          seriesOrder: 1,
           lessonsCount: 1,
           lessonIds: 1,
           firstLectureId: 1,
@@ -284,7 +333,10 @@ export const getCourses = async (req, res, next) => {
       },
     ]);
 
-    courses.sort((a, b) => a.seriesName.localeCompare(b.seriesName, 'ar'));
+    courses.sort((a, b) => {
+      if (a.seriesOrder !== b.seriesOrder) return (a.seriesOrder || 0) - (b.seriesOrder || 0);
+      return a.seriesName.localeCompare(b.seriesName, 'ar');
+    });
 
     res.json({ success: true, data: courses });
   } catch (err) {
@@ -299,6 +351,126 @@ export const getSeries = async (_req, res, next) => {
       ...publishedFilter(),
     });
     res.json({ success: true, data: series });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const importPlaylist = async (req, res, next) => {
+  try {
+    const { playlistUrl, category, series } = req.body;
+    const playlistId = extractPlaylistId(playlistUrl);
+    if (!playlistId) return next(new AppError('رابط قائمة التشغيل غير صالح', 400));
+
+    const existingSeriesNames = await Lecture.distinct('series', { category });
+    let seriesOrder;
+    if (existingSeriesNames.includes(series)) {
+      const existingLecture = await Lecture.findOne({ category, series });
+      seriesOrder = existingLecture?.seriesOrder || 0;
+    } else {
+      const maxSeriesOrderDoc = await Lecture.findOne({ category })
+        .sort({ seriesOrder: -1 })
+        .select('seriesOrder')
+        .lean();
+      seriesOrder = (maxSeriesOrderDoc?.seriesOrder || 0) + 1;
+    }
+
+    const videos = await fetchPlaylistVideos(playlistId);
+    if (!videos.length) {
+      return next(new AppError('لم يتم العثور على فيديوهات في قائمة التشغيل', 400));
+    }
+
+    const now = new Date();
+    let created = 0;
+    let updated = 0;
+    let skipped = 0;
+
+    for (const v of videos) {
+      const youtubeId = v.id;
+      const order = Number(v.index) || 0;
+      const youtubeUrl = `https://www.youtube.com/watch?v=${youtubeId}&list=${playlistId}`;
+      const title = truncate(v.title || `${series} — الدرس ${order}`);
+      const description = truncate(
+        `الدرس ${order} من سلسلة (${series}).\n\nالعنوان على يوتيوب: ${v.title}`,
+        5000
+      );
+
+      const existing = await Lecture.findOne({ youtubeId, series });
+
+      if (existing) {
+        const needsUpdate = existing.category !== category || existing.order !== order;
+        if (needsUpdate) {
+          existing.category = category;
+          existing.order = order;
+          existing.youtubeUrl = youtubeUrl;
+          await existing.save();
+          updated += 1;
+        } else {
+          skipped += 1;
+        }
+        continue;
+      }
+
+      await Lecture.create({
+        title,
+        youtubeUrl,
+        youtubeId,
+        category,
+        series,
+        description,
+        order,
+        seriesOrder,
+        publishedAt: now,
+        quizQuestions: [],
+        quizItems: [],
+      });
+      created += 1;
+    }
+
+    res.json({
+      success: true,
+      data: {
+        seriesName: series,
+        category,
+        seriesOrder,
+        videosFound: videos.length,
+        created,
+        updated,
+        skipped,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const reorderLessons = async (req, res, next) => {
+  try {
+    const { ids } = req.body;
+    const ops = ids.map((id, index) => ({
+      updateOne: {
+        filter: { _id: id },
+        update: { $set: { order: index + 1 } },
+      },
+    }));
+    await Lecture.bulkWrite(ops);
+    res.json({ success: true, message: 'تم حفظ ترتيب الدروس' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const reorderSeries = async (req, res, next) => {
+  try {
+    const { category, seriesNames } = req.body;
+    const ops = seriesNames.map((name, index) => ({
+      updateMany: {
+        filter: { category, series: name },
+        update: { $set: { seriesOrder: index + 1 } },
+      },
+    }));
+    await Lecture.bulkWrite(ops);
+    res.json({ success: true, message: 'تم حفظ ترتيب السلاسل' });
   } catch (err) {
     next(err);
   }

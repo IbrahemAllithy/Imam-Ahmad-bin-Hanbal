@@ -16,7 +16,7 @@
   transform: translateY(-5px);
   border-color: var(--accent-color);
   box-shadow: var(--shadow-hover);
-  background: #fffdfa;
+  background: var(--white);
 }
 
 .series-card-top {

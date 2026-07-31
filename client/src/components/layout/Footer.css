@@ -45,7 +45,7 @@
   gap: 12px;
 }
 
-.footer-links a, .footer-contact span {
+.footer-links a, .footer-contact a, .footer-contact span {
   font-size: 14px;
   color: oklch(0.85 0.015 60);
   text-decoration: none;
@@ -54,7 +54,7 @@
   width: fit-content;
 }
 
-.footer-links a:hover {
+.footer-links a:hover, .footer-contact a:hover {
   color: var(--primary-bg);
   transform: translateX(-4px);
 }
@@ -80,7 +80,7 @@
   .footer-desc {
     max-width: 100%;
   }
-  .footer-links a, .footer-contact span {
+  .footer-links a, .footer-contact a, .footer-contact span {
     width: 100%;
   }
   .footer-links a:hover {

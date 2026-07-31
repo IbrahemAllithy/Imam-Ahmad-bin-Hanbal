@@ -12,7 +12,7 @@ import {
   mongoIdParam,
   listQueryValidation,
 } from '../middleware/validators.js';
-import { uploadArticleCover, validateMagicBytes } from '../middleware/upload.js';
+import { uploadArticleCover, validateMagicBytes, uploadFilesToR2 } from '../middleware/upload.js';
 
 const router = Router();
 
@@ -24,6 +24,7 @@ router.post(
   '/',
   uploadArticleCover,
   validateMagicBytes,
+  uploadFilesToR2,
   articleValidation,
   createArticle
 );
@@ -32,6 +33,7 @@ router.put(
   mongoIdParam,
   uploadArticleCover,
   validateMagicBytes,
+  uploadFilesToR2,
   articleValidation,
   updateArticle
 );

@@ -190,8 +190,8 @@ const LectureDetail = () => {
   }
 
   const youtubeId = lecture.youtubeId;
-  const pdfUrl = lecture.pdfUrl || 'https://archive.org/embed/20230616_20230616_1912';
-  const audioUrl = lecture.audioUrl || 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
+  const pdfUrl = lecture.pdfUrl || '';
+  const audioUrl = lecture.audioUrl || '';
   const courseLink = seriesName
     ? `/courses/${encodeURIComponent(seriesName)}`
     : '/lectures';
@@ -233,31 +233,33 @@ const LectureDetail = () => {
         <h2 className="sketch-lesson-title">{lecture.title}</h2>
 
         <div className="sketch-grid-layout">
-          <div className="sketch-media-columns">
-            <div className="sketch-book-box">
-              <div className="sketch-box-header">
-                <FiBookOpen />
-                <span>الكتاب PDF</span>
+          <div className={`sketch-media-columns ${!pdfUrl ? 'no-pdf' : ''}`}>
+            {pdfUrl && (
+              <div className="sketch-book-box">
+                <div className="sketch-box-header">
+                  <FiBookOpen />
+                  <span>الكتاب PDF</span>
+                </div>
+                <div className="sketch-pdf-container">
+                  <iframe
+                    src={pdfUrl}
+                    title="الكتاب PDF"
+                    className="sketch-pdf-iframe"
+                    allowFullScreen
+                  />
+                </div>
+                <div className="sketch-pdf-footer">
+                  <a
+                    href={pdfUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn-pdf-external"
+                  >
+                    <FiExternalLink /> فتح الكتاب في نافذة مستقلة
+                  </a>
+                </div>
               </div>
-              <div className="sketch-pdf-container">
-                <iframe
-                  src={pdfUrl}
-                  title="الكتاب PDF"
-                  className="sketch-pdf-iframe"
-                  allowFullScreen
-                />
-              </div>
-              <div className="sketch-pdf-footer">
-                <a
-                  href={pdfUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="btn-pdf-external"
-                >
-                  <FiExternalLink /> فتح الكتاب في نافذة مستقلة
-                </a>
-              </div>
-            </div>
+            )}
 
             <div className="sketch-video-box-col">
               <div className="sketch-video-wrapper">
@@ -268,15 +270,17 @@ const LectureDetail = () => {
                 />
               </div>
 
-              <div className="sketch-audio-box">
-                <div className="sketch-audio-header">
-                  <FiVolume2 />
-                  <span>صوتي (الاستماع للدرس)</span>
+              {audioUrl && (
+                <div className="sketch-audio-box">
+                  <div className="sketch-audio-header">
+                    <FiVolume2 />
+                    <span>صوتي (الاستماع للدرس)</span>
+                  </div>
+                  <audio controls className="sketch-audio-player" src={audioUrl}>
+                    متصفحك لا يدعم مشغل الصوت.
+                  </audio>
                 </div>
-                <audio controls className="sketch-audio-player" src={audioUrl}>
-                  متصفحك لا يدعم مشغل الصوت.
-                </audio>
-              </div>
+              )}
             </div>
           </div>
 
@@ -523,16 +527,16 @@ const LectureDetail = () => {
                   </div>
                 )}
               </div>
-            ) : (
+            ) : lecture.quizQuestions?.length ? (
               <ol className="quiz-questions-list">
-                {(lecture.quizQuestions || [
-                  'ما هي المسألة الرئيسية التي تناولها هذا المجلس؟',
-                  'اذكر ثلاثة من القواعد والفوائد المستنبطة من الدرس.',
-                  'ما أهمية كتاب القواعد المثلى في باب أسماء الله وصفاته؟',
-                ]).map((q, i) => (
+                {lecture.quizQuestions.map((q, i) => (
                   <li key={i}>{q}</li>
                 ))}
               </ol>
+            ) : (
+              <p style={{ color: 'var(--text-muted)' }}>
+                لا توجد أسئلة اختبار ذاتي لهذا الدرس بعد.
+              </p>
             )}
 
             <button

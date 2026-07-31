@@ -98,7 +98,40 @@
   transform: translateY(-5px);
   border-color: var(--accent-color);
   box-shadow: var(--shadow-hover);
-  background: #fffdf9;
+  background: var(--white);
+}
+
+/* Sunnah book cards carry a second destination (the isnad page), so the
+   lessons link is an inner element instead of wrapping the whole card. */
+.cat-card-main {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1;
+  text-decoration: none;
+}
+
+.cat-card-isnad {
+  display: block;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1.5px solid var(--primary-border);
+  font-family: var(--font-heading);
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--primary-text);
+  text-decoration: none;
+  line-height: 1.7;
+}
+
+.cat-card-isnad span {
+  color: var(--accent-color);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.cat-card-isnad:hover span {
+  color: oklch(0.3 0.05 45);
 }
 
 .cat-card-top {
@@ -177,11 +210,90 @@
   color: oklch(0.3 0.05 45);
 }
 
+/* Sunnah Reading — subscribe & isnad cards */
+.sunnah-subscribe-card,
+.sunnah-isnad-card {
+  background: var(--white);
+  border: 1.5px solid var(--primary-border);
+  border-radius: 20px;
+  padding: 32px 30px;
+  margin-bottom: 32px;
+  text-align: right;
+}
+
+.sunnah-subscribe-card {
+  background: #f8f2e9;
+  border-color: var(--accent-color);
+}
+
+[data-theme='dark'] .sunnah-subscribe-card {
+  background: var(--white);
+}
+
+.sunnah-subscribe-card h3 {
+  font-family: var(--font-heading);
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--primary-text);
+  margin: 0 0 18px;
+  line-height: 1.6;
+}
+
+.sunnah-inline-link {
+  color: var(--accent-color);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.sunnah-inline-link:hover {
+  color: oklch(0.3 0.05 45);
+}
+
+
+.sunnah-subscribe-label {
+  font-family: var(--font-heading);
+  font-size: 19px;
+  font-weight: 800;
+  margin: 0 0 16px;
+  color: var(--primary-text);
+}
+
+.sunnah-requirements-list {
+  margin: 0;
+  padding-inline-start: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sunnah-requirements-list li {
+  font-size: 15px;
+  line-height: 1.9;
+  color: var(--primary-text);
+}
+
+/* Standalone empty state — .platform-empty lives in PlatformPages.css,
+   which these pages don't import, so it would render unstyled. */
+.sunnah-empty {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 15px;
+  padding: 40px 20px;
+  background: var(--white);
+  border: 1.5px dashed var(--primary-border);
+  border-radius: 16px;
+}
+
 @media (max-width: 768px) {
   .categories-hero {
     padding: 36px 20px;
   }
   .categories-content {
     padding: 32px 16px;
+  }
+  .sunnah-subscribe-card,
+  .sunnah-isnad-card {
+    padding: 24px 18px;
   }
 }

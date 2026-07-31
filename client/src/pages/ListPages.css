@@ -85,6 +85,10 @@
   color: var(--accent-color);
 }
 
+[data-theme='dark'] .sidebar-item.active {
+  background: var(--white);
+}
+
 .sidebar-count {
   font-size: 11.5px;
   color: var(--text-muted);
@@ -315,7 +319,7 @@
   border-color: var(--accent-color);
   transform: translateX(-4px);
   box-shadow: var(--shadow-hover);
-  background: #fffdf9;
+  background: var(--white);
 }
 
 .course-item-right {

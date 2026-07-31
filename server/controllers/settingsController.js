@@ -15,6 +15,7 @@ const SETTINGS_SECTIONS = [
   'categories',
   'lectureCategoriesPage',
   'sunnahBooks',
+  'bookStore',
 ];
 
 const deepMerge = (target, source) => {
@@ -85,10 +86,10 @@ export const updateSettings = async (req, res, next) => {
     });
 
     if (req.files?.logo?.[0]) {
-      doc.branding.logoUrl = `/storage/covers/${req.files.logo[0].filename}`;
+      doc.branding.logoUrl = req.files.logo[0].publicUrl;
     }
     if (req.files?.sheikhImage?.[0]) {
-      doc.branding.sheikhImageUrl = `/storage/covers/${req.files.sheikhImage[0].filename}`;
+      doc.branding.sheikhImageUrl = req.files.sheikhImage[0].publicUrl;
     }
 
     await doc.save();

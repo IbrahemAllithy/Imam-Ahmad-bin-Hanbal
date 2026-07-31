@@ -9,7 +9,7 @@
 
 .book-breadcrumb {
   padding: 16px 48px;
-  background: #ffffff;
+  background: var(--white);
   border-bottom: 1.5px solid var(--primary-border);
   font-size: 13.5px;
   color: var(--text-muted);
@@ -85,7 +85,7 @@
 }
 
 .book-info-card {
-  background: #ffffff;
+  background: var(--white);
   border: 1.5px solid var(--primary-border);
   border-radius: 18px;
   padding: 22px;
@@ -171,7 +171,7 @@
 }
 
 .book-header-box {
-  background: #ffffff;
+  background: var(--white);
   border: 1.5px solid var(--primary-border);
   border-radius: 20px;
   padding: 32px;
@@ -214,7 +214,7 @@
   border-radius: 20px;
   overflow: hidden;
   border: 1.5px solid var(--primary-border);
-  background: #ffffff;
+  background: var(--white);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
   margin-bottom: 36px;
   display: flex;
@@ -222,7 +222,7 @@
 }
 
 .viewer-bar {
-  background: #ede1d1;
+  background: var(--white);
   padding: 12px 20px;
   border-bottom: 1.5px solid var(--primary-border);
   display: flex;
@@ -246,7 +246,7 @@
 }
 
 .related-books-section {
-  background: #ffffff;
+  background: var(--white);
   border: 1.5px solid var(--primary-border);
   border-radius: 20px;
   padding: 28px;

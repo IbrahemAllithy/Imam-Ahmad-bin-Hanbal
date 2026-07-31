@@ -1,10 +1,18 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { FiMenu, FiX, FiBell, FiAward, FiSun, FiMoon } from 'react-icons/fi';
+import { FiMenu, FiX, FiBell, FiAward, FiSun, FiMoon, FiShoppingCart } from 'react-icons/fi';
+import { FaYoutube, FaFacebookF, FaTelegramPlane, FaWhatsapp } from 'react-icons/fa';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 import './Navbar.css';
+
+const SOCIAL_ICONS = {
+  يوتيوب: FaYoutube,
+  فيسبوك: FaFacebookF,
+  تيليجرام: FaTelegramPlane,
+  واتساب: FaWhatsapp,
+};
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -15,7 +23,10 @@ const Navbar = () => {
   const { settings, sheikhImage } = useSiteSettings();
   const { user, logout, isStudent, isAdmin } = useAuth();
   const links = settings.navbar?.links || [];
-  const { siteName, siteSubtitle } = settings.branding || {};
+  const { siteName } = settings.branding || {};
+  const socialLinks = (settings.footer?.socialLinks || []).filter(
+    (link) => link.url && SOCIAL_ICONS[link.label]
+  );
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -92,9 +103,16 @@ const Navbar = () => {
     </button>
   );
 
+  const storeLink = (
+    <Link to="/buy-books" className="navbar-store-link" onClick={() => setOpen(false)}>
+      <FiShoppingCart /> المتجر
+    </Link>
+  );
+
   const authActions = user ? (
     <>
       {themeBtn}
+      {storeLink}
       {(isStudent || isAdmin) && (
         <Link to="/certificates" className="btn-login desktop-only" onClick={() => setOpen(false)} title="شهاداتي">
           <FiAward style={{ verticalAlign: 'middle' }} />
@@ -128,12 +146,37 @@ const Navbar = () => {
   ) : (
     <>
       {themeBtn}
+      {storeLink}
       <Link to="/login" className="btn-login" onClick={() => setOpen(false)}>
         دخول
       </Link>
-      <Link to="/register" className="btn-start" onClick={() => setOpen(false)}>
-        سجّل حساباً
+      <Link to={settings.navbar?.ctaLink || '/register'} className="btn-start" onClick={() => setOpen(false)}>
+        {settings.navbar?.ctaText || 'سجّل حساباً'}
       </Link>
+    </>
+  );
+
+  const extras = (
+    <>
+      {socialLinks.length > 0 && (
+        <div className="navbar-socials">
+          {socialLinks.map((link) => {
+            const Icon = SOCIAL_ICONS[link.label];
+            return (
+              <a
+                key={link.label}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="navbar-social-btn"
+                title={link.label}
+              >
+                <Icon />
+              </a>
+            );
+          })}
+        </div>
+      )}
     </>
   );
 
@@ -144,7 +187,6 @@ const Navbar = () => {
           <img src={sheikhImage} alt={siteName} className="brand-logo" />
           <div className="brand-text">
             <div className="brand-title">{siteName}</div>
-            <div className="brand-subtitle">{siteSubtitle}</div>
           </div>
         </Link>
 
@@ -162,10 +204,16 @@ const Navbar = () => {
             ))}
           </div>
 
-          <div className="mobile-only navbar-auth-mobile">{authActions}</div>
+          <div className="mobile-only navbar-auth-mobile">
+            {extras}
+            {authActions}
+          </div>
         </nav>
 
-        <div className="navbar-actions desktop-only">{authActions}</div>
+        <div className="navbar-actions desktop-only">
+          {extras}
+          {authActions}
+        </div>
 
         <button
           className="navbar-toggle"

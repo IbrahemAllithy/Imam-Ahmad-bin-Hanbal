@@ -9,7 +9,8 @@ import './ListPages.css';
 
 const Books = () => {
   const { settings } = useSiteSettings();
-  const categories = settings.categories || [];
+  const HIDDEN_CATEGORIES = ['دروس عامة', 'فوائد'];
+  const categories = (settings.categories || []).filter((c) => !HIDDEN_CATEGORIES.includes(c.name));
   const [category, setCategory] = useState('الكل');
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebouncedValue(search, 400);
@@ -42,12 +43,6 @@ const Books = () => {
         />
 
         <div className="pills-filter">
-          <span 
-            className={`pill-btn ${category === 'الكل' ? 'active' : ''}`}
-            onClick={() => setCategory('الكل')}
-          >
-            الكل
-          </span>
           {categories.map((cat, idx) => (
             <span
               key={idx}

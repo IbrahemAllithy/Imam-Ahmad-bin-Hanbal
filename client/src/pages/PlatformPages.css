@@ -54,6 +54,73 @@
   padding: 2rem;
 }
 
+.coming-soon-card {
+  background: var(--white);
+  border: 1.5px dashed var(--primary-border);
+  border-radius: 20px;
+  padding: 3rem 2rem;
+  text-align: center;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.coming-soon-badge {
+  position: relative;
+  width: 84px;
+  height: 84px;
+  margin: 0 auto 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-color), oklch(0.55 0.09 55));
+  color: #fff;
+  font-size: 2rem;
+  box-shadow: 0 8px 24px -6px oklch(0.55 0.09 55 / 0.5);
+}
+
+.coming-soon-pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--accent-color);
+  opacity: 0.35;
+  animation: coming-soon-ping 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes coming-soon-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.35;
+  }
+  75%,
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+.coming-soon-card h3 {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--primary-text);
+  margin: 0 0 0.75rem;
+}
+
+.coming-soon-card p {
+  color: var(--text-muted);
+  font-size: 0.98rem;
+  line-height: 1.9;
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coming-soon-pulse {
+    animation: none;
+  }
+}
+
 .search-form {
   display: flex;
   gap: 0.75rem;

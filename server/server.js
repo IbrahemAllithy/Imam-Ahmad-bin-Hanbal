@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
@@ -11,6 +12,7 @@ import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 
 import connectDB from './config/db.js';
+import { R2_ENABLED } from './config/r2.js';
 import { xssSanitize } from './utils/sanitize.js';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
 import { STORAGE_PATHS } from './middleware/upload.js';
@@ -20,6 +22,9 @@ import authRoutes from './routes/authRoutes.js';
 import lectureRoutes from './routes/lectureRoutes.js';
 import articleRoutes from './routes/articleRoutes.js';
 import bookRoutes from './routes/bookRoutes.js';
+import saleBookRoutes from './routes/saleBookRoutes.js';
+import eventRoutes from './routes/eventRoutes.js';
+import testimonialRoutes from './routes/testimonialRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
@@ -37,6 +42,11 @@ const PORT = process.env.PORT || 5000;
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 
 app.disable('x-powered-by');
+
+// Render/Vercel put the app behind a proxy. Without this, express-rate-limit
+// sees the proxy's IP for every request and the global 300/15min budget is
+// shared by all visitors at once, which starts rejecting real users with 429.
+app.set('trust proxy', 1);
 
 if (process.env.NODE_ENV === 'production') {
   app.use((req, res, next) => {
@@ -60,6 +70,7 @@ app.use(
       },
     },
     crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
   })
 );
 
@@ -113,6 +124,11 @@ app.use(
   })
 );
 
+// Seed cover images checked into the repo (unlike /storage, which is
+// gitignored user-upload content and not guaranteed to survive a redeploy).
+app.use('/seed-covers', express.static(path.join(__dirname, 'seed', 'sale-covers')));
+app.use('/seed-gallery', express.static(path.join(__dirname, 'seed', 'gallery')));
+
 app.get('/api/health', (_req, res) => {
   res.json({ success: true, message: 'الخادم يعمل' });
 });
@@ -121,6 +137,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/lectures', lectureRoutes);
 app.use('/api/articles', articleRoutes);
 app.use('/api/books', bookRoutes);
+app.use('/api/sale-books', saleBookRoutes);
+app.use('/api/events', eventRoutes);
+app.use('/api/testimonials', testimonialRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/settings', settingsRoutes);
@@ -130,6 +149,21 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/lesson-questions', lessonQuestionRoutes);
 app.use('/api/search', searchRoutes);
 
+const clientDist = path.join(__dirname, '../client/dist');
+const clientIndex = path.join(clientDist, 'index.html');
+
+if (fs.existsSync(clientIndex)) {
+  app.use(express.static(clientDist));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/storage')) {
+      return next();
+    }
+    res.sendFile(clientIndex, (err) => {
+      if (err) next(err);
+    });
+  });
+}
+
 app.use(notFound);
 app.use(errorHandler);
 
@@ -138,6 +172,15 @@ const start = async () => {
     await connectDB();
     app.listen(PORT, () => {
       logger.info(`الخادم يعمل على المنفذ ${PORT}`);
+      // Without R2 the uploads land on the host's ephemeral disk and disappear on the next
+      // deploy — a silent failure that looks like "the video was published, then vanished".
+      if (R2_ENABLED) {
+        logger.info('تخزين الملفات: Cloudflare R2');
+      } else {
+        logger.warn(
+          'تخزين الملفات: القرص المحلي — متغيرات R2_* غير مضبوطة. الملفات المرفوعة ستُفقد عند إعادة النشر.'
+        );
+      }
     });
   } catch (err) {
     logger.error('فشل تشغيل الخادم', { error: err.message });

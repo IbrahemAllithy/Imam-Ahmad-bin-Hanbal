@@ -12,16 +12,25 @@ const STATUS_OPTIONS = [
   { value: 'answered', label: 'تم الرد' },
 ];
 
+const PAGE_SIZE = 20;
+
 const AdminQuestions = () => {
   const [statusFilter, setStatusFilter] = useState('pending');
-  const params = statusFilter ? { status: statusFilter } : {};
-  const { data, loading, error, refetch } = useFetch('/lesson-questions/admin', params, [statusFilter]);
+  const [page, setPage] = useState(1);
+  const params = { limit: PAGE_SIZE, page, ...(statusFilter && { status: statusFilter }) };
+  const { data, loading, error, refetch } = useFetch('/lesson-questions/admin', params, [statusFilter, page]);
   const [replies, setReplies] = useState({});
   const [submitting, setSubmitting] = useState(null);
   const [success, setSuccess] = useState('');
   const [actionError, setActionError] = useState('');
 
   const questions = data?.data || [];
+  const pagination = data?.pagination || { page: 1, pages: 1, total: questions.length };
+
+  const handleStatusChange = (value) => {
+    setStatusFilter(value);
+    setPage(1);
+  };
 
   const handleDelete = async (qId) => {
     if (!window.confirm('حذف هذا السؤال نهائياً؟')) return;
@@ -72,7 +81,7 @@ const AdminQuestions = () => {
           <label>تصفية حسب الحالة</label>
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e) => handleStatusChange(e.target.value)}
           >
             {STATUS_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -144,6 +153,30 @@ const AdminQuestions = () => {
         </div>
       ) : (
         <p className="empty-list-msg">لا توجد أسئلة {statusFilter === 'pending' ? 'معلقة' : ''}.</p>
+      )}
+
+      {pagination.pages > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginTop: 16 }}>
+          <button
+            type="button"
+            className="btn-card-edit"
+            disabled={page <= 1}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+          >
+            السابق
+          </button>
+          <span style={{ alignSelf: 'center', color: 'var(--text-muted)' }}>
+            {pagination.page} / {pagination.pages}
+          </span>
+          <button
+            type="button"
+            className="btn-card-edit"
+            disabled={page >= pagination.pages}
+            onClick={() => setPage((p) => Math.min(pagination.pages, p + 1))}
+          >
+            التالي
+          </button>
+        </div>
       )}
     </div>
   );

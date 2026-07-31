@@ -7,6 +7,10 @@
   padding-bottom: 60px;
 }
 
+[data-theme='dark'] .sketch-lecture-page {
+  background: var(--primary-bg);
+}
+
 /* Header Banner */
 .sketch-page-header {
   background: #3c2415; /* Dark brown header from screenshot */
@@ -92,6 +96,10 @@
   min-width: 0;
 }
 
+.sketch-media-columns.no-pdf {
+  grid-template-columns: 1fr;
+}
+
 /* Book PDF Box (Left Column matching handwritten sketch) */
 .sketch-book-box {
   background: #ede1d1; /* Light beige matching screenshot */
@@ -101,6 +109,11 @@
   display: flex;
   flex-direction: column;
   height: 420px;
+}
+
+[data-theme='dark'] .sketch-book-box {
+  background: var(--white);
+  border-color: var(--primary-border);
 }
 
 .sketch-box-header {
@@ -116,7 +129,7 @@
 
 .sketch-pdf-container {
   flex: 1;
-  background: #ffffff;
+  background: var(--white);
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid #dcd0bf;
@@ -159,7 +172,6 @@
   overflow: hidden;
   background: #000000;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  height: 310px;
 }
 
 .sketch-video-wrapper iframe {
@@ -169,7 +181,7 @@
 }
 
 .sketch-audio-box {
-  background: #ffffff;
+  background: var(--white);
   border: 1px solid #e0d4c3;
   border-radius: 14px;
   padding: 14px 18px;
@@ -199,7 +211,7 @@
 }
 
 .sketch-playlist-card {
-  background: #ffffff;
+  background: var(--white);
   border: 1px solid #e3d7c5;
   border-radius: 16px;
   padding: 20px;
@@ -232,9 +244,18 @@
   transition: all 0.2s;
 }
 
+[data-theme='dark'] .sketch-playlist-item {
+  background: var(--white);
+}
+
 .sketch-playlist-item.active {
   background: #ebd8c1;
   border-color: #5d3a22;
+}
+
+[data-theme='dark'] .sketch-playlist-item.active {
+  background: var(--primary-border);
+  border-color: var(--accent-color);
 }
 
 .sketch-item-title {
@@ -270,7 +291,7 @@
 }
 
 .sketch-quiz-box, .sketch-summary-box {
-  background: #ffffff;
+  background: var(--white);
   border: 1px solid #e3d7c5;
   border-radius: 16px;
   padding: 20px 24px;
@@ -309,6 +330,10 @@
   border-radius: 999px;
   overflow: hidden;
   margin-top: 10px;
+}
+
+[data-theme='dark'] .sketch-content-line {
+  background: var(--primary-border);
 }
 
 .sketch-line-fill {
@@ -365,7 +390,7 @@
 }
 
 .sketch-modal-content {
-  background: #ffffff;
+  background: var(--white);
   border-radius: 20px;
   padding: 32px;
   max-width: 550px;

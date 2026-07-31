@@ -1,0 +1,40 @@
+import mongoose from 'mongoose';
+
+const eventSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: [true, 'عنوان الفعالية مطلوب'],
+      trim: true,
+      maxlength: [200, 'العنوان طويل جداً'],
+    },
+    description: {
+      type: String,
+      trim: true,
+      maxlength: [3000, 'الوصف طويل جداً'],
+      default: '',
+    },
+    coverImage: {
+      type: String,
+      default: '',
+    },
+    // Optional: photo-only gallery entries (e.g. old event albums with no
+    // known date) don't have one, and the UI hides the date badge for them.
+    eventDate: {
+      type: Date,
+    },
+    // Manual display position, set by dragging in the admin panel.
+    order: {
+      type: Number,
+      default: 0,
+    },
+  },
+  { timestamps: true }
+);
+
+eventSchema.index({ eventDate: -1 });
+eventSchema.index({ order: 1 });
+
+const Event = mongoose.model('Event', eventSchema);
+
+export default Event;

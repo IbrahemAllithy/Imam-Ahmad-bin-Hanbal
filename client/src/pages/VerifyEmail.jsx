@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { useAuth, PENDING_VERIFY_KEY } from '../context/AuthContext';
 import './Auth.css';
 
 const VerifyEmail = () => {
   const { verifyEmail, resendOtp, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [params] = useSearchParams();
   const [email, setEmail] = useState(params.get('email') || '');
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [emailWarning, setEmailWarning] = useState(location.state?.emailWarning || '');
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
 
@@ -60,7 +62,12 @@ const VerifyEmail = () => {
     setResending(true);
     try {
       const data = await resendOtp(email);
-      setSuccess(data.message || 'تم إرسال رمز جديد إلى بريدك');
+      if (data.emailSent === false) {
+        setEmailWarning(data.message);
+      } else {
+        setEmailWarning('');
+        setSuccess(data.message || 'تم إرسال رمز جديد إلى بريدك');
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'تعذر إرسال الرمز إلى البريد');
     } finally {
@@ -81,10 +88,13 @@ const VerifyEmail = () => {
         <form onSubmit={handleVerify} className="auth-form" noValidate>
           {error && <div className="alert alert-error">{error}</div>}
           {success && <div className="alert alert-success">{success}</div>}
+          {emailWarning && <div className="alert alert-error">{emailWarning}</div>}
 
-          <div className="alert alert-success">
-            تم إرسال الرمز إلى بريدك فقط. لن يظهر الرمز داخل الموقع لأسباب أمنية.
-          </div>
+          {!emailWarning && (
+            <div className="alert alert-success">
+              تم إرسال الرمز إلى بريدك فقط. لن يظهر الرمز داخل الموقع لأسباب أمنية.
+            </div>
+          )}
 
           <div className="form-group">
             <label htmlFor="email">البريد الإلكتروني</label>

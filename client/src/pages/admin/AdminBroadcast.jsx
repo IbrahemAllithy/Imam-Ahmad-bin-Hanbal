@@ -9,14 +9,14 @@ import './Admin.css';
 
 const AdminBroadcast = () => {
   const { showSuccess, showError } = useToast();
-  const { data: studentsData } = useFetch('/admin/students');
+  const { data: studentsData } = useFetch('/admin/students', { limit: 1 });
   const {
     data: historyData,
     loading: historyLoading,
     refetch: refetchHistory,
   } = useFetch('/notifications/broadcast/history');
-  const students = studentsData?.data || [];
-  const verifiedCount = students.filter((s) => s.isEmailVerified).length;
+  const totalStudents = studentsData?.pagination?.total ?? 0;
+  const verifiedCount = studentsData?.verifiedTotal ?? 0;
   const history = historyData?.data || [];
 
   const [form, setForm] = useState({
@@ -36,7 +36,7 @@ const AdminBroadcast = () => {
       return;
     }
 
-    if (!window.confirm(`هل أنت متأكد من إرسال الرسالة إلى ${students.length} طالب؟`)) {
+    if (!window.confirm(`هل أنت متأكد من إرسال الرسالة إلى ${totalStudents} طالب؟`)) {
       return;
     }
 
@@ -74,7 +74,7 @@ const AdminBroadcast = () => {
             <FiUsers />
           </div>
           <div className="stat-info">
-            <span className="stat-value">{students.length}</span>
+            <span className="stat-value">{totalStudents}</span>
             <span className="stat-label">إجمالي الطلاب المسجلين</span>
           </div>
         </div>

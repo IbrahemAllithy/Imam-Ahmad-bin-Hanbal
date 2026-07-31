@@ -112,7 +112,7 @@
   border-color: var(--accent-color);
   transform: translateX(-4px);
   box-shadow: var(--shadow-hover);
-  background: #fffdf9;
+  background: var(--white);
 }
 
 .lesson-bar-title {

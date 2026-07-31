@@ -21,8 +21,9 @@ export const notFound = (req, _res, next) => {
 export const errorHandler = (err, _req, res, _next) => {
   let error = { ...err, message: err.message, statusCode: err.statusCode };
 
+  // Fallback only — the upload middleware normally reports the field and its real limit.
   if (err.code === 'LIMIT_FILE_SIZE') {
-    error = new AppError('حجم الملف أكبر من المسموح', 400);
+    error = new AppError('حجم الملف أكبر من الحد المسموح به', 400);
   }
   if (err.name === 'MulterError') {
     error = new AppError('خطأ في رفع الملف', 400);

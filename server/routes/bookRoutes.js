@@ -12,7 +12,7 @@ import {
   mongoIdParam,
   listQueryValidation,
 } from '../middleware/validators.js';
-import { uploadBookFiles, validateMagicBytes } from '../middleware/upload.js';
+import { uploadBookFiles, validateMagicBytes, uploadFilesToR2 } from '../middleware/upload.js';
 
 const router = Router();
 
@@ -20,8 +20,16 @@ router.get('/', optionalAuth, listQueryValidation, getBooks);
 router.get('/:id', optionalAuth, mongoIdParam, getBook);
 
 router.use(protect, restrictTo('admin'));
-router.post('/', uploadBookFiles, validateMagicBytes, bookValidation, createBook);
-router.put('/:id', mongoIdParam, uploadBookFiles, validateMagicBytes, bookValidation, updateBook);
+router.post('/', uploadBookFiles, validateMagicBytes, uploadFilesToR2, bookValidation, createBook);
+router.put(
+  '/:id',
+  mongoIdParam,
+  uploadBookFiles,
+  validateMagicBytes,
+  uploadFilesToR2,
+  bookValidation,
+  updateBook
+);
 router.delete('/:id', mongoIdParam, deleteBook);
 
 export default router;

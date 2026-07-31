@@ -1,49 +1,8 @@
 import Notification from '../models/Notification.js';
 import User from '../models/User.js';
 import logger from '../utils/logger.js';
-import nodemailer from 'nodemailer';
 import AppError from '../utils/AppError.js';
-
-const hasSmtpConfig = () =>
-  Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
-
-const sendNotifyEmail = async ({ to, name, title, body, link }) => {
-  if (!hasSmtpConfig()) return;
-
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT || 587),
-    secure: process.env.SMTP_SECURE === 'true',
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-  });
-
-  const from = process.env.SMTP_FROM || process.env.SMTP_USER;
-  const site = process.env.CLIENT_URL || 'http://localhost:5173';
-  const fullLink = link ? `${site}${link}` : site;
-
-  await transporter.sendMail({
-    from,
-    to,
-    subject: title,
-    text: `السلام عليكم ${name}،\n\n${body}\n\n${fullLink}`,
-    html: `
-      <div style="font-family:Tahoma,Arial,sans-serif;direction:rtl;text-align:right;line-height:1.8;padding:20px;background:#faf6ee;border:1px solid #e8dfd0;border-radius:12px">
-        <h2 style="color:#6b4f2c;margin-top:0">${title}</h2>
-        <p style="color:#333;font-size:16px">السلام عليكم <strong>${name}</strong>،</p>
-        <div style="background:#fff;padding:16px;border-radius:8px;border-right:4px solid #6b4f2c;margin:15px 0">
-          <p style="margin:0;white-space:pre-wrap;color:#444">${body}</p>
-        </div>
-        ${
-          link
-            ? `<p><a href="${fullLink}" style="display:inline-block;padding:10px 20px;background:#6b4f2c;color:#fff;text-decoration:none;border-radius:6px;font-weight:bold">عرض التفاصيل بالموقع</a></p>`
-            : ''
-        }
-        <hr style="border:none;border-top:1px solid #e8dfd0;margin:20px 0" />
-        <p style="font-size:12px;color:#888;margin:0">الموقع الرسمي لفضيلة الشيخ شعبان العودة</p>
-      </div>
-    `,
-  });
-};
+import { hasSmtpConfig, sendNotificationEmail as sendNotifyEmail } from '../utils/mailer.js';
 
 export const notifyAllStudents = async ({ type, title, body, link }) => {
   try {

@@ -54,7 +54,7 @@
 
 .auth-form input:focus {
   border-color: var(--accent-color);
-  background-color: #ffffff;
+  background-color: var(--white);
   box-shadow: 0 0 0 3px oklch(0.4 0.075 50 / 0.15);
 }
 

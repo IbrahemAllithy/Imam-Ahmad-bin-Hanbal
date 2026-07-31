@@ -1,0 +1,90 @@
+import { Link } from 'react-router-dom';
+import { FiBookOpen, FiBookmark, FiChevronLeft } from 'react-icons/fi';
+import { useSiteSettings } from '../context/SiteSettingsContext';
+import { useFetch } from '../hooks/useFetch';
+import './LectureCategories.css';
+
+const SunnahBooks = () => {
+  const { settings } = useSiteSettings();
+  const books = settings.sunnahBooks || [];
+
+  // sunnahBooks[].count in site settings is a static number that nobody
+  // updates when lessons are imported, so it read 0 for every book while
+  // hundreds of lessons existed. Derive the real totals from the lessons.
+  const { data: coursesRes } = useFetch('/lectures/courses');
+
+  const lessonsByCategory = (coursesRes?.data || []).reduce((acc, course) => {
+    acc[course.category] = (acc[course.category] || 0) + (course.lessonsCount || 0);
+    return acc;
+  }, {});
+
+  return (
+    <div className="categories-page">
+      <div className="categories-hero">
+        <div className="categories-hero-inner">
+          <div className="list-breadcrumb" style={{ marginBottom: '15px' }}>
+            <Link to="/">الرئيسية</Link>
+            <span>/</span>
+            <Link to="/sunnah-reading">مقرأة السنة</Link>
+            <span>/</span>
+            <span className="current">كتب السنة</span>
+          </div>
+          <h1>كتب مقرأة السنة</h1>
+          <p>اضغط على أي كتاب لتصفح دروسه وشروحه</p>
+        </div>
+      </div>
+
+      <div className="categories-content">
+        {books.length ? (
+          <div className="categories-grid-modern">
+            {books.map((b) => {
+              const lessons = lessonsByCategory[b.name] ?? b.count ?? 0;
+              return (
+              // A card holding two destinations, so it is a container rather
+              // than one big link — nesting an anchor inside an anchor is
+              // invalid and breaks the isnad link.
+              <div key={b.id || b.name} className="category-card-modern">
+                <Link
+                  to={`/lectures/list?category=${encodeURIComponent(b.name)}`}
+                  className="cat-card-main"
+                >
+                  <div className="cat-card-top">
+                    <div className="cat-icon-box">
+                      <FiBookOpen />
+                    </div>
+                    <span className="cat-count-badge">
+                      <FiBookmark style={{ margin: '0 0 -2px 4px' }} />
+                      {lessons} درسًا
+                    </span>
+                  </div>
+
+                  <div className="cat-card-center">
+                    <h3>مقرأة {b.name}</h3>
+                    <p>شروح ودروس مفرغة في مقرأة {b.name}</p>
+                  </div>
+
+                  <div className="cat-card-bottom">
+                    <span>تصفح دروس هذا الكتاب</span>
+                    <FiChevronLeft className="cat-arrow" />
+                  </div>
+                </Link>
+
+                <Link
+                  to={`/sunnah-reading/isnad?book=${encodeURIComponent(b.name)}`}
+                  className="cat-card-isnad"
+                >
+                  للحصول على إسناد متصل للكتاب <span>(اضغط هنا)</span>
+                </Link>
+              </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="sunnah-empty">لا توجد أقسام مضافة بعد</p>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default SunnahBooks;

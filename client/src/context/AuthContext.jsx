@@ -67,13 +67,8 @@ export const AuthProvider = ({ children }) => {
       const { data } = await api.post('/auth/login', {
         email: normalizedEmail,
         password,
+        ...(requireAdmin && { requireAdmin: true }),
       });
-
-      if (requireAdmin && data.user?.role !== 'admin') {
-        throw {
-          response: { data: { message: 'هذا الحساب ليس حساب إدارة' } },
-        };
-      }
 
       sessionStorage.setItem('accessToken', data.accessToken);
       clearLegacyAuth();

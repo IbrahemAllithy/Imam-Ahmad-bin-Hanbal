@@ -10,7 +10,7 @@ const SECTIONS = [
   { id: 'about', label: 'عن الشيخ' },
   { id: 'nav', label: 'القائمة والفوتر' },
   { id: 'categories', label: 'التصنيفات' },
-  { id: 'sunnah', label: 'قراءة السنة' },
+  { id: 'sunnah', label: 'مقرأة السنة' },
   { id: 'contact', label: 'التواصل' },
   { id: 'pages', label: 'صفحات أخرى' },
 ];
@@ -653,7 +653,7 @@ const AdminSettings = () => {
         {section === 'sunnah' && (
           <>
             <p className="settings-hint">
-              هذه الأقسام تظهر ككروت في صفحة "قراءة السنة". أضف كتاب السنة هنا، ثم أضف دروسه من
+              هذه الأقسام تظهر ككروت في صفحة "مقرأة السنة". أضف كتاب السنة هنا، ثم أضف دروسه من
               قسم "المحاضرات" باختيار نفس الاسم في حقل التصنيف.
             </p>
             {(form.sunnahBooks || []).map((book, idx) => (
@@ -752,6 +752,17 @@ const AdminSettings = () => {
                 value={form.contactPage.headerSubtitle}
                 onChange={(e) => updatePath('contactPage.headerSubtitle', e.target.value)}
               />
+            </div>
+            <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+              <label>رقم واتساب لشراء الكتب</label>
+              <input
+                value={form.bookStore?.whatsappNumber || ''}
+                onChange={(e) => updatePath('bookStore.whatsappNumber', e.target.value)}
+                placeholder="+201102085387"
+              />
+              <small style={{ color: 'var(--text-muted)', display: 'block', marginTop: 4 }}>
+                💬 اللي يظهر في صفحة "شراء الكتب" — أي زائر يضغط "اطلب عبر واتساب" هيتواصل عليه
+              </small>
             </div>
           </div>
         )}

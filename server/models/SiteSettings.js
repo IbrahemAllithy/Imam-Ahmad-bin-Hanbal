@@ -11,8 +11,8 @@ export const DEFAULT_SETTINGS = {
       'دروس وكتب ومقالات مبوّبة بعناية في العقيدة والفقه والحديث والتفسير.',
   },
   hero: {
-    badge: 'الموقع الرسمي',
-    title: 'فضيلة الشيخ أبو عبيدة\nشعبان العودة',
+    badge: 'موقع الشيخ شعبان العودة',
+    title: 'الشيخ\nشعبان العودة',
     description:
       'دروس وكتب ومقالات مبوّبة بعناية في العقيدة والفقه والحديث والتفسير، لتيسير العلم الشرعي ونشره للمسلمين في كل مكان.',
     primaryCtaText: 'استعرض الدروس',
@@ -36,10 +36,13 @@ export const DEFAULT_SETTINGS = {
     'نرحب بكم في حلة الموقع الجديدة.',
   ],
   exploreLinks: [
-    { label: 'الدروس المرئية', href: '/lectures' },
-    { label: 'مكتبة الكتب', href: '/books' },
-    { label: 'المقالات والبحوث', href: '/articles' },
-    { label: 'جميع التصنيفات', href: '/lectures' },
+    { label: 'الدروس', href: '/lectures' },
+    { label: 'الكتب', href: '/books' },
+    { label: 'المقالات', href: '/articles' },
+    { label: 'مقرأة السنة', href: '/sunnah-reading' },
+    { label: 'تعلم عن بعد', href: '/distance-learning' },
+    { label: 'البراعم', href: '/kids' },
+    { label: 'النساء', href: '/women' },
   ],
   cta: {
     title: 'التواصل والتسجيل',
@@ -73,19 +76,25 @@ export const DEFAULT_SETTINGS = {
     links: [
       { to: '/', label: 'الرئيسية' },
       { to: '/about', label: 'عن الشيخ' },
-      { to: '/contact', label: 'التواصل والتسجيل' },
+      { to: '/events', label: 'فعاليات' },
+      { to: '/testimonials', label: 'قالوا عن الموقع' },
     ],
     ctaText: 'سجّل الآن',
     ctaLink: '/register',
+  },
+  bookStore: {
+    whatsappNumber: '+201102085387',
   },
   footer: {
     title: 'الموقع الرسمي للشيخ شعبان العودة',
     description:
       'الموقع الرسمي للشيخ شعبان العودة، يقدّم دروسًا وكتبًا ومقالات شرعية مبوّبة.',
-    email: 'shbanalwdt48@gmail.com',
+    email: '',
     socialLinks: [
-      { label: 'تويتر / X', url: '' },
-      { label: 'تيليجرام', url: '' },
+      { label: 'يوتيوب', url: 'https://www.youtube.com/channel/UCWTK2Gb8WcZW6Q9tWBmmBwA/playlists' },
+      { label: 'فيسبوك', url: 'https://www.facebook.com/profile.php?id=61566515948762' },
+      { label: 'تيليجرام', url: 'https://web.telegram.org/a/#-1001383061907' },
+      { label: 'واتساب', url: 'https://whatsapp.com/channel/0029Vb748CD5fM5X14qXvo2o' },
     ],
     copyrightSuffix: 'جميع الحقوق محفوظة.',
     sectionsTitle: 'الأقسام',
@@ -311,6 +320,13 @@ const siteSettingsSchema = new mongoose.Schema(
     },
     categories: { type: [categorySchema], default: DEFAULT_SETTINGS.categories },
     sunnahBooks: { type: [categorySchema], default: DEFAULT_SETTINGS.sunnahBooks },
+    bookStore: {
+      whatsappNumber: {
+        type: String,
+        trim: true,
+        default: DEFAULT_SETTINGS.bookStore.whatsappNumber,
+      },
+    },
   },
   { timestamps: true }
 );

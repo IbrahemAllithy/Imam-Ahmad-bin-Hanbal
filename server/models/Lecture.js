@@ -78,6 +78,12 @@ const lectureSchema = new mongoose.Schema(
       default: 0,
       min: 0,
     },
+    /** Position of this lecture's whole series within its category's course listing */
+    seriesOrder: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
     publishedAt: {
       type: Date,
       default: Date.now,

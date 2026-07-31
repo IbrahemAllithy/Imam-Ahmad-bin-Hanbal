@@ -1,10 +1,37 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useFetch } from '../../hooks/useFetch';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import api from '../../services/api';
 import { extractYoutubeId, getYoutubeEmbedUrl } from '../../utils/helpers';
 import Loader from '../../components/ui/Loader';
-import { FiEdit2, FiTrash2, FiVideo, FiBookOpen, FiPlus, FiCheck, FiX } from 'react-icons/fi';
+import {
+  FiEdit2,
+  FiTrash2,
+  FiVideo,
+  FiBookOpen,
+  FiPlus,
+  FiCheck,
+  FiX,
+  FiHelpCircle,
+  FiMove,
+  FiChevronDown,
+  FiDownload,
+  FiUpload,
+} from 'react-icons/fi';
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+  arrayMove,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import './Admin.css';
 
 const emptyQuizItem = () => ({
@@ -27,6 +54,8 @@ const emptyLecture = {
   quizItems: [],
 };
 
+const emptyImportForm = { playlistUrl: '', category: '', series: '' };
+
 const toDatetimeLocal = (iso) => {
   if (!iso) return '';
   const d = new Date(iso);
@@ -35,23 +64,238 @@ const toDatetimeLocal = (iso) => {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };
 
-const AdminLectures = () => {
+// Groups lectures by series, sorted the same way the public site orders them
+// (seriesOrder for the series block, order for lessons inside it), so drag
+// handles here match what a visitor actually sees.
+const buildSeriesGroups = (list) => {
+  const bySeries = new Map();
+  list.forEach((lecture) => {
+    const key = lecture.series || 'بدون سلسلة';
+    if (!bySeries.has(key)) {
+      bySeries.set(key, { series: key, seriesOrder: lecture.seriesOrder || 0, lectures: [] });
+    }
+    const group = bySeries.get(key);
+    group.seriesOrder = Math.max(group.seriesOrder, lecture.seriesOrder || 0);
+    group.lectures.push(lecture);
+  });
+  const groups = [...bySeries.values()];
+  groups.forEach((g) => {
+    g.lectures.sort((a, b) => {
+      const orderA = a.order ?? 0;
+      const orderB = b.order ?? 0;
+      if (orderA !== orderB) return orderA - orderB;
+      return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
+    });
+  });
+  groups.sort((a, b) => {
+    if (a.seriesOrder !== b.seriesOrder) return a.seriesOrder - b.seriesOrder;
+    return a.series.localeCompare(b.series, 'ar');
+  });
+  return groups;
+};
+
+// seriesOrder is scoped per category, and the "كل الدروس" admin tab lists every
+// category together — so series must be grouped (and reordered) one category
+// at a time, never mixed across categories in a single sortable list.
+const buildCategoryBlocks = (list, fixedCategory) => {
+  if (fixedCategory) {
+    return [{ category: fixedCategory, groups: buildSeriesGroups(list) }];
+  }
+  const byCategory = new Map();
+  list.forEach((lecture) => {
+    const key = lecture.category || 'عام';
+    if (!byCategory.has(key)) byCategory.set(key, []);
+    byCategory.get(key).push(lecture);
+  });
+  return [...byCategory.entries()]
+    .sort(([a], [b]) => a.localeCompare(b, 'ar'))
+    .map(([category, lectures]) => ({ category, groups: buildSeriesGroups(lectures) }));
+};
+
+const LessonRow = ({ lecture, onEdit, onDelete }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: lecture._id,
+  });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="admin-lecture-card lesson-sortable-row">
+      <div className="card-badge-row">
+        <span className="card-cat-badge">{lecture.category}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {lecture.order != null && <span className="card-pdf-badge">#{lecture.order}</span>}
+          <button type="button" className="drag-handle" {...attributes} {...listeners} aria-label="اسحب لإعادة الترتيب">
+            <FiMove />
+          </button>
+        </div>
+      </div>
+      <h4 className="card-lecture-title">{lecture.title}</h4>
+      <div className="card-actions-footer">
+        <button type="button" className="btn-card-edit" onClick={() => onEdit(lecture)}>
+          <FiEdit2 /> تعديل
+        </button>
+        <button type="button" className="btn-card-delete" onClick={() => onDelete(lecture._id)}>
+          <FiTrash2 /> حذف
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const SeriesGroup = ({ group, expanded, onToggle, onReorderLessons, onEdit, onDelete }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: group.series,
+  });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
+
+  const handleLessonDragEnd = (event) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = group.lectures.findIndex((l) => l._id === active.id);
+    const newIndex = group.lectures.findIndex((l) => l._id === over.id);
+    const reordered = arrayMove(group.lectures, oldIndex, newIndex);
+    onReorderLessons(group.series, reordered);
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="series-group">
+      <div className="series-group-header">
+        <button type="button" className="drag-handle" {...attributes} {...listeners} aria-label="اسحب لإعادة ترتيب السلسلة">
+          <FiMove />
+        </button>
+        <button type="button" className="series-toggle" onClick={() => onToggle(group.series)}>
+          <FiChevronDown className={expanded ? 'chevron-open' : ''} />
+          <FiVideo /> {group.series}
+          <span className="card-cat-badge">{group.lectures.length} درس</span>
+        </button>
+      </div>
+
+      {expanded && (
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleLessonDragEnd}>
+          <SortableContext items={group.lectures.map((l) => l._id)} strategy={verticalListSortingStrategy}>
+            <div className="series-group-body admin-cards-grid">
+              {group.lectures.map((lecture) => (
+                <LessonRow key={lecture._id} lecture={lecture} onEdit={onEdit} onDelete={onDelete} />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
+      )}
+    </div>
+  );
+};
+
+const AdminLectures = ({ fixedCategory }) => {
   const { data, loading, error: fetchError, refetch } = useFetch('/lectures', {
-    limit: 200,
+    limit: 1000,
     all: 1,
+    ...(fixedCategory && { category: fixedCategory }),
   });
   const { categoryNames } = useSiteSettings();
-  const [form, setForm] = useState(emptyLecture);
+  const [form, setForm] = useState(() => ({
+    ...emptyLecture,
+    category: fixedCategory || emptyLecture.category,
+  }));
   const [editId, setEditId] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const lecturesList = data?.data || [];
+  // The picked file lives outside `form` — it is uploaded on its own, before the lesson is saved,
+  // and the URL it returns is what the lesson actually stores. The key resets the file input,
+  // which cannot be cleared by state alone.
+  const [pdfFile, setPdfFile] = useState(null);
+  const [pdfInputKey, setPdfInputKey] = useState(0);
+  const [pdfUploading, setPdfUploading] = useState(false);
+  const [applyPdfToSeries, setApplyPdfToSeries] = useState(true);
+
+  const [importForm, setImportForm] = useState(() => ({
+    ...emptyImportForm,
+    category: fixedCategory || '',
+  }));
+  const [importing, setImporting] = useState(false);
+  const [importError, setImportError] = useState('');
+  const [importSuccess, setImportSuccess] = useState('');
+
   const categories = categoryNames.length
     ? categoryNames
     : ['العقيدة', 'الفقه', 'أصول فقه', 'التفسير', 'الحديث', 'السيرة', 'آداب طالب العلم', 'الرقائق', 'علوم قرآن', 'عام'];
+
+  const [categoryBlocks, setCategoryBlocks] = useState([]);
+  useEffect(() => {
+    setCategoryBlocks(buildCategoryBlocks(data?.data || [], fixedCategory));
+  }, [data, fixedCategory]);
+
+  const [expandedSeries, setExpandedSeries] = useState(() => new Set());
+  const toggleSeries = (series) => {
+    setExpandedSeries((prev) => {
+      const next = new Set(prev);
+      if (next.has(series)) next.delete(series);
+      else next.add(series);
+      return next;
+    });
+  };
+
   const previewId = extractYoutubeId(form.youtubeUrl);
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
+
+  const resetCategoryBlocks = () => setCategoryBlocks(buildCategoryBlocks(data?.data || [], fixedCategory));
+
+  const handleSeriesDragEnd = (category) => async (event) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const block = categoryBlocks.find((b) => b.category === category);
+    const oldIndex = block.groups.findIndex((g) => g.series === active.id);
+    const newIndex = block.groups.findIndex((g) => g.series === over.id);
+    const reorderedGroups = arrayMove(block.groups, oldIndex, newIndex);
+    setCategoryBlocks((prev) =>
+      prev.map((b) => (b.category === category ? { ...b, groups: reorderedGroups } : b))
+    );
+
+    try {
+      await api.put('/lectures/reorder-series', {
+        category,
+        seriesNames: reorderedGroups.map((g) => g.series),
+      });
+      refetch();
+    } catch (err) {
+      setError(err.response?.data?.message || 'فشل حفظ ترتيب السلاسل');
+      resetCategoryBlocks();
+    }
+  };
+
+  const handleReorderLessons = (category) => async (seriesName, reorderedLessons) => {
+    setCategoryBlocks((prev) =>
+      prev.map((b) =>
+        b.category !== category
+          ? b
+          : {
+              ...b,
+              groups: b.groups.map((g) =>
+                g.series === seriesName ? { ...g, lectures: reorderedLessons } : g
+              ),
+            }
+      )
+    );
+    try {
+      await api.put('/lectures/reorder-lessons', { ids: reorderedLessons.map((l) => l._id) });
+      refetch();
+    } catch (err) {
+      setError(err.response?.data?.message || 'فشل حفظ ترتيب الدروس');
+      resetCategoryBlocks();
+    }
+  };
 
   const updateQuizItem = (idx, field, value) => {
     setForm((prev) => {
@@ -85,6 +329,66 @@ const AdminLectures = () => {
     }));
   };
 
+  const handleImportSubmit = async (e) => {
+    e.preventDefault();
+    setImportError('');
+    setImportSuccess('');
+    setImporting(true);
+    try {
+      const res = await api.post('/lectures/import-playlist', {
+        playlistUrl: importForm.playlistUrl,
+        category: fixedCategory || importForm.category,
+        series: importForm.series,
+      });
+      const d = res.data?.data;
+      setImportSuccess(
+        `تم الاستيراد: ${d.videosFound} فيديو — أضيف ${d.created} / حُدّث ${d.updated} / تخطّي ${d.skipped}. السلسلة "${d.seriesName}" أُضيفت بترتيب ${d.seriesOrder} داخل فئة ${d.category}.`
+      );
+      setImportForm({ ...emptyImportForm, category: fixedCategory || '' });
+      refetch();
+    } catch (err) {
+      setImportError(err.response?.data?.message || 'فشل استيراد قائمة التشغيل');
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const seriesName = (form.series || '').trim();
+
+  const handlePdfUpload = async () => {
+    if (!pdfFile) return;
+    setError('');
+    setSuccess('');
+    setPdfUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('pdf', pdfFile);
+      if (applyPdfToSeries && seriesName) formData.append('series', seriesName);
+
+      const res = await api.post('/lectures/pdf', formData);
+      const { url, updated } = res.data?.data || {};
+
+      setForm((prev) => ({ ...prev, pdfUrl: url }));
+      setPdfFile(null);
+      setPdfInputKey((k) => k + 1);
+      setSuccess(
+        updated
+          ? `تم رفع الكتاب وربطه بـ ${updated} درساً في سلسلة "${seriesName}" ✓`
+          : 'تم رفع الكتاب — الرابط جاهز في الحقل بالأسفل، اضغط حفظ لربطه بهذا الدرس ✓'
+      );
+    } catch (err) {
+      setError(
+        err.response?.data?.message ||
+          (err.response?.status === 401
+            ? 'انتهت الجلسة — سجّل دخول الأدمن بحساب حقيقي من السيرفر'
+            : 'فشل رفع ملف PDF')
+      );
+    } finally {
+      setPdfUploading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -113,7 +417,7 @@ const AdminLectures = () => {
 
     const payload = {
       title: form.title,
-      category: form.category,
+      category: fixedCategory || form.category,
       series: form.series || form.title.split('—')[0].trim(),
       order: Number(form.order) || 0,
       youtubeUrl: form.youtubeUrl,
@@ -139,8 +443,10 @@ const AdminLectures = () => {
         await api.post('/lectures', payload);
         setSuccess('تم إضافة الدرس — يظهر الآن في صفحات العرض ✓');
       }
-      setForm(emptyLecture);
+      setForm({ ...emptyLecture, category: fixedCategory || emptyLecture.category });
       setEditId(null);
+      setPdfFile(null);
+      setPdfInputKey((k) => k + 1);
       refetch();
     } catch (err) {
       setError(
@@ -156,9 +462,11 @@ const AdminLectures = () => {
 
   const handleEdit = (lecture) => {
     setEditId(lecture._id);
+    setPdfFile(null);
+    setPdfInputKey((k) => k + 1);
     setForm({
       title: lecture.title || '',
-      category: lecture.category || categories[0] || 'العقيدة',
+      category: fixedCategory || lecture.category || categories[0] || 'العقيدة',
       series: lecture.series || '',
       order: lecture.order ?? 0,
       publishedAt: toDatetimeLocal(lecture.publishedAt),
@@ -201,10 +509,67 @@ const AdminLectures = () => {
     <div className="admin-lectures-page">
       <div className="admin-page-header">
         <div>
-          <h2>إدارة الدروس والكتب والدورات</h2>
+          <h2>{fixedCategory ? `إدارة دروس ${fixedCategory}` : 'إدارة الدروس والكتب والدورات'}</h2>
           <p>أي إضافة أو تعديل يُحفظ على السيرفر ويظهر مباشرة للزوار</p>
         </div>
       </div>
+
+      <form onSubmit={handleImportSubmit} className="admin-form-card">
+        <h3 className="form-card-title">
+          <FiDownload /> استيراد سلسلة كاملة من قائمة تشغيل يوتيوب
+        </h3>
+        <p className="settings-hint">
+          الصق رابط قائمة التشغيل، اختر الفئة واكتب اسم السلسلة — يُستورد كل الفيديوهات تلقائيًا
+          وتُضاف السلسلة في آخر ترتيب فئتها مباشرة.
+        </p>
+
+        {importError && <div className="alert alert-error">{importError}</div>}
+        {importSuccess && <div className="alert alert-success">{importSuccess}</div>}
+
+        <div className="form-grid">
+          <div className="form-group">
+            <label>رابط قائمة التشغيل *</label>
+            <input
+              value={importForm.playlistUrl}
+              onChange={(e) => setImportForm({ ...importForm, playlistUrl: e.target.value })}
+              required
+              placeholder="https://www.youtube.com/playlist?list=..."
+            />
+          </div>
+
+          {!fixedCategory && (
+            <div className="form-group">
+              <label>الفئة *</label>
+              <select
+                value={importForm.category}
+                onChange={(e) => setImportForm({ ...importForm, category: e.target.value })}
+                required
+              >
+                <option value="" disabled>اختر الفئة</option>
+                {categories.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <div className="form-group">
+            <label>اسم السلسلة *</label>
+            <input
+              value={importForm.series}
+              onChange={(e) => setImportForm({ ...importForm, series: e.target.value })}
+              required
+              placeholder="مثال: شرح كتاب التوحيد"
+            />
+          </div>
+        </div>
+
+        <div className="form-actions-bar">
+          <button type="submit" className="btn-admin-submit" disabled={importing}>
+            <FiDownload /> {importing ? 'جارٍ الاستيراد…' : 'استيراد القائمة'}
+          </button>
+        </div>
+      </form>
 
       <form onSubmit={handleSubmit} className="admin-form-card">
         <h3 className="form-card-title">
@@ -258,17 +623,19 @@ const AdminLectures = () => {
             </small>
           </div>
 
-          <div className="form-group">
-            <label>العلم الشرعي / التصنيف</label>
-            <select
-              value={form.category}
-              onChange={(e) => setForm({ ...form, category: e.target.value })}
-            >
-              {categories.map((c) => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
-          </div>
+          {!fixedCategory && (
+            <div className="form-group">
+              <label>العلم الشرعي / التصنيف</label>
+              <select
+                value={form.category}
+                onChange={(e) => setForm({ ...form, category: e.target.value })}
+              >
+                {categories.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div className="form-group">
             <label>رابط فيديو اليوتيوب *</label>
@@ -281,12 +648,48 @@ const AdminLectures = () => {
           </div>
 
           <div className="form-group">
-            <label>رابط الكتاب PDF (مثلاً Archive.org)</label>
+            <label>كتاب الدرس PDF — ارفع الملف أو ضع رابطاً</label>
+            <input
+              key={pdfInputKey}
+              type="file"
+              accept="application/pdf,.pdf"
+              onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
+            />
+            {pdfFile && (
+              <div className="pdf-upload-row">
+                <button
+                  type="button"
+                  className="btn-admin-submit"
+                  style={{ padding: '6px 12px' }}
+                  onClick={handlePdfUpload}
+                  disabled={pdfUploading}
+                >
+                  <FiUpload /> {pdfUploading ? 'جارٍ الرفع…' : 'رفع الكتاب'}
+                </button>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                  {pdfFile.name} — {(pdfFile.size / (1024 * 1024)).toFixed(1)} ميجابايت
+                </span>
+              </div>
+            )}
+            {pdfFile && seriesName && (
+              <label className="pdf-series-toggle">
+                <input
+                  type="checkbox"
+                  checked={applyPdfToSeries}
+                  onChange={(e) => setApplyPdfToSeries(e.target.checked)}
+                />
+                ربط الكتاب بكل دروس سلسلة &quot;{seriesName}&quot; دفعة واحدة
+              </label>
+            )}
             <input
               value={form.pdfUrl}
               onChange={(e) => setForm({ ...form, pdfUrl: e.target.value })}
               placeholder="https://archive.org/embed/..."
+              style={{ marginTop: '8px' }}
             />
+            <small style={{ color: 'var(--text-muted)' }}>
+              الحد الأقصى للملف 50 ميجابايت. الرفع يملأ حقل الرابط تلقائياً.
+            </small>
           </div>
 
           <div className="form-group">
@@ -318,13 +721,19 @@ const AdminLectures = () => {
           />
         </div>
 
-        <div className="form-group" style={{ marginTop: '16px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <label>اختبار MCQ (اختيار من متعدد)</label>
+        <div className="admin-form-card quiz-builder-card" style={{ marginTop: '24px', marginBottom: 0 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+            <h3 className="form-card-title" style={{ marginBottom: 0 }}>
+              <FiHelpCircle /> اختبار MCQ (اختيار من متعدد)
+            </h3>
             <button type="button" className="btn-admin-submit" style={{ padding: '6px 12px' }} onClick={addQuizItem}>
               <FiPlus /> إضافة سؤال
             </button>
           </div>
+          <p className="settings-hint" style={{ marginTop: '6px' }}>
+            اختياري — لو أضفت أسئلة هنا، الطالب لازم يحلها ويحصل على 60% على الأقل عشان يقدر يكمّل الدرس ويحصل على الشهادة.
+            التصحيح يتم تلقائياً على السيرفر، وتحديد الإجابة الصحيحة يكون بالضغط على الدائرة بجانب الخيار الصح.
+          </p>
 
           {(form.quizItems || []).map((item, idx) => (
             <div
@@ -378,7 +787,9 @@ const AdminLectures = () => {
               className="btn-admin-cancel"
               onClick={() => {
                 setEditId(null);
-                setForm(emptyLecture);
+                setForm({ ...emptyLecture, category: fixedCategory || emptyLecture.category });
+                setPdfFile(null);
+                setPdfInputKey((k) => k + 1);
               }}
             >
               إلغاء التعديل
@@ -389,43 +800,41 @@ const AdminLectures = () => {
 
       <div className="admin-list-section">
         <div className="list-section-header">
-          <h3>قائمة الدروس المتاحة ({lecturesList.length})</h3>
+          <h3>السلاسل والدروس ({data?.data?.length || 0}) — اسحب لإعادة الترتيب</h3>
         </div>
 
-        {loading && !lecturesList.length ? (
+        {loading && !categoryBlocks.length ? (
           <Loader />
         ) : (
-          <div className="admin-cards-grid">
-            {lecturesList.map((item) => (
-              <div key={item._id} className="admin-lecture-card">
-                <div className="card-badge-row">
-                  <span className="card-cat-badge">{item.category}</span>
-                  {item.order != null && (
-                    <span className="card-pdf-badge">#{item.order}</span>
-                  )}
-                  {item.pdfUrl && <span className="card-pdf-badge"><FiBookOpen /> PDF مرفق</span>}
-                </div>
-
-                <h4 className="card-lecture-title">{item.title}</h4>
-                <p className="card-series-name">
-                  <FiVideo /> {item.series || 'بدون سلسلة'}
-                </p>
-
-                <div className="card-actions-footer">
-                  <button type="button" className="btn-card-edit" onClick={() => handleEdit(item)}>
-                    <FiEdit2 /> تعديل
-                  </button>
-                  <button type="button" className="btn-card-delete" onClick={() => handleDelete(item._id)}>
-                    <FiTrash2 /> حذف
-                  </button>
-                </div>
+          <>
+            {categoryBlocks.map((block) => (
+              <div key={block.category} className="category-block">
+                {!fixedCategory && <h4 className="category-block-title">{block.category}</h4>}
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleSeriesDragEnd(block.category)}
+                >
+                  <SortableContext items={block.groups.map((g) => g.series)} strategy={verticalListSortingStrategy}>
+                    <div className="series-groups-list">
+                      {block.groups.map((group) => (
+                        <SeriesGroup
+                          key={group.series}
+                          group={group}
+                          expanded={expandedSeries.has(group.series)}
+                          onToggle={toggleSeries}
+                          onReorderLessons={handleReorderLessons(block.category)}
+                          onEdit={handleEdit}
+                          onDelete={handleDelete}
+                        />
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
               </div>
             ))}
-
-            {!lecturesList.length && (
-              <p className="empty-list-msg">لا توجد دروس مضافة حتى الآن.</p>
-            )}
-          </div>
+            {!categoryBlocks.length && <p className="empty-list-msg">لا توجد دروس مضافة حتى الآن.</p>}
+          </>
         )}
       </div>
     </div>
