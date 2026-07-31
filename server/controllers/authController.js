@@ -31,7 +31,7 @@ const signRefreshToken = (userId) =>
 
 const hashToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
 
-// In production the frontend (vercel.app) and API (onrender.com) are
+// In production the frontend (shabanalawda.com) and API (onrender.com) are
 // different sites, so the refresh cookie must be SameSite=None (with
 // Secure) or the browser will never send it and sessions die after the
 // 15-minute access token expires.

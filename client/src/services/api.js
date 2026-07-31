@@ -1,9 +1,22 @@
 import axios from 'axios';
 
-const PROD_FALLBACK_API_URL = 'https://imam-ahmad-bin-hanbal.onrender.com/api';
-const API_URL =
-  import.meta.env.VITE_API_URL ||
-  (import.meta.env.DEV ? 'http://localhost:5000/api' : PROD_FALLBACK_API_URL);
+// cPanel hosts only the static React build. The API lives on Render, so a
+// relative "/api" base (or a missing VITE_API_URL) must never be used in
+// production — it would hit Apache, get rewritten to index.html, and login fails silently.
+const PROD_API_URL = 'https://imam-ahmad-bin-hanbal.onrender.com/api';
+
+const resolveApiUrl = () => {
+  const fromEnv = (import.meta.env.VITE_API_URL || '').trim().replace(/\/$/, '');
+  if (import.meta.env.DEV) {
+    return fromEnv || 'http://localhost:5000/api';
+  }
+  if (!fromEnv || fromEnv === '/api' || fromEnv.startsWith('http://localhost')) {
+    return PROD_API_URL;
+  }
+  return fromEnv;
+};
+
+const API_URL = resolveApiUrl();
 const BASE_URL = API_URL.replace(/\/api$/, '');
 
 const api = axios.create({

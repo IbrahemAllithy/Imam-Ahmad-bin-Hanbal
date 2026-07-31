@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import logger from './logger.js';
 import AppError from './AppError.js';
+import CLIENT_URL from '../config/clientUrl.js';
 
 const OTP_LENGTH = 6;
 const OTP_TTL_MS = 10 * 60 * 1000;
@@ -102,7 +103,7 @@ export const sendPasswordResetEmail = async ({ to, name, token }) => {
     );
   }
 
-  const clientUrl = (process.env.CLIENT_URL || 'http://localhost:5173').replace(/\/$/, '');
+  const clientUrl = CLIENT_URL;
   const resetUrl = `${clientUrl}/reset-password?token=${encodeURIComponent(token)}`;
 
   const subject = 'إعادة تعيين كلمة المرور — الموقع الرسمي للشيخ شعبان العودة';
@@ -182,7 +183,7 @@ ${message}`;
 export const sendNotificationEmail = async ({ to, name, title, body, link }) => {
   if (!hasSmtpConfig()) return { sent: false };
 
-  const site = (process.env.CLIENT_URL || 'http://localhost:5173').replace(/\/$/, '');
+  const site = CLIENT_URL;
   const fullLink = link ? `${site}${link}` : site;
 
   const text = `السلام عليكم ${name}،\n\n${body}\n\n${fullLink}`;

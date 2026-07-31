@@ -13,6 +13,7 @@ import rateLimit from 'express-rate-limit';
 
 import connectDB from './config/db.js';
 import { R2_ENABLED } from './config/r2.js';
+import { CLIENT_ORIGINS } from './config/clientUrl.js';
 import { xssSanitize } from './utils/sanitize.js';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
 import { STORAGE_PATHS } from './middleware/upload.js';
@@ -39,7 +40,6 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 
 app.disable('x-powered-by');
 
@@ -66,7 +66,7 @@ app.use(
         styleSrc: ["'self'", "'unsafe-inline'"],
         imgSrc: ["'self'", 'data:', 'https://img.youtube.com', 'https://i.ytimg.com'],
         frameSrc: ["'self'", 'https://www.youtube.com'],
-        connectSrc: ["'self'", CLIENT_URL],
+        connectSrc: ["'self'", ...CLIENT_ORIGINS],
       },
     },
     crossOriginEmbedderPolicy: false,
@@ -76,7 +76,13 @@ app.use(
 
 app.use(
   cors({
-    origin: CLIENT_URL,
+    origin(origin, callback) {
+      // Same-origin / server-to-server tools may omit Origin.
+      if (!origin || CLIENT_ORIGINS.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error(`Origin ${origin} not allowed by CORS`));
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
