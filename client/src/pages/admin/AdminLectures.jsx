@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useFetch } from '../../hooks/useFetch';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import api from '../../services/api';
-import { extractYoutubeId, getYoutubeEmbedUrl } from '../../utils/helpers';
+import { extractYoutubeId, getYoutubeEmbedUrl, normalizeAudioUrl } from '../../utils/helpers';
 import Loader from '../../components/ui/Loader';
 import {
   FiEdit2,
@@ -355,6 +355,20 @@ const AdminLectures = ({ fixedCategory }) => {
 
   const seriesName = (form.series || '').trim();
 
+  // A link that doesn't end in an audio extension is almost always a page rather than a file —
+  // the <audio> tag stays silent with no error, so the admin needs to hear about it here.
+  const audioUrlWarning = (() => {
+    const url = (form.audioUrl || '').trim();
+    if (!url) return '';
+    if (/^https?:\/\/(www\.)?(drive|docs)\.google\.com\//i.test(url)) {
+      return 'روابط جوجل درايف لا تعمل في المشغل — ارفع الملف على archive.org.';
+    }
+    if (!/\.(mp3|m4a|ogg|wav|aac)(\?.*)?$/i.test(url)) {
+      return 'الرابط لا ينتهي بامتداد صوتي — تأكد أنه رابط الملف نفسه لا صفحة عرضه.';
+    }
+    return '';
+  })();
+
   const handlePdfUpload = async () => {
     if (!pdfFile) return;
     setError('');
@@ -423,7 +437,8 @@ const AdminLectures = ({ fixedCategory }) => {
       youtubeUrl: form.youtubeUrl,
       youtubeId,
       pdfUrl: form.pdfUrl || '',
-      audioUrl: form.audioUrl || '',
+      // Normalized again here: submitting with Enter never fires the field's onBlur.
+      audioUrl: normalizeAudioUrl(form.audioUrl),
       description: form.description || '',
       quizQuestions,
       quizItems,
@@ -697,8 +712,16 @@ const AdminLectures = ({ fixedCategory }) => {
             <input
               value={form.audioUrl}
               onChange={(e) => setForm({ ...form, audioUrl: e.target.value })}
+              onBlur={(e) => setForm({ ...form, audioUrl: normalizeAudioUrl(e.target.value) })}
               placeholder="https://.../audio.mp3"
             />
+            {audioUrlWarning ? (
+              <small style={{ color: 'var(--accent-color)' }}>{audioUrlWarning}</small>
+            ) : (
+              <small style={{ color: 'var(--text-muted)' }}>
+                الصق رابط الملف من archive.org وسيُصحَّح تلقائياً. روابط جوجل درايف لا تعمل.
+              </small>
+            )}
           </div>
         </div>
 

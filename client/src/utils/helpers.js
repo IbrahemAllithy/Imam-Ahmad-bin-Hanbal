@@ -23,6 +23,26 @@ export const formatDate = (dateStr) => {
   });
 };
 
+/**
+ * Turns whatever an archive.org page hands you into a URL the <audio> tag can actually play.
+ *
+ * archive.org exposes three shapes of the same item: /details/ (the HTML page), /embed/ (an
+ * HTML player meant for an iframe) and /download/ (the file itself). Copying from the address
+ * bar gives you one of the first two, which an <audio src> can never play. Those pages also
+ * write spaces in the filename as "+", and a "+" inside a URL *path* is a literal plus — so
+ * the download server 404s on it. Both mistakes are fixed here.
+ *
+ * Anything that isn't an archive.org URL is returned untouched.
+ */
+export const normalizeAudioUrl = (url) => {
+  const trimmed = String(url || '').trim();
+  if (!/^https?:\/\/(www\.)?archive\.org\/(details|embed)\//i.test(trimmed)) return trimmed;
+
+  return trimmed
+    .replace(/\/(details|embed)\//i, '/download/')
+    .replace(/\+/g, '%20');
+};
+
 export const truncate = (text, length = 120) => {
   if (!text) return '';
   const plain = text.replace(/<[^>]+>/g, '');

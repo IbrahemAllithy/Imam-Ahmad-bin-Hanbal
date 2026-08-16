@@ -61,6 +61,7 @@ export const lectureValidation = [
   body('description').optional().trim().isLength({ max: 5000 }).withMessage('الوصف طويل جداً'),
   body('series').optional().trim().isLength({ max: 150 }).withMessage('اسم السلسلة طويل جداً'),
   body('category').optional().trim().isLength({ max: 100 }).withMessage('التصنيف طويل جداً'),
+  body('audioUrl').optional().trim().isLength({ max: 2000 }).withMessage('رابط الملف الصوتي طويل جداً'),
   validate,
 ];
 

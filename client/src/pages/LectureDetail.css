@@ -180,29 +180,7 @@
   border: none;
 }
 
-.sketch-audio-box {
-  background: var(--white);
-  border: 1px solid #e0d4c3;
-  border-radius: 14px;
-  padding: 14px 18px;
-}
-
-.sketch-audio-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-heading);
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--primary-text);
-  margin-bottom: 8px;
-}
-
-.sketch-audio-player {
-  width: 100%;
-  height: 38px;
-  outline: none;
-}
+/* The audio box styles live with the component, in components/lectures/AudioPlayer.css */
 
 /* Sidebar Playlist (Far Right) */
 .sketch-sidebar {

@@ -1,0 +1,69 @@
+.sketch-audio-box {
+  background: var(--white);
+  border: 1px solid var(--primary-border);
+  border-radius: 14px;
+  padding: 14px 18px;
+}
+
+.sketch-audio-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary-text);
+  margin-bottom: 8px;
+}
+
+.sketch-audio-player {
+  width: 100%;
+  height: 38px;
+  outline: none;
+}
+
+.sketch-audio-speed {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.sketch-audio-speed-label {
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary-text-muted);
+  margin-inline-end: 2px;
+}
+
+.sketch-audio-speed-btn {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 6px 10px;
+  border: 1px solid var(--primary-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--primary-text-muted);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.sketch-audio-speed-btn:hover {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+
+.sketch-audio-speed-btn.active {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  color: var(--white);
+}
+
+.sketch-audio-speed-btn:focus-visible {
+  outline: 2px solid var(--accent-hover);
+  outline-offset: 2px;
+}

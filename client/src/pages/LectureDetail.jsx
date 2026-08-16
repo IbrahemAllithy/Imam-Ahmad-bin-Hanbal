@@ -7,7 +7,6 @@ import api from '../services/api';
 import {
   FiCheckCircle,
   FiBookOpen,
-  FiVolume2,
   FiHelpCircle,
   FiExternalLink,
   FiChevronRight,
@@ -15,6 +14,7 @@ import {
   FiMessageCircle,
 } from 'react-icons/fi';
 import VideoPlayer from '../components/lectures/VideoPlayer';
+import AudioPlayer from '../components/lectures/AudioPlayer';
 import Loader from '../components/ui/Loader';
 import './LectureDetail.css';
 
@@ -270,17 +270,7 @@ const LectureDetail = () => {
                 />
               </div>
 
-              {audioUrl && (
-                <div className="sketch-audio-box">
-                  <div className="sketch-audio-header">
-                    <FiVolume2 />
-                    <span>صوتي (الاستماع للدرس)</span>
-                  </div>
-                  <audio controls className="sketch-audio-player" src={audioUrl}>
-                    متصفحك لا يدعم مشغل الصوت.
-                  </audio>
-                </div>
-              )}
+              <AudioPlayer src={audioUrl} />
             </div>
           </div>
 
