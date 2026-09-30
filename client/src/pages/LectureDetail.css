@@ -1,21 +1,21 @@
 .sketch-lecture-page {
   direction: rtl;
-  font-family: var(--font-body);
-  background: #f7f1e7; /* Warm beige matching user screenshot */
+  font-family: var(--font-family-secondary);
+  background: var(--surface-0);
   min-height: 100vh;
-  color: var(--primary-text);
-  padding-bottom: 60px;
+  color: var(--text-primary);
+  padding-bottom: var(--space-3xl);
 }
 
 [data-theme='dark'] .sketch-lecture-page {
-  background: var(--primary-bg);
+  background: var(--surface-0);
 }
 
 /* Header Banner */
 .sketch-page-header {
-  background: #3c2415; /* Dark brown header from screenshot */
-  color: #ffffff;
-  padding: 40px 48px 48px;
+  background: var(--brand-primary);
+  color: var(--surface-0);
+  padding: var(--space-2xl) var(--space-3xl) var(--space-3xl);
   text-align: center;
 }
 
@@ -25,74 +25,74 @@
 }
 
 .sketch-breadcrumbs {
-  font-size: 13px;
-  color: #d1bc9a;
-  margin-bottom: 12px;
+  font-size: var(--font-size-xs);
+  color: var(--surface-2);
+  margin-bottom: var(--space-sm);
 }
 
 .sketch-breadcrumbs a {
-  color: #d1bc9a;
+  color: var(--surface-2);
   text-decoration: none;
 }
 
 .sketch-header-title {
-  font-family: var(--font-heading);
-  font-size: 32px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-2xl);
   font-weight: 800;
-  margin: 0 0 10px;
+  margin: 0 0 var(--space-sm);
 }
 
 .sketch-header-subtitle {
-  font-size: 15px;
-  color: #e5d4be;
+  font-size: var(--font-size-sm);
+  color: var(--surface-1);
   margin: 0;
 }
 
 /* Container */
 .sketch-container {
-  max-width: 1300px;
+  max-width: var(--container-max-width);
   margin: 0 auto;
-  padding: 32px 32px 60px;
+  padding: var(--space-2xl) var(--space-2xl) var(--space-3xl);
 }
 
 .sketch-back-row {
-  margin-bottom: 16px;
+  margin-bottom: var(--space-md);
 }
 
 .sketch-back-link {
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
   text-decoration: none;
-  transition: color 0.2s;
+  transition: color var(--transition-fast);
 }
 
 .sketch-back-link:hover {
-  color: var(--accent-color);
+  color: var(--brand-primary);
 }
 
 .sketch-lesson-title {
-  font-family: var(--font-heading);
-  font-size: 26px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xl);
   font-weight: 800;
-  color: var(--primary-text);
-  margin: 0 0 28px;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-xl);
   text-align: center;
 }
 
 /* Main Grid Layout */
 .sketch-grid-layout {
   display: flex;
-  gap: 28px;
+  gap: var(--space-xl);
   align-items: flex-start;
-  margin-bottom: 32px;
+  margin-bottom: var(--space-2xl);
 }
 
 .sketch-media-columns {
   flex: 1;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  gap: var(--space-lg);
   min-width: 0;
 }
 
@@ -102,37 +102,37 @@
 
 /* Book PDF Box (Left Column matching handwritten sketch) */
 .sketch-book-box {
-  background: #ede1d1; /* Light beige matching screenshot */
-  border: 1.5px dashed #c4b097;
-  border-radius: 16px;
-  padding: 20px;
+  background: var(--surface-1);
+  border: 1.5px dashed var(--surface-3);
+  border-radius: var(--radius-xl);
+  padding: var(--space-lg);
   display: flex;
   flex-direction: column;
   height: 420px;
 }
 
 [data-theme='dark'] .sketch-book-box {
-  background: var(--white);
-  border-color: var(--primary-border);
+  background: var(--surface-1);
+  border-color: var(--surface-3);
 }
 
 .sketch-box-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-family: var(--font-heading);
+  gap: var(--space-xs);
+  font-family: var(--font-family-primary);
   font-weight: 800;
-  font-size: 16px;
-  color: var(--primary-text);
-  margin-bottom: 14px;
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  margin-bottom: var(--space-md);
 }
 
 .sketch-pdf-container {
   flex: 1;
-  background: var(--white);
-  border-radius: 12px;
+  background: var(--surface-0);
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  border: 1px solid #dcd0bf;
+  border: 1px solid var(--surface-3);
 }
 
 .sketch-pdf-iframe {
@@ -142,17 +142,17 @@
 }
 
 .sketch-pdf-footer {
-  margin-top: 12px;
+  margin-top: var(--space-sm);
   text-align: center;
 }
 
 .btn-pdf-external {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 13px;
+  gap: var(--space-xs);
+  font-size: var(--font-size-xs);
   font-weight: 700;
-  color: #5d3a22;
+  color: var(--brand-primary);
   text-decoration: none;
 }
 
@@ -164,14 +164,14 @@
 .sketch-video-box-col {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--space-md);
 }
 
 .sketch-video-wrapper {
-  border-radius: 16px;
+  border-radius: var(--radius-xl);
   overflow: hidden;
   background: #000000;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-lg);
 }
 
 .sketch-video-wrapper iframe {
@@ -181,21 +181,21 @@
 }
 
 .sketch-audio-box {
-  background: var(--white);
-  border: 1px solid #e0d4c3;
-  border-radius: 14px;
-  padding: 14px 18px;
+  background: var(--surface-1);
+  border: 1px solid var(--surface-3);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md) var(--space-lg);
 }
 
 .sketch-audio-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-family: var(--font-heading);
-  font-size: 14px;
+  gap: var(--space-xs);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
   font-weight: 700;
-  color: var(--primary-text);
-  margin-bottom: 8px;
+  color: var(--text-primary);
+  margin-bottom: var(--space-xs);
 }
 
 .sketch-audio-player {
@@ -211,67 +211,67 @@
 }
 
 .sketch-playlist-card {
-  background: var(--white);
-  border: 1px solid #e3d7c5;
-  border-radius: 16px;
-  padding: 20px;
+  background: var(--surface-1);
+  border: 1px solid var(--surface-3);
+  border-radius: var(--radius-xl);
+  padding: var(--space-lg);
 }
 
 .sketch-playlist-title {
-  font-family: var(--font-heading);
-  font-size: 18px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-lg);
   font-weight: 800;
-  color: #5d3a22;
+  color: var(--brand-primary);
   text-align: center;
-  margin: 0 0 16px;
+  margin: 0 0 var(--space-md);
 }
 
 .sketch-playlist-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-sm);
 }
 
 .sketch-playlist-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 14px;
-  border-radius: 10px;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
   text-decoration: none;
-  background: #faf4eb;
+  background: var(--surface-2);
   border: 1px solid transparent;
-  transition: all 0.2s;
+  transition: all var(--transition-fast);
 }
 
 [data-theme='dark'] .sketch-playlist-item {
-  background: var(--white);
+  background: var(--surface-2);
 }
 
 .sketch-playlist-item.active {
-  background: #ebd8c1;
-  border-color: #5d3a22;
+  background: var(--surface-3);
+  border-color: var(--brand-primary);
 }
 
 [data-theme='dark'] .sketch-playlist-item.active {
-  background: var(--primary-border);
-  border-color: var(--accent-color);
+  background: var(--surface-3);
+  border-color: var(--brand-primary);
 }
 
 .sketch-item-title {
-  font-size: 13.5px;
+  font-size: var(--font-size-xs);
   font-weight: 700;
-  color: var(--primary-text);
+  color: var(--text-primary);
   flex: 1;
 }
 
 .sketch-item-num {
   width: 24px;
   height: 24px;
-  border-radius: 50%;
-  background: #5d3a22;
-  color: #ffffff;
-  font-size: 12px;
+  border-radius: var(--radius-circle);
+  background: var(--brand-primary);
+  color: var(--surface-0);
+  font-size: var(--font-size-xs);
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -279,102 +279,102 @@
 }
 
 .sketch-item-num.done {
-  background: #15803d;
+  background: var(--success);
 }
 
 /* Middle Row (اختبر نفسك + محتوى) */
 .sketch-middle-row {
   display: grid;
   grid-template-columns: 1fr 1.8fr;
-  gap: 24px;
-  margin-bottom: 32px;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-2xl);
 }
 
 .sketch-quiz-box, .sketch-summary-box {
-  background: var(--white);
-  border: 1px solid #e3d7c5;
-  border-radius: 16px;
-  padding: 20px 24px;
+  background: var(--surface-1);
+  border: 1px solid var(--surface-3);
+  border-radius: var(--radius-xl);
+  padding: var(--space-lg) var(--space-xl);
   text-align: center;
 }
 
 .sketch-quiz-box h4, .sketch-summary-box h4 {
-  font-family: var(--font-heading);
-  font-size: 16px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
   font-weight: 800;
-  color: var(--primary-text);
-  margin: 0 0 14px;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-md);
 }
 
 .btn-quiz-start {
-  background: #ebd8c1;
-  color: #5d3a22;
+  background: var(--surface-2);
+  color: var(--brand-primary);
   border: none;
-  padding: 10px 22px;
-  border-radius: 999px;
-  font-family: var(--font-heading);
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-full);
+  font-family: var(--font-family-primary);
   font-weight: 700;
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-fast);
 }
 
 .btn-quiz-start:hover {
-  background: #5d3a22;
-  color: #ffffff;
+  background: var(--brand-primary);
+  color: var(--surface-0);
 }
 
 .sketch-content-line {
   height: 12px;
-  background: #f0e6d6;
-  border-radius: 999px;
+  background: var(--surface-2);
+  border-radius: var(--radius-full);
   overflow: hidden;
-  margin-top: 10px;
+  margin-top: var(--space-sm);
 }
 
 [data-theme='dark'] .sketch-content-line {
-  background: var(--primary-border);
+  background: var(--surface-3);
 }
 
 .sketch-line-fill {
   height: 100%;
-  background: #5d3a22;
-  border-radius: 999px;
-  transition: width 0.3s;
+  background: var(--brand-primary);
+  border-radius: var(--radius-full);
+  transition: width var(--transition-slow);
 }
 
 /* Bottom Action Button (أكملت الدرس) */
 .sketch-bottom-action {
   display: flex;
   justify-content: center;
-  margin-top: 20px;
+  margin-top: var(--space-lg);
 }
 
 .btn-sketch-completed {
-  background: #5d3a22;
-  color: #ffffff;
+  background: var(--brand-primary);
+  color: var(--surface-0);
   border: none;
-  padding: 14px 44px;
-  border-radius: 12px;
-  font-family: var(--font-heading);
+  padding: var(--space-md) var(--space-3xl);
+  border-radius: var(--radius-lg);
+  font-family: var(--font-family-primary);
   font-weight: 800;
-  font-size: 17px;
+  font-size: var(--font-size-lg);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  box-shadow: 0 4px 16px rgba(93, 58, 34, 0.25);
-  transition: all 0.25s ease;
+  gap: var(--space-sm);
+  box-shadow: var(--shadow-lg);
+  transition: all var(--transition-base);
 }
 
 .btn-sketch-completed:hover {
-  background: #462a17;
+  background: var(--brand-primary-dark);
   transform: translateY(-2px);
 }
 
 .btn-sketch-completed.completed {
-  background: #15803d;
-  box-shadow: 0 4px 16px rgba(21, 128, 61, 0.25);
+  background: var(--success);
+  box-shadow: var(--shadow-lg);
 }
 
 /* Modal for Quiz Questions */
@@ -385,53 +385,53 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  padding: 20px;
+  z-index: var(--z-modal);
+  padding: var(--space-lg);
 }
 
 .sketch-modal-content {
-  background: var(--white);
-  border-radius: 20px;
-  padding: 32px;
+  background: var(--surface-1);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl);
   max-width: 550px;
   width: 100%;
   direction: rtl;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-xl);
 }
 
 .sketch-modal-content h3 {
-  font-family: var(--font-heading);
-  font-size: 22px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xl);
   font-weight: 800;
-  color: #5d3a22;
-  margin: 0 0 8px;
+  color: var(--brand-primary);
+  margin: 0 0 var(--space-xs);
 }
 
 .sketch-modal-sub {
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   color: var(--text-muted);
-  margin-bottom: 20px;
+  margin-bottom: var(--space-lg);
 }
 
 .quiz-questions-list {
-  padding-right: 20px;
-  font-size: 15px;
-  line-height: 1.8;
-  color: var(--primary-text);
-  margin-bottom: 28px;
+  padding-right: var(--space-lg);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-loose);
+  color: var(--text-primary);
+  margin-bottom: var(--space-xl);
 }
 
 .quiz-questions-list li {
-  margin-bottom: 12px;
+  margin-bottom: var(--space-sm);
 }
 
 .btn-modal-close {
-  background: #5d3a22;
-  color: #ffffff;
+  background: var(--brand-primary);
+  color: var(--surface-0);
   border: none;
-  padding: 10px 24px;
-  border-radius: 999px;
-  font-family: var(--font-heading);
+  padding: var(--space-sm) var(--space-xl);
+  border-radius: var(--radius-full);
+  font-family: var(--font-family-primary);
   font-weight: 700;
   cursor: pointer;
   display: block;

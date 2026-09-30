@@ -1,0 +1,51 @@
+{
+  "name": "الموقع الرسمي للشيخ شعبان العودة",
+  "short_name": "الشيخ شعبان العودة",
+  "description": "منصة تعليمية إسلامية شاملة للشيخ شعبان العودة - دروس، محاضرات، كتب، ومقالات",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#05070C",
+  "theme_color": "#2a7f62",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "religion"],
+  "lang": "ar",
+  "dir": "rtl",
+  "scope": "/",
+  "shortcuts": [
+    {
+      "name": "الدروس",
+      "short_name": "الدروس",
+      "description": "تصفح الدروس والمحاضرات",
+      "url": "/lectures",
+      "icons": [{ "src": "/logo192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "الكتب",
+      "short_name": "الكتب",
+      "description": "مكتبة الكتب الإسلامية",
+      "url": "/books",
+      "icons": [{ "src": "/logo192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "المقالات",
+      "short_name": "المقالات",
+      "description": "قراءة المقالات",
+      "url": "/articles",
+      "icons": [{ "src": "/logo192.png", "sizes": "192x192" }]
+    }
+  ]
+}

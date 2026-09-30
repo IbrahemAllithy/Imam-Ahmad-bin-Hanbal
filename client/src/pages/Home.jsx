@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useFetch } from '../hooks/useFetch';
 import { useSiteSettings } from '../context/SiteSettingsContext';
 import { getStorageUrl } from '../services/api';
+import { SkeletonCard } from '../components/ui/Skeleton';
 import './Home.css';
 import {
   FiBook,
@@ -140,7 +141,14 @@ const Home = () => {
                 </Link>
               </div>
               <div className="latest-list">
-                {!l1 &&
+                {l1 ? (
+                  <>
+                    <SkeletonCard />
+                    <SkeletonCard />
+                    <SkeletonCard />
+                    <SkeletonCard />
+                  </>
+                ) : (
                   lectures?.data?.map((ls) => (
                     <Link to={`/lectures/${ls._id}`} key={ls._id} className="latest-item">
                       <div className="latest-thumb">
@@ -155,7 +163,8 @@ const Home = () => {
                         <div className="latest-title">{ls.title}</div>
                       </div>
                     </Link>
-                  ))}
+                  ))
+                )}
               </div>
             </div>
 
@@ -167,7 +176,14 @@ const Home = () => {
                 </Link>
               </div>
               <div className="latest-list">
-                {!l2 &&
+                {l2 ? (
+                  <>
+                    <SkeletonCard />
+                    <SkeletonCard />
+                    <SkeletonCard />
+                    <SkeletonCard />
+                  </>
+                ) : (
                   articles?.data?.map((ar) => (
                     <Link to={`/articles/${ar._id}`} key={ar._id} className="latest-item">
                       <div className="latest-thumb">
@@ -177,7 +193,8 @@ const Home = () => {
                         <div className="latest-title">{ar.title}</div>
                       </div>
                     </Link>
-                  ))}
+                  ))
+                )}
               </div>
             </div>
           </div>

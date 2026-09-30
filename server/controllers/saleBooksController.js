@@ -1,18 +1,15 @@
 import SaleBook from '../models/SaleBook.js';
 import AppError from '../utils/AppError.js';
+import asyncHandler from '../utils/asyncHandler.js';
 import { removeStorageFile } from '../utils/storage.js';
 import { removeUploadedFiles } from '../middleware/upload.js';
 
-export const getSaleBooks = async (_req, res, next) => {
-  try {
-    const books = await SaleBook.find({}).sort({ order: 1, createdAt: 1 }).lean();
-    res.json({ success: true, data: books });
-  } catch (err) {
-    next(err);
-  }
-};
+export const getSaleBooks = asyncHandler(async (_req, res, next) => {
+  const books = await SaleBook.find({}).sort({ order: 1, createdAt: 1 }).lean();
+  res.json({ success: true, data: books });
+});
 
-export const createSaleBook = async (req, res, next) => {
+export const createSaleBook = asyncHandler(async (req, res, next) => {
   try {
     if (!req.file) {
       return next(new AppError('صورة الغلاف مطلوبة', 400));
@@ -29,11 +26,11 @@ export const createSaleBook = async (req, res, next) => {
     res.status(201).json({ success: true, data: book });
   } catch (err) {
     await removeUploadedFiles(req);
-    next(err);
+    throw err;
   }
-};
+});
 
-export const updateSaleBook = async (req, res, next) => {
+export const updateSaleBook = asyncHandler(async (req, res, next) => {
   try {
     const previous = req.file ? await SaleBook.findById(req.params.id).lean() : null;
 
@@ -55,17 +52,13 @@ export const updateSaleBook = async (req, res, next) => {
     res.json({ success: true, data: book });
   } catch (err) {
     await removeUploadedFiles(req);
-    next(err);
+    throw err;
   }
-};
+});
 
-export const deleteSaleBook = async (req, res, next) => {
-  try {
-    const book = await SaleBook.findByIdAndDelete(req.params.id);
-    if (!book) return next(new AppError('الكتاب غير موجود', 404));
-    removeStorageFile(book.coverImage);
-    res.json({ success: true, message: 'تم حذف الكتاب' });
-  } catch (err) {
-    next(err);
-  }
-};
+export const deleteSaleBook = asyncHandler(async (req, res, next) => {
+  const book = await SaleBook.findByIdAndDelete(req.params.id);
+  if (!book) return next(new AppError('الكتاب غير موجود', 404));
+  removeStorageFile(book.coverImage);
+  res.json({ success: true, message: 'تم حذف الكتاب' });
+});

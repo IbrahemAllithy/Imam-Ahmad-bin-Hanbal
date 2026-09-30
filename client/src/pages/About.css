@@ -1,71 +1,73 @@
 .about-page {
   max-width: 800px;
-  padding: 2rem 0 4rem;
+  padding: var(--space-2xl) 0 var(--space-3xl);
 }
 
 .about-intro {
   text-align: center;
-  margin-bottom: 2.5rem;
+  margin-bottom: var(--space-3xl);
 }
 
 .about-logo {
   width: 140px;
   height: 140px;
   object-fit: contain;
-  margin: 0 auto 1rem;
+  margin: 0 auto var(--space-md);
 }
 
 .about-intro-text {
   color: var(--text-muted);
-  font-size: 1.05rem;
-  line-height: 1.8;
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-loose);
 }
 
 .about-sheikh {
   display: grid;
   grid-template-columns: 1fr 220px;
-  gap: 2rem;
+  gap: var(--space-2xl);
   align-items: start;
 }
 
 .about-sheikh-img {
   width: 100%;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
   object-fit: cover;
   aspect-ratio: 3/4;
 }
 
 .about-block {
-  margin-bottom: 2.5rem;
+  margin-bottom: var(--space-3xl);
 }
 
 .about-block h2 {
-  color: var(--primary-900);
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid var(--accent-gold);
+  color: var(--text-primary);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-2xl);
+  margin-bottom: var(--space-md);
+  padding-bottom: var(--space-sm);
+  border-bottom: 2px solid var(--brand-accent);
   display: inline-block;
 }
 
 .about-block p {
   color: var(--text-muted);
-  line-height: 1.9;
-  margin-bottom: 1rem;
+  line-height: var(--line-height-loose);
+  margin-bottom: var(--space-md);
 }
 
 .about-values ul {
   list-style: none;
   display: grid;
-  gap: 0.75rem;
+  gap: var(--space-md);
 }
 
 .about-values li {
-  background: var(--white);
-  padding: 1rem 1.25rem;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  background: var(--surface-1);
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--surface-3);
   font-weight: 500;
 }
 

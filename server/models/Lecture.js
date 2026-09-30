@@ -113,8 +113,11 @@ const lectureSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-lectureSchema.index({ category: 1, createdAt: -1 });
+lectureSchema.index({ category: 1, publishedAt: -1 });
 lectureSchema.index({ series: 1, order: 1 });
+lectureSchema.index({ publishedAt: -1 });
+lectureSchema.index({ youtubeId: 1 });
+lectureSchema.index({ title: 'text', description: 'text', series: 'text' }, { weights: { title: 3, series: 2, description: 1 } });
 
 const Lecture = mongoose.model('Lecture', lectureSchema);
 

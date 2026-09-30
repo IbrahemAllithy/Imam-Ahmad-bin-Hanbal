@@ -36,6 +36,7 @@ const BuyBooks = lazy(() => import('./pages/BuyBooks'));
 const Events = lazy(() => import('./pages/Events'));
 const Testimonials = lazy(() => import('./pages/Testimonials'));
 const DistanceLearning = lazy(() => import('./pages/DistanceLearning'));
+const ComponentShowcase = lazy(() => import('./components/ui/ComponentShowcase'));
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const NotFound = lazy(() => import('./pages/NotFound'));
@@ -88,6 +89,7 @@ const App = () => {
             <Route path="/events" element={<Events />} />
             <Route path="/testimonials" element={<Testimonials />} />
             <Route path="/distance-learning" element={<DistanceLearning />} />
+            <Route path="/components" element={<ComponentShowcase />} />
             <Route path="/kids" element={<SiteSectionHome sectionId="kids" />} />
             <Route path="/kids/books" element={<SiteSectionBooks sectionId="kids" />} />
             <Route path="/kids/lessons" element={<SiteSectionLessons sectionId="kids" />} />

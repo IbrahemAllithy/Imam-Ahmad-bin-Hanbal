@@ -1,33 +1,33 @@
 .buy-books-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 24px;
+  gap: var(--space-xl);
 }
 
 .buy-book-card {
-  background: var(--primary-card);
-  border: 1px solid var(--primary-border);
-  border-radius: 14px;
-  padding: 16px;
+  background: var(--surface-1);
+  border: 1px solid var(--surface-3);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .buy-book-card:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-hover);
+  box-shadow: var(--shadow-md);
 }
 
 .buy-book-cover {
   width: 100%;
   aspect-ratio: 2/3;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   overflow: hidden;
-  margin-bottom: 14px;
-  background: var(--gray-light);
+  margin-bottom: var(--space-md);
+  background: var(--surface-2);
 }
 
 .buy-book-cover img {
@@ -38,27 +38,27 @@
 }
 
 .buy-book-title {
-  font-size: 15px;
+  font-size: var(--font-size-base);
   font-weight: 700;
-  color: var(--primary-text);
-  margin: 0 0 14px;
-  line-height: 1.4;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-md);
+  line-height: var(--line-height-tight);
   min-height: 42px;
 }
 
 .buy-book-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-xs);
   background: #25d366;
-  color: #fff;
-  padding: 10px 18px;
-  border-radius: 999px;
-  font-size: 14px;
+  color: var(--surface-0);
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
   font-weight: 700;
   text-decoration: none;
   margin-top: auto;
-  transition: opacity 0.2s;
+  transition: opacity var(--transition-fast);
 }
 
 .buy-book-btn:hover {

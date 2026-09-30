@@ -1,28 +1,21 @@
 import Event from '../models/Event.js';
 import AppError from '../utils/AppError.js';
+import asyncHandler from '../utils/asyncHandler.js';
 import { removeStorageFile } from '../utils/storage.js';
 import { removeUploadedFiles } from '../middleware/upload.js';
 
-export const getEvents = async (_req, res, next) => {
-  try {
-    const events = await Event.find({}).sort({ order: 1, eventDate: -1 }).lean();
-    res.json({ success: true, data: events });
-  } catch (err) {
-    next(err);
-  }
-};
+export const getEvents = asyncHandler(async (_req, res, next) => {
+  const events = await Event.find({}).sort({ order: 1, eventDate: -1 }).lean();
+  res.json({ success: true, data: events });
+});
 
-export const getEvent = async (req, res, next) => {
-  try {
-    const event = await Event.findById(req.params.id).lean();
-    if (!event) return next(new AppError('الفعالية غير موجودة', 404));
-    res.json({ success: true, data: event });
-  } catch (err) {
-    next(err);
-  }
-};
+export const getEvent = asyncHandler(async (req, res, next) => {
+  const event = await Event.findById(req.params.id).lean();
+  if (!event) return next(new AppError('الفعالية غير موجودة', 404));
+  res.json({ success: true, data: event });
+});
 
-export const createEvent = async (req, res, next) => {
+export const createEvent = asyncHandler(async (req, res, next) => {
   try {
     const data = {
       title: req.body.title,
@@ -35,11 +28,11 @@ export const createEvent = async (req, res, next) => {
     res.status(201).json({ success: true, data: event });
   } catch (err) {
     await removeUploadedFiles(req);
-    next(err);
+    throw err;
   }
-};
+});
 
-export const updateEvent = async (req, res, next) => {
+export const updateEvent = asyncHandler(async (req, res, next) => {
   try {
     const previous = req.file ? await Event.findById(req.params.id).lean() : null;
 
@@ -63,33 +56,25 @@ export const updateEvent = async (req, res, next) => {
     res.json({ success: true, data: event });
   } catch (err) {
     await removeUploadedFiles(req);
-    next(err);
+    throw err;
   }
-};
+});
 
-export const deleteEvent = async (req, res, next) => {
-  try {
-    const event = await Event.findByIdAndDelete(req.params.id);
-    if (!event) return next(new AppError('الفعالية غير موجودة', 404));
-    removeStorageFile(event.coverImage);
-    res.json({ success: true, message: 'تم حذف الفعالية' });
-  } catch (err) {
-    next(err);
-  }
-};
+export const deleteEvent = asyncHandler(async (req, res, next) => {
+  const event = await Event.findByIdAndDelete(req.params.id);
+  if (!event) return next(new AppError('الفعالية غير موجودة', 404));
+  removeStorageFile(event.coverImage);
+  res.json({ success: true, message: 'تم حذف الفعالية' });
+});
 
-export const reorderEvents = async (req, res, next) => {
-  try {
-    const { ids } = req.body;
-    const ops = ids.map((id, index) => ({
-      updateOne: {
-        filter: { _id: id },
-        update: { $set: { order: index + 1 } },
-      },
-    }));
-    await Event.bulkWrite(ops);
-    res.json({ success: true, message: 'تم حفظ ترتيب الفعاليات' });
-  } catch (err) {
-    next(err);
-  }
-};
+export const reorderEvents = asyncHandler(async (req, res, next) => {
+  const { ids } = req.body;
+  const ops = ids.map((id, index) => ({
+    updateOne: {
+      filter: { _id: id },
+      update: { $set: { order: index + 1 } },
+    },
+  }));
+  await Event.bulkWrite(ops);
+  res.json({ success: true, message: 'تم حفظ ترتيب الفعاليات' });
+});
