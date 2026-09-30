@@ -1,23 +1,23 @@
 .lecture-card {
-  background: var(--white);
-  border: 1px solid var(--primary-border);
-  border-radius: 16px;
+  background: var(--surface-1);
+  border: 1px solid var(--surface-3);
+  border-radius: var(--radius-xl);
   overflow: hidden;
   text-decoration: none;
   display: block;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition-base);
 }
 
 .lecture-card:hover {
-  border-color: var(--accent-color);
+  border-color: var(--brand-primary);
   transform: translateY(-4px);
-  box-shadow: var(--shadow-hover);
+  box-shadow: var(--shadow-lg);
 }
 
 .lecture-thumb {
   aspect-ratio: 16/9;
-  background: var(--primary-bg);
+  background: var(--surface-2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -35,23 +35,23 @@
 
 .completed-badge {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  background-color: #15803d;
-  color: #ffffff;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 0.75rem;
+  top: var(--space-sm);
+  right: var(--space-sm);
+  background-color: var(--success);
+  color: var(--surface-0);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
   font-weight: 700;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  box-shadow: var(--shadow-md);
   z-index: 2;
 }
 
 .lecture-body {
-  padding: 18px;
+  padding: var(--space-lg);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-sm);
 }
 
 .lecture-meta {
@@ -61,32 +61,32 @@
 }
 
 .lecture-cat {
-  font-size: 0.8rem;
+  font-size: var(--font-size-sm);
   font-weight: 700;
-  color: var(--accent-color);
+  color: var(--brand-primary);
 }
 
 .lecture-level {
-  font-size: 0.75rem;
+  font-size: var(--font-size-xs);
   color: var(--text-muted);
-  background: var(--primary-bg);
-  border: 1px solid var(--primary-border);
-  border-radius: 999px;
-  padding: 2px 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--surface-3);
+  border-radius: var(--radius-full);
+  padding: var(--space-xs) var(--space-sm);
 }
 
 .lecture-title {
-  font-family: var(--font-heading);
-  font-size: 1.05rem;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-lg);
   font-weight: 700;
-  color: var(--primary-text);
-  line-height: 1.45;
+  color: var(--text-primary);
+  line-height: var(--line-height-tight);
 }
 
 .lecture-footer {
   display: flex;
   justify-content: space-between;
-  font-size: 0.85rem;
+  font-size: var(--font-size-sm);
   color: var(--text-muted);
-  margin-top: 4px;
+  margin-top: var(--space-xs);
 }

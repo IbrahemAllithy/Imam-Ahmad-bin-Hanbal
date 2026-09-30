@@ -1,7 +1,7 @@
 .book-card-item {
   display: block;
   text-decoration: none;
-  transition: transform 0.2s;
+  transition: transform var(--transition-fast);
 }
 
 .book-card-item:hover {
@@ -10,15 +10,15 @@
 
 .book-card-cover {
   aspect-ratio: 2/3;
-  border-radius: 12px;
-  background: repeating-linear-gradient(135deg, oklch(0.26 0.03 255), oklch(0.26 0.03 255) 8px, oklch(0.3 0.03 255) 8px, oklch(0.3 0.03 255) 16px);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 14px;
+  margin-bottom: var(--space-md);
   position: relative;
   overflow: hidden;
-  border: 1px solid oklch(0.28 0.03 255);
+  border: 1px solid var(--surface-3);
 }
 
 .book-card-cover img {
@@ -32,25 +32,25 @@
 
 .book-card-cover span {
   font-family: monospace;
-  font-size: 11px;
-  color: oklch(0.6 0.02 255);
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
 }
 
 .book-card-cat {
-  font-size: 11.5px;
+  font-size: var(--font-size-xs);
   font-weight: 600;
-  margin-bottom: 6px;
+  margin-bottom: var(--space-xs);
 }
 
 .book-card-title {
-  font-size: 15px;
+  font-size: var(--font-size-base);
   font-weight: 700;
-  color: var(--primary-text, oklch(0.25 0.02 255));
-  margin-bottom: 6px;
-  line-height: 1.4;
+  color: var(--text-primary);
+  margin-bottom: var(--space-xs);
+  line-height: var(--line-height-tight);
 }
 
 .book-card-author {
-  font-size: 13px;
-  color: oklch(0.55 0.03 255);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
 }

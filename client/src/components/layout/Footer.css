@@ -1,77 +1,77 @@
 .footer {
   direction: rtl;
-  font-family: 'Tajawal', sans-serif;
-  background: var(--gray-dark);
-  padding: 56px 4% 28px;
-  border-top: 1px solid oklch(0.25 0.03 45 / 0.5);
+  font-family: var(--font-family-secondary);
+  background: var(--surface-1);
+  padding: var(--space-3xl) 4% var(--space-xl);
+  border-top: 1px solid var(--surface-3);
   margin-top: auto;
 }
 
 .footer-grid {
-  max-width: 1400px;
+  max-width: var(--container-max-width);
   margin: 0 auto;
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr;
-  gap: 32px;
+  gap: var(--space-2xl);
 }
 
 .footer-title {
-  font-size: 18px;
+  font-size: var(--font-size-lg);
   font-weight: 800;
-  color: var(--primary-bg);
-  font-family: 'Cairo', sans-serif;
-  margin-bottom: 12px;
+  color: var(--text-primary);
+  font-family: var(--font-family-primary);
+  margin-bottom: var(--space-md);
 }
 
 .footer-desc {
-  font-size: 14px;
-  color: oklch(0.8 0.02 55);
-  line-height: 1.8;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: var(--line-height-relaxed);
   max-width: 280px;
   margin: 0;
 }
 
 .footer-col-title {
-  font-size: 15px;
+  font-size: var(--font-size-base);
   font-weight: 700;
-  color: var(--accent-gold);
-  margin-bottom: 16px;
-  font-family: 'Cairo', sans-serif;
+  color: var(--brand-accent);
+  margin-bottom: var(--space-md);
+  font-family: var(--font-family-primary);
 }
 
 .footer-links, .footer-contact {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-md);
 }
 
 .footer-links a, .footer-contact a, .footer-contact span {
-  font-size: 14px;
-  color: oklch(0.85 0.015 60);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
   text-decoration: none;
-  transition: color 0.2s, transform 0.2s;
+  transition: color var(--transition-fast), transform var(--transition-fast);
   display: inline-block;
   width: fit-content;
 }
 
 .footer-links a:hover, .footer-contact a:hover {
-  color: var(--primary-bg);
+  color: var(--text-primary);
   transform: translateX(-4px);
 }
 
 .footer-bottom {
-  max-width: 1400px;
-  margin: 40px auto 0;
-  padding-top: 24px;
-  border-top: 1px solid oklch(0.3 0.03 45);
+  max-width: var(--container-max-width);
+  margin: var(--space-2xl) auto 0;
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--surface-3);
   text-align: center;
-  font-size: 13.5px;
-  color: oklch(0.7 0.02 55);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
 }
 
 @media (max-width: 768px) {
   .footer {
-    padding: 40px 24px 24px;
+    padding: var(--space-2xl) var(--space-lg) var(--space-lg);
   }
   .footer-grid {
     grid-template-columns: 1fr;

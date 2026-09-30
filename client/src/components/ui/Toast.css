@@ -1,58 +1,58 @@
 .toast-container {
   position: fixed;
-  bottom: 24px;
-  left: 24px;
-  z-index: 9999;
+  bottom: var(--space-lg);
+  left: var(--space-lg);
+  z-index: var(--z-tooltip);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-sm);
   pointer-events: none;
 }
 
 [dir="rtl"] .toast-container {
   left: auto;
-  right: 24px;
+  right: var(--space-lg);
 }
 
 .toast-item {
   pointer-events: auto;
   min-width: 280px;
   max-width: 400px;
-  padding: 12px 18px;
-  border-radius: 12px;
-  background: #ffffff;
-  color: #333333;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-lg);
+  background: var(--surface-1);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-xl);
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 0.95rem;
+  gap: var(--space-md);
+  font-size: var(--font-size-base);
   font-weight: 500;
-  animation: toast-slide-in 0.3s ease-out forwards;
-  border-right: 4px solid #6b4f2c;
+  animation: toast-slide-in var(--transition-base) ease-out forwards;
+  border-right: 4px solid var(--brand-primary);
 }
 
 .toast-item.success {
-  border-right-color: #2e7d32;
-  background: #f1f8e9;
-  color: #1b5e20;
+  border-right-color: var(--success);
+  background: var(--surface-2);
+  color: var(--success);
 }
 
 .toast-item.error {
-  border-right-color: #c62828;
-  background: #ffebee;
-  color: #b71c1c;
+  border-right-color: var(--error);
+  background: var(--surface-2);
+  color: var(--error);
 }
 
 .toast-item.info {
-  border-right-color: #0288d1;
-  background: #e1f5fe;
-  color: #01579b;
+  border-right-color: var(--info);
+  background: var(--surface-2);
+  color: var(--info);
 }
 
 .toast-message {
   flex: 1;
-  line-height: 1.4;
+  line-height: var(--line-height-base);
 }
 
 .toast-close {
@@ -61,10 +61,11 @@
   color: currentColor;
   opacity: 0.6;
   cursor: pointer;
-  padding: 2px;
+  padding: var(--space-xs);
   font-size: 1.1rem;
   display: flex;
   align-items: center;
+  transition: opacity var(--transition-fast);
 }
 
 .toast-close:hover {

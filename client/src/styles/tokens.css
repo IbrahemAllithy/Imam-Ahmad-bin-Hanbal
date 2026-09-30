@@ -1,0 +1,154 @@
+/**
+ * Design Tokens - نظام الألوان والمسافات الموحد
+ * يتم تحديث هذا الملف مرة واحدة ويستخدم في كل المكونات
+ */
+
+:root {
+  /* ========== Brand Colors ========== */
+  /* الألوان الأساسية للعلامة التجارية الإسلامية */
+  --brand-primary: oklch(45% 0.15 160); /* أخضر إسلامي عميق */
+  --brand-primary-light: oklch(55% 0.12 160);
+  --brand-primary-dark: oklch(35% 0.18 160);
+
+  --brand-accent: oklch(70% 0.20 85); /* ذهبي دافئ */
+  --brand-accent-light: oklch(80% 0.15 85);
+
+  /* ========== Surface Levels - سطوح مظلمة متدرجة ========== */
+  --surface-0: oklch(6% 0.01 220);    /* #05070C - أعمق سطح */
+  --surface-1: oklch(8% 0.01 220);    /* #0A0D12 */
+  --surface-2: oklch(11% 0.02 220);   /* #0F131C */
+  --surface-3: oklch(15% 0.02 220);   /* #161D2B */
+  --surface-4: oklch(18% 0.02 220);   /* #1E2636 */
+  --surface-5: oklch(22% 0.02 220);   /* أفتح سطح */
+
+  /* ========== Text Colors ========== */
+  --text-primary: oklch(95% 0.01 220);     /* نص أساسي - أبيض مائل للبرودة */
+  --text-secondary: oklch(75% 0.02 220);   /* نص ثانوي */
+  --text-tertiary: oklch(55% 0.02 220);    /* نص باهت */
+  --text-muted: oklch(45% 0.02 220);       /* نص خفيف جداً */
+
+  /* ========== Semantic Colors ========== */
+  --success: oklch(65% 0.18 145);    /* أخضر */
+  --warning: oklch(70% 0.18 75);     /* برتقالي */
+  --error: oklch(60% 0.20 25);       /* أحمر */
+  --info: oklch(65% 0.15 240);       /* أزرق */
+
+  /* ========== Spacing Scale ========== */
+  --space-xs: clamp(0.25rem, 0.5vw, 0.375rem);    /* 4-6px */
+  --space-sm: clamp(0.5rem, 1vw, 0.75rem);        /* 8-12px */
+  --space-md: clamp(0.75rem, 1.5vw, 1rem);        /* 12-16px */
+  --space-lg: clamp(1rem, 2vw, 1.5rem);           /* 16-24px */
+  --space-xl: clamp(1.5rem, 3vw, 2rem);           /* 24-32px */
+  --space-2xl: clamp(2rem, 4vw, 3rem);            /* 32-48px */
+  --space-3xl: clamp(3rem, 6vw, 4rem);            /* 48-64px */
+
+  /* ========== Typography Scale ========== */
+  --font-family-primary: 'Cairo', 'Tajawal', -apple-system, sans-serif;
+  --font-family-secondary: 'Tajawal', 'Cairo', sans-serif;
+
+  --font-size-xs: clamp(0.75rem, 1.5vw, 0.875rem);    /* 12-14px */
+  --font-size-sm: clamp(0.875rem, 1.75vw, 1rem);      /* 14-16px */
+  --font-size-base: clamp(1rem, 2vw, 1.125rem);       /* 16-18px */
+  --font-size-lg: clamp(1.125rem, 2.25vw, 1.25rem);   /* 18-20px */
+  --font-size-xl: clamp(1.25rem, 2.5vw, 1.5rem);      /* 20-24px */
+  --font-size-2xl: clamp(1.5rem, 3vw, 2rem);          /* 24-32px */
+  --font-size-3xl: clamp(2rem, 4vw, 2.5rem);          /* 32-40px */
+  --font-size-4xl: clamp(2.5rem, 5vw, 3.5rem);        /* 40-56px */
+
+  --line-height-tight: 1.25;
+  --line-height-base: 1.5;
+  --line-height-relaxed: 1.75;
+  --line-height-loose: 2;
+
+  --letter-spacing-tight: -0.025em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.025em;
+
+  /* ========== Border Radius ========== */
+  --radius-sm: 0.25rem;     /* 4px */
+  --radius-md: 0.5rem;      /* 8px */
+  --radius-lg: 0.75rem;     /* 12px */
+  --radius-xl: 1rem;        /* 16px */
+  --radius-2xl: 1.5rem;     /* 24px */
+  --radius-full: 999px;     /* Pills & chips */
+  --radius-circle: 50%;     /* Avatars */
+
+  /* ========== Shadows ========== */
+  --shadow-sm: 0 1px 2px 0 oklch(0% 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px oklch(0% 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px oklch(0% 0 0 / 0.15);
+  --shadow-xl: 0 20px 25px -5px oklch(0% 0 0 / 0.2);
+  --shadow-glow: 0 0 20px var(--brand-accent);
+
+  /* ========== Transitions ========== */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ========== Z-Index Scale ========== */
+  --z-base: 0;
+  --z-dropdown: 1000;
+  --z-sticky: 1100;
+  --z-fixed: 1200;
+  --z-modal-backdrop: 1300;
+  --z-modal: 1400;
+  --z-popover: 1500;
+  --z-tooltip: 1600;
+
+  /* ========== Layout ========== */
+  --container-max-width: 1280px;
+  --content-max-width: 720px;
+  --sidebar-width: 280px;
+  --header-height: 64px;
+
+  /* ========== Animations ========== */
+  --animation-bounce: bounce 1s ease-in-out;
+  --animation-fade-in: fadeIn var(--transition-base);
+  --animation-slide-up: slideUp var(--transition-base);
+}
+
+/* ========== Light Mode Overrides ========== */
+[data-theme="light"] {
+  --surface-0: oklch(98% 0.01 220);
+  --surface-1: oklch(96% 0.01 220);
+  --surface-2: oklch(94% 0.01 220);
+  --surface-3: oklch(92% 0.01 220);
+  --surface-4: oklch(90% 0.01 220);
+  --surface-5: oklch(88% 0.01 220);
+
+  --text-primary: oklch(15% 0.02 220);
+  --text-secondary: oklch(35% 0.02 220);
+  --text-tertiary: oklch(55% 0.02 220);
+  --text-muted: oklch(65% 0.02 220);
+
+  --shadow-sm: 0 1px 2px 0 oklch(0% 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px oklch(0% 0 0 / 0.08);
+  --shadow-lg: 0 10px 15px -3px oklch(0% 0 0 / 0.12);
+  --shadow-xl: 0 20px 25px -5px oklch(0% 0 0 / 0.15);
+}
+
+/* ========== Keyframe Animations ========== */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-0.5rem); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

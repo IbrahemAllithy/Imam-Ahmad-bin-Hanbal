@@ -1,39 +1,39 @@
 .course-detail-page {
   direction: rtl;
-  font-family: var(--font-body);
-  background: var(--primary-bg);
+  font-family: var(--font-family-secondary);
+  background: var(--surface-0);
   min-height: 100vh;
-  padding: 40px 48px;
+  padding: var(--space-2xl) var(--space-3xl);
   max-width: 1100px;
   margin: 0 auto;
 }
 
 .course-detail-top {
-  margin-bottom: 24px;
+  margin-bottom: var(--space-lg);
 }
 
 .course-overview-card {
-  background: var(--white);
-  border: 1px solid var(--primary-border);
-  border-radius: 20px;
-  padding: 40px 32px;
+  background: var(--surface-1);
+  border: 1px solid var(--surface-3);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl) var(--space-xl);
   text-align: center;
-  margin-bottom: 40px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+  margin-bottom: var(--space-2xl);
+  box-shadow: var(--shadow-sm);
 }
 
 .course-overview-title {
-  font-family: var(--font-heading);
-  font-size: 32px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-2xl);
   font-weight: 800;
-  color: var(--primary-text);
-  margin: 0 0 12px;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-sm);
 }
 
 .course-overview-desc {
-  font-size: 16px;
+  font-size: var(--font-size-base);
   color: var(--text-muted);
-  margin: 0 0 28px;
+  margin: 0 0 var(--space-xl);
 }
 
 .course-ask-button-wrapper {
@@ -44,13 +44,13 @@
 .btn-course-ask {
   background: #0077c5; /* Blue button matching user screenshot */
   color: #ffffff;
-  padding: 12px 28px;
-  border-radius: 999px;
-  font-family: var(--font-heading);
+  padding: var(--space-sm) var(--space-xl);
+  border-radius: var(--radius-full);
+  font-family: var(--font-family-primary);
   font-weight: 700;
-  font-size: 15px;
+  font-size: var(--font-size-sm);
   text-decoration: none;
-  transition: all 0.25s ease;
+  transition: all var(--transition-base);
   display: inline-flex;
   align-items: center;
   box-shadow: 0 4px 14px rgba(0, 119, 197, 0.25);
@@ -72,19 +72,19 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: var(--space-lg);
 }
 
 .course-section-header h2 {
-  font-family: var(--font-heading);
-  font-size: 24px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xl);
   font-weight: 800;
-  color: var(--primary-text);
+  color: var(--text-primary);
   margin: 0;
 }
 
 .course-progress-tag {
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   color: var(--text-muted);
   font-weight: 600;
 }
@@ -92,46 +92,46 @@
 .course-lessons-list {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--space-sm);
 }
 
 .course-lesson-bar {
-  background: var(--white);
-  border: 1.5px solid var(--primary-border);
-  border-radius: 12px;
-  padding: 18px 24px;
+  background: var(--surface-1);
+  border: 1.5px solid var(--surface-3);
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-lg);
   text-decoration: none;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: all 0.25s ease;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-sm);
 }
 
 .course-lesson-bar:hover {
-  border-color: var(--accent-color);
+  border-color: var(--brand-primary);
   transform: translateX(-4px);
-  box-shadow: var(--shadow-hover);
-  background: var(--white);
+  box-shadow: var(--shadow-md);
+  background: var(--surface-1);
 }
 
 .lesson-bar-title {
-  font-family: var(--font-body);
-  font-size: 16px;
+  font-family: var(--font-family-secondary);
+  font-size: var(--font-size-base);
   font-weight: 700;
-  color: var(--primary-text);
+  color: var(--text-primary);
 }
 
 .lesson-bar-icon {
   width: 26px;
   height: 26px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #a68b75;
   font-size: 1.25rem;
-  transition: all 0.2s;
+  transition: all var(--transition-fast);
 }
 
 .course-lesson-bar.completed {
@@ -145,11 +145,11 @@
 .no-lessons-text {
   text-align: center;
   color: var(--text-muted);
-  padding: 40px 0;
+  padding: var(--space-2xl) 0;
 }
 
 @media (max-width: 768px) {
   .course-detail-page {
-    padding: 24px 16px;
+    padding: var(--space-lg) var(--space-md);
   }
 }

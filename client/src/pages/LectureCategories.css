@@ -1,15 +1,15 @@
 .categories-page {
   direction: rtl;
-  font-family: var(--font-body);
-  background: var(--primary-bg);
+  font-family: var(--font-family-secondary);
+  background: var(--surface-0);
   min-height: 100vh;
-  padding-bottom: 60px;
+  padding-bottom: var(--space-3xl);
 }
 
 .categories-hero {
-  background: #3c2415; /* Dark brown header from theme */
-  color: #ffffff;
-  padding: 50px 48px;
+  background: var(--brand-primary);
+  color: var(--surface-0);
+  padding: var(--space-3xl) var(--space-3xl);
   text-align: center;
 }
 
@@ -19,56 +19,56 @@
 }
 
 .categories-hero h1 {
-  font-family: var(--font-heading);
-  font-size: 32px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-3xl);
   font-weight: 800;
-  margin-bottom: 12px;
-  color: #ffffff;
+  margin-bottom: var(--space-md);
+  color: var(--surface-0);
 }
 
 .categories-hero p {
-  font-size: 16px;
-  color: #e5d4be;
+  font-size: var(--font-size-base);
+  color: var(--surface-1);
   max-width: 750px;
   margin: 0 auto;
-  line-height: 1.6;
+  line-height: var(--line-height-relaxed);
 }
 
 /* Breadcrumb inside hero */
 .categories-hero .list-breadcrumb {
-  color: #d1bc9a;
-  font-size: 13.5px;
+  color: var(--surface-2);
+  font-size: var(--font-size-xs);
 }
 .categories-hero .list-breadcrumb a {
-  color: #d1bc9a;
+  color: var(--surface-2);
   text-decoration: none;
 }
 .categories-hero .list-breadcrumb .current {
-  color: #ffffff;
+  color: var(--surface-0);
   font-weight: 700;
 }
 
 .categories-content {
-  max-width: 1250px;
+  max-width: var(--container-max-width);
   margin: 0 auto;
-  padding: 50px 32px;
+  padding: var(--space-3xl) var(--space-2xl);
 }
 
 .categories-section-header {
-  margin-bottom: 36px;
+  margin-bottom: var(--space-2xl);
   text-align: right;
 }
 
 .categories-section-header h2 {
-  font-family: var(--font-heading);
-  font-size: 26px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-2xl);
   font-weight: 800;
-  color: var(--primary-text);
-  margin: 0 0 8px;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-xs);
 }
 
 .categories-section-header p {
-  font-size: 15px;
+  font-size: var(--font-size-base);
   color: var(--text-muted);
   margin: 0;
 }
@@ -77,28 +77,28 @@
 .categories-grid-modern {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
+  gap: var(--space-xl);
 }
 
 .category-card-modern {
-  background: var(--white);
-  border: 1.5px solid var(--primary-border);
-  border-radius: 20px;
-  padding: 26px 22px;
+  background: var(--surface-1);
+  border: 1.5px solid var(--surface-3);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl) var(--space-lg);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   text-decoration: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+  transition: all var(--transition-slow);
+  box-shadow: var(--shadow-sm);
   min-height: 210px;
 }
 
 .category-card-modern:hover {
   transform: translateY(-5px);
-  border-color: var(--accent-color);
-  box-shadow: var(--shadow-hover);
-  background: var(--white);
+  border-color: var(--brand-primary);
+  box-shadow: var(--shadow-lg);
+  background: var(--surface-1);
 }
 
 /* Sunnah book cards carry a second destination (the isnad page), so the
@@ -113,164 +113,164 @@
 
 .cat-card-isnad {
   display: block;
-  margin-top: 16px;
-  padding-top: 14px;
-  border-top: 1.5px solid var(--primary-border);
-  font-family: var(--font-heading);
-  font-size: 13.5px;
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1.5px solid var(--surface-3);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
   font-weight: 700;
-  color: var(--primary-text);
+  color: var(--text-primary);
   text-decoration: none;
-  line-height: 1.7;
+  line-height: var(--line-height-relaxed);
 }
 
 .cat-card-isnad span {
-  color: var(--accent-color);
+  color: var(--brand-primary);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 
 .cat-card-isnad:hover span {
-  color: oklch(0.3 0.05 45);
+  color: var(--brand-primary-light);
 }
 
 .cat-card-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 18px;
+  margin-bottom: var(--space-lg);
 }
 
 .cat-icon-box {
   width: 48px;
   height: 48px;
-  border-radius: 14px;
-  background: #f4eae0;
-  color: #5d3a22;
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+  color: var(--brand-primary);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.35rem;
-  transition: all 0.2s;
+  transition: all var(--transition-fast);
 }
 
 .category-card-modern:hover .cat-icon-box {
-  background: #5d3a22;
-  color: #ffffff;
+  background: var(--brand-primary);
+  color: var(--surface-0);
 }
 
 .cat-count-badge {
-  font-size: 12.5px;
+  font-size: var(--font-size-xs);
   font-weight: 700;
-  color: var(--accent-color);
-  background: var(--primary-bg);
-  padding: 4px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--primary-border);
+  color: var(--brand-primary);
+  background: var(--surface-2);
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--surface-3);
 }
 
 .cat-card-center {
-  margin-bottom: 20px;
+  margin-bottom: var(--space-lg);
 }
 
 .cat-card-center h3 {
-  font-family: var(--font-heading);
-  font-size: 20px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xl);
   font-weight: 800;
-  color: var(--primary-text);
-  margin: 0 0 8px;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-xs);
 }
 
 .cat-card-center p {
-  font-size: 13.5px;
+  font-size: var(--font-size-xs);
   color: var(--text-muted);
   margin: 0;
-  line-height: 1.5;
+  line-height: var(--line-height-base);
 }
 
 .cat-card-bottom {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 14px;
-  border-top: 1.5px dashed var(--primary-border);
-  font-family: var(--font-heading);
-  font-size: 13.5px;
+  padding-top: var(--space-md);
+  border-top: 1.5px dashed var(--surface-3);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
   font-weight: 700;
-  color: var(--accent-color);
+  color: var(--brand-primary);
 }
 
 .cat-arrow {
   font-size: 1.1rem;
-  transition: transform 0.2s;
+  transition: transform var(--transition-fast);
 }
 
 .category-card-modern:hover .cat-arrow {
   transform: translateX(-4px);
-  color: oklch(0.3 0.05 45);
+  color: var(--brand-primary-light);
 }
 
 /* Sunnah Reading — subscribe & isnad cards */
 .sunnah-subscribe-card,
 .sunnah-isnad-card {
-  background: var(--white);
-  border: 1.5px solid var(--primary-border);
-  border-radius: 20px;
-  padding: 32px 30px;
-  margin-bottom: 32px;
+  background: var(--surface-1);
+  border: 1.5px solid var(--surface-3);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl) var(--space-xl);
+  margin-bottom: var(--space-2xl);
   text-align: right;
 }
 
 .sunnah-subscribe-card {
-  background: #f8f2e9;
-  border-color: var(--accent-color);
+  background: var(--surface-2);
+  border-color: var(--brand-primary);
 }
 
 [data-theme='dark'] .sunnah-subscribe-card {
-  background: var(--white);
+  background: var(--surface-1);
 }
 
 .sunnah-subscribe-card h3 {
-  font-family: var(--font-heading);
-  font-size: 19px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-lg);
   font-weight: 800;
-  color: var(--primary-text);
-  margin: 0 0 18px;
-  line-height: 1.6;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-lg);
+  line-height: var(--line-height-relaxed);
 }
 
 .sunnah-inline-link {
-  color: var(--accent-color);
+  color: var(--brand-primary);
   font-weight: 700;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 
 .sunnah-inline-link:hover {
-  color: oklch(0.3 0.05 45);
+  color: var(--brand-primary-light);
 }
 
 
 .sunnah-subscribe-label {
-  font-family: var(--font-heading);
-  font-size: 19px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-lg);
   font-weight: 800;
-  margin: 0 0 16px;
-  color: var(--primary-text);
+  margin: 0 0 var(--space-md);
+  color: var(--text-primary);
 }
 
 .sunnah-requirements-list {
   margin: 0;
-  padding-inline-start: 22px;
+  padding-inline-start: var(--space-lg);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-md);
 }
 
 .sunnah-requirements-list li {
-  font-size: 15px;
-  line-height: 1.9;
-  color: var(--primary-text);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-loose);
+  color: var(--text-primary);
 }
 
 /* Standalone empty state — .platform-empty lives in PlatformPages.css,
@@ -278,22 +278,22 @@
 .sunnah-empty {
   text-align: center;
   color: var(--text-muted);
-  font-size: 15px;
-  padding: 40px 20px;
-  background: var(--white);
-  border: 1.5px dashed var(--primary-border);
-  border-radius: 16px;
+  font-size: var(--font-size-base);
+  padding: var(--space-2xl) var(--space-lg);
+  background: var(--surface-1);
+  border: 1.5px dashed var(--surface-3);
+  border-radius: var(--radius-lg);
 }
 
 @media (max-width: 768px) {
   .categories-hero {
-    padding: 36px 20px;
+    padding: var(--space-2xl) var(--space-lg);
   }
   .categories-content {
-    padding: 32px 16px;
+    padding: var(--space-2xl) var(--space-md);
   }
   .sunnah-subscribe-card,
   .sunnah-isnad-card {
-    padding: 24px 18px;
+    padding: var(--space-xl) var(--space-lg);
   }
 }

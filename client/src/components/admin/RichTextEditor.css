@@ -1,7 +1,7 @@
 .rte-wrap {
-  border: 1.5px solid var(--primary-border);
-  border-radius: 10px;
-  background: var(--primary-bg);
+  border: 1.5px solid var(--surface-3);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
   overflow: hidden;
 }
 
@@ -9,10 +9,10 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px;
-  padding: 8px;
-  background: var(--white);
-  border-bottom: 1.5px solid var(--primary-border);
+  gap: var(--space-xs);
+  padding: var(--space-sm);
+  background: var(--surface-1);
+  border-bottom: 1.5px solid var(--surface-3);
 }
 
 .rte-toolbar button {
@@ -23,45 +23,45 @@
   height: 32px;
   border: none;
   background: transparent;
-  border-radius: 6px;
-  color: var(--primary-text);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
   cursor: pointer;
-  font-size: 16px;
-  transition: background 0.15s, color 0.15s;
+  font-size: var(--font-size-base);
+  transition: background var(--transition-fast), color var(--transition-fast);
 }
 
 .rte-toolbar button:hover {
-  background: var(--primary-bg);
-  color: var(--accent-color);
+  background: var(--surface-2);
+  color: var(--brand-primary);
 }
 
 .rte-block-select {
-  border: 1px solid var(--primary-border);
-  border-radius: 6px;
-  padding: 5px 8px;
-  font-size: 13px;
-  background: var(--white);
-  color: var(--primary-text);
+  border: 1px solid var(--surface-3);
+  border-radius: var(--radius-sm);
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--font-size-sm);
+  background: var(--surface-1);
+  color: var(--text-primary);
   cursor: pointer;
 }
 
 .rte-sep {
   width: 1px;
   height: 22px;
-  background: var(--primary-border);
-  margin: 0 4px;
+  background: var(--surface-3);
+  margin: 0 var(--space-xs);
 }
 
 .rte-editor {
   min-height: 260px;
   max-height: 520px;
   overflow-y: auto;
-  padding: 16px;
-  font-family: var(--font-body);
-  font-size: 15px;
-  line-height: 1.9;
-  color: var(--text-dark);
-  background: #ffffff;
+  padding: var(--space-lg);
+  font-family: var(--font-family-secondary);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-loose);
+  color: var(--text-primary);
+  background: var(--surface-1);
   outline: none;
 }
 
@@ -72,17 +72,17 @@
 }
 
 .rte-editor h2 {
-  font-family: var(--font-heading);
-  font-size: 24px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-2xl);
   margin: 0.6em 0 0.4em;
-  color: var(--primary-text);
+  color: var(--text-primary);
 }
 
 .rte-editor h3 {
-  font-family: var(--font-heading);
-  font-size: 19px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xl);
   margin: 0.6em 0 0.4em;
-  color: var(--primary-text);
+  color: var(--text-primary);
 }
 
 .rte-editor p {
@@ -91,20 +91,20 @@
 
 .rte-editor ul,
 .rte-editor ol {
-  padding-inline-start: 24px;
+  padding-inline-start: var(--space-xl);
   margin: 0 0 0.8em;
 }
 
 .rte-editor blockquote {
   margin: 0 0 0.8em;
-  padding: 8px 16px;
-  border-inline-start: 4px solid var(--accent-color);
-  background: var(--primary-bg);
-  color: var(--text-muted);
-  border-radius: 4px;
+  padding: var(--space-sm) var(--space-lg);
+  border-inline-start: 4px solid var(--brand-primary);
+  background: var(--surface-2);
+  color: var(--text-tertiary);
+  border-radius: var(--radius-sm);
 }
 
 .rte-editor a {
-  color: var(--accent-color);
+  color: var(--brand-primary);
   text-decoration: underline;
 }

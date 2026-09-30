@@ -1,13 +1,13 @@
 .skeleton {
   background: linear-gradient(
     90deg,
-    #f2ebd9 0%,
-    #faf6ee 50%,
-    #f2ebd9 100%
+    var(--surface-2) 0%,
+    var(--surface-3) 50%,
+    var(--surface-2) 100%
   );
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.6s infinite ease-in-out;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 
 @keyframes skeleton-shimmer {
@@ -20,20 +20,20 @@
 }
 
 .skeleton-card {
-  background: var(--white, #fff);
-  border: 1px solid var(--primary-border, #e8dfd0);
-  border-radius: 16px;
-  padding: 1.25rem;
+  background: var(--surface-1);
+  border: 1px solid var(--surface-3);
+  border-radius: var(--radius-xl);
+  padding: var(--space-lg);
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
-  box-shadow: 0 4px 12px rgba(107, 79, 44, 0.04);
+  gap: var(--space-md);
+  box-shadow: var(--shadow-sm);
 }
 
 .skeleton-cover {
   width: 100%;
   height: 160px;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
 }
 
 .skeleton-title {
@@ -53,6 +53,6 @@
 .skeleton-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
-  margin: 1.5rem 0;
+  gap: var(--space-xl);
+  margin: var(--space-xl) 0;
 }

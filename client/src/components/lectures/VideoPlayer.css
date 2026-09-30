@@ -2,10 +2,10 @@
   position: relative;
   width: 100%;
   aspect-ratio: 16/9;
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  background: var(--primary-900);
-  box-shadow: var(--shadow);
+  background: var(--surface-0);
+  box-shadow: var(--shadow-lg);
 }
 
 .video-player iframe {
