@@ -1,20 +1,21 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import AppError from '../utils/AppError.js';
+import asyncHandler from '../utils/asyncHandler.js';
 
-export const protect = async (req, _res, next) => {
+export const protect = asyncHandler(async (req, _res, next) => {
+  let token = null;
+
+  const authHeader = req.headers.authorization;
+  if (authHeader?.startsWith('Bearer ')) {
+    token = authHeader.split(' ')[1];
+  }
+
+  if (!token) {
+    return next(new AppError('غير مصرح — يرجى تسجيل الدخول', 401));
+  }
+
   try {
-    let token = null;
-
-    const authHeader = req.headers.authorization;
-    if (authHeader?.startsWith('Bearer ')) {
-      token = authHeader.split(' ')[1];
-    }
-
-    if (!token) {
-      return next(new AppError('غير مصرح — يرجى تسجيل الدخول', 401));
-    }
-
     const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
 
     const user = await User.findById(decoded.id).select('-password');
@@ -33,9 +34,9 @@ export const protect = async (req, _res, next) => {
       return next(new AppError('رمز المصادقة غير صالح', 401));
     }
     // أخطاء أخرى غير متوقعة
-    next(new AppError('خطأ في التحقق من الهوية', 401));
+    throw new AppError('خطأ في التحقق من الهوية', 401);
   }
-};
+});
 
 /** Attach user if token present; never fail the request */
 export const optionalAuth = async (req, _res, next) => {
