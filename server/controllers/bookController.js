@@ -5,6 +5,7 @@ import { notifyAllStudents } from './notificationController.js';
 import { publishedFilter, normalizePublishedAt } from '../utils/publish.js';
 import { escapeRegex } from '../utils/sanitize.js';
 import { removeUploadedFiles } from '../middleware/upload.js';
+import asyncHandler from '../utils/asyncHandler.js';
 
 const buildFilter = (query, { includeUnpublished = false } = {}) => {
   const filter = includeUnpublished ? {} : { ...publishedFilter() };
@@ -23,52 +24,44 @@ const buildFilter = (query, { includeUnpublished = false } = {}) => {
   return filter;
 };
 
-export const getBooks = async (req, res, next) => {
-  try {
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 12;
-    const skip = (page - 1) * limit;
-    const includeUnpublished = req.query.all === '1' && req.user?.role === 'admin';
-    const filter = buildFilter(req.query, { includeUnpublished });
+export const getBooks = asyncHandler(async (req, res) => {
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || 12;
+  const skip = (page - 1) * limit;
+  const includeUnpublished = req.query.all === '1' && req.user?.role === 'admin';
+  const filter = buildFilter(req.query, { includeUnpublished });
 
-    const [books, total] = await Promise.all([
-      Book.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
-      Book.countDocuments(filter),
-    ]);
+  const [books, total] = await Promise.all([
+    Book.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+    Book.countDocuments(filter),
+  ]);
 
-    res.json({
-      success: true,
-      data: books,
-      pagination: { page, limit, total, pages: Math.ceil(total / limit) },
-    });
-  } catch (err) {
-    next(err);
-  }
-};
+  res.json({
+    success: true,
+    data: books,
+    pagination: { page, limit, total, pages: Math.ceil(total / limit) },
+  });
+});
 
-export const getBook = async (req, res, next) => {
-  try {
-    const isAdmin = req.user?.role === 'admin';
-    const filter = isAdmin ? { _id: req.params.id } : { _id: req.params.id, ...publishedFilter() };
-    const book = await Book.findOne(filter).lean();
-    if (!book) return next(new AppError('الكتاب غير موجود', 404));
+export const getBook = asyncHandler(async (req, res, next) => {
+  const isAdmin = req.user?.role === 'admin';
+  const filter = isAdmin ? { _id: req.params.id } : { _id: req.params.id, ...publishedFilter() };
+  const book = await Book.findOne(filter).lean();
+  if (!book) return next(new AppError('الكتاب غير موجود', 404));
 
-    const related = await Book.find({
-      _id: { $ne: book._id },
-      category: book.category,
-      ...publishedFilter(),
-    })
-      .sort({ createdAt: -1 })
-      .limit(4)
-      .lean();
+  const related = await Book.find({
+    _id: { $ne: book._id },
+    category: book.category,
+    ...publishedFilter(),
+  })
+    .sort({ createdAt: -1 })
+    .limit(4)
+    .lean();
 
-    res.json({ success: true, data: book, related });
-  } catch (err) {
-    next(err);
-  }
-};
+  res.json({ success: true, data: book, related });
+});
 
-export const createBook = async (req, res, next) => {
+export const createBook = asyncHandler(async (req, res, next) => {
   try {
     const data = { ...req.body };
 
@@ -104,11 +97,11 @@ export const createBook = async (req, res, next) => {
     res.status(201).json({ success: true, data: book });
   } catch (err) {
     await removeUploadedFiles(req);
-    next(err);
+    throw err;
   }
-};
+});
 
-export const updateBook = async (req, res, next) => {
+export const updateBook = asyncHandler(async (req, res, next) => {
   try {
     const updates = { ...req.body };
     const needsPrevious = req.files?.pdf?.[0] || req.files?.coverImage?.[0];
@@ -139,18 +132,14 @@ export const updateBook = async (req, res, next) => {
     res.json({ success: true, data: book });
   } catch (err) {
     await removeUploadedFiles(req);
-    next(err);
+    throw err;
   }
-};
+});
 
-export const deleteBook = async (req, res, next) => {
-  try {
-    const book = await Book.findByIdAndDelete(req.params.id);
-    if (!book) return next(new AppError('الكتاب غير موجود', 404));
-    removeStorageFile(book.pdfUrl);
-    removeStorageFile(book.coverImage);
-    res.json({ success: true, message: 'تم حذف الكتاب' });
-  } catch (err) {
-    next(err);
-  }
-};
+export const deleteBook = asyncHandler(async (req, res, next) => {
+  const book = await Book.findByIdAndDelete(req.params.id);
+  if (!book) return next(new AppError('الكتاب غير موجود', 404));
+  removeStorageFile(book.pdfUrl);
+  removeStorageFile(book.coverImage);
+  res.json({ success: true, message: 'تم حذف الكتاب' });
+});
