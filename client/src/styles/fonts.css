@@ -1,11 +1,14 @@
-/* Cairo Font Family - Primary Heading Font */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Local Font Definitions
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* Cairo - Primary heading font */
 @font-face {
   font-family: 'Cairo';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('https://fonts.gstatic.com/s/cairo/v28/SLXgc1nY6HkvangtZmpQdkhzfH5lkSs2SgRjCAGMQ1z0hGA-W1ToLQ-HmkA.woff2') format('woff2');
-  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+08A0-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
+  src: url('/fonts/cairo-400.ttf') format('truetype');
 }
 
 @font-face {
@@ -13,8 +16,7 @@
   font-style: normal;
   font-weight: 600;
   font-display: swap;
-  src: url('https://fonts.gstatic.com/s/cairo/v28/SLXgc1nY6HkvangtZmpQdkhzfH5lkSs2SgRjCAGMQ1z0hGA-aVXoLQ-HmkA.woff2') format('woff2');
-  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+08A0-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
+  src: url('/fonts/cairo-600.ttf') format('truetype');
 }
 
 @font-face {
@@ -22,8 +24,7 @@
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url('https://fonts.gstatic.com/s/cairo/v28/SLXgc1nY6HkvangtZmpQdkhzfH5lkSs2SgRjCAGMQ1z0hGA-SFXoLQ-HmkA.woff2') format('woff2');
-  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+08A0-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
+  src: url('/fonts/cairo-700.ttf') format('truetype');
 }
 
 @font-face {
@@ -31,18 +32,16 @@
   font-style: normal;
   font-weight: 800;
   font-display: swap;
-  src: url('https://fonts.gstatic.com/s/cairo/v28/SLXgc1nY6HkvangtZmpQdkhzfH5lkSs2SgRjCAGMQ1z0hGA-I1XoLQ-HmkA.woff2') format('woff2');
-  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+08A0-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
+  src: url('/fonts/cairo-800.ttf') format('truetype');
 }
 
-/* Tajawal Font Family - Secondary Body Font */
+/* Tajawal - Secondary body font */
 @font-face {
   font-family: 'Tajawal';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('https://fonts.gstatic.com/s/tajawal/v9/Iurf6YBj_oCad4k1l_6gLrZjiLlJ-G0.woff2') format('woff2');
-  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+08A0-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
+  src: url('/fonts/tajawal-400.ttf') format('truetype');
 }
 
 @font-face {
@@ -50,8 +49,7 @@
   font-style: normal;
   font-weight: 500;
   font-display: swap;
-  src: url('https://fonts.gstatic.com/s/tajawal/v9/Iurf6YBj_oCad4k1l8KjLrZjiLlJ-G0.woff2') format('woff2');
-  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+08A0-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
+  src: url('/fonts/tajawal-500.ttf') format('truetype');
 }
 
 @font-face {
@@ -59,6 +57,5 @@
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url('https://fonts.gstatic.com/s/tajawal/v9/Iurf6YBj_oCad4k1l5qkLrZjiLlJ-G0.woff2') format('woff2');
-  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+08A0-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, FE70-FE74, U+FE76-FEFC;
+  src: url('/fonts/tajawal-700.ttf') format('truetype');
 }
