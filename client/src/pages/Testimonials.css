@@ -26,7 +26,7 @@
 .testimonial-featured-media {
   border-radius: var(--radius-lg);
   overflow: hidden;
-  background: #0c0c0c;
+  background: var(--surface-5);
   line-height: 0;
 }
 
@@ -55,8 +55,8 @@
 .testimonial-featured-quote::before {
   content: '”';
   position: absolute;
-  top: -14px;
-  inset-inline-start: -4px;
+  top: calc(-1 * var(--space-md));
+  inset-inline-start: calc(-1 * var(--space-xs));
   font-size: 68px;
   line-height: 1;
   color: var(--brand-accent);
@@ -67,7 +67,7 @@
 .testimonial-featured.text-only .testimonial-featured-quote::before {
   position: static;
   display: block;
-  margin-bottom: -18px;
+  margin-bottom: calc(-1 * var(--space-lg));
 }
 
 .testimonial-featured .testimonial-author {
@@ -138,7 +138,7 @@
   height: auto;
   max-height: 560px;
   object-fit: contain;
-  background: #0c0c0c;
+  background: var(--surface-5);
   border-bottom: 1px solid var(--surface-3);
 }
 
@@ -177,7 +177,7 @@
   font-size: var(--font-size-xs);
   color: var(--brand-primary);
   font-weight: 600;
-  margin-top: 2px;
+  margin-top: var(--space-xs);
 }
 
 .testimonial-quote {
@@ -201,8 +201,8 @@
 .testimonial-card.text-only .testimonial-quote::before {
   content: '”';
   position: absolute;
-  top: -18px;
-  inset-inline-start: -6px;
+  top: calc(-1 * var(--space-lg));
+  inset-inline-start: calc(-1 * var(--space-sm));
   font-size: 46px;
   line-height: 1;
   color: var(--brand-accent);
