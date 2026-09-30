@@ -1,5 +1,5 @@
-const CACHE_NAME = 'imam-ahmad-v1';
-const RUNTIME_CACHE = 'imam-ahmad-runtime';
+const CACHE_NAME = 'sheikh-shaaban-v1';
+const RUNTIME_CACHE = 'sheikh-shaaban-runtime';
 
 // Resources to cache on install
 const STATIC_CACHE_URLS = [

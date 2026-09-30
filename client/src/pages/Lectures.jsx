@@ -6,6 +6,7 @@ import { readLocalCompletedIds } from '../utils/completedLectures';
 import api from '../services/api';
 import { FiCheckCircle, FiChevronDown, FiSearch, FiYoutube, FiBookOpen } from 'react-icons/fi';
 import Loader from '../components/ui/Loader';
+import { SkeletonGrid } from '../components/ui/Skeleton';
 import './ListPages.css';
 
 const categoryFromSearch = (search) => {
@@ -191,7 +192,7 @@ const Lectures = () => {
           </div>
         </div>
 
-        {loading && <Loader />}
+        {loading && <SkeletonGrid count={6} />}
         {error && <div className="alert alert-error">{error}</div>}
 
         {/* Clean Horizontal Course Bars (Step 1 matching Image 1) */}
