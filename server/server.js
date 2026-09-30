@@ -9,13 +9,14 @@ import mongoSanitize from 'express-mongo-sanitize';
 import hpp from 'hpp';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
-import rateLimit from 'express-rate-limit';
 
 import connectDB from './config/db.js';
 import { R2_ENABLED } from './config/r2.js';
 import { CLIENT_ORIGINS } from './config/clientUrl.js';
 import { xssSanitize } from './utils/sanitize.js';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
+import { performanceMonitor, requestTimeout } from './middleware/performance.js';
+import { globalLimiter } from './config/rateLimits.js';
 import { STORAGE_PATHS } from './middleware/upload.js';
 import logger from './utils/logger.js';
 
@@ -96,19 +97,10 @@ app.use(mongoSanitize());
 app.use(hpp());
 app.use(xssSanitize);
 
-const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 300,
-  standardHeaders: true,
-  legacyHeaders: false,
-  handler: (req, res) => {
-    logger.security('تجاوز الحد العام للطلبات', { ip: req.ip });
-    res.status(429).json({
-      success: false,
-      message: 'تجاوزت عدد الطلبات المسموح — حاول بعد 15 دقيقة',
-    });
-  },
-});
+// Performance monitoring
+app.use(performanceMonitor);
+app.use(requestTimeout(60000)); // 60 seconds timeout
+
 app.use('/api', globalLimiter);
 
 app.use(

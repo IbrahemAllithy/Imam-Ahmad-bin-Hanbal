@@ -40,8 +40,9 @@ const articleSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-articleSchema.index({ category: 1, createdAt: -1 });
-articleSchema.index({ title: 'text', content: 'text' });
+articleSchema.index({ category: 1, publishedAt: -1 });
+articleSchema.index({ publishedAt: -1 });
+articleSchema.index({ title: 'text', content: 'text' }, { weights: { title: 3, content: 1 } });
 
 const Article = mongoose.model('Article', articleSchema);
 

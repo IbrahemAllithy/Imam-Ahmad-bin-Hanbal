@@ -984,43 +984,44 @@
 }
 
 .settings-tabs button {
-  border: 1.5px solid var(--primary-border);
-  background: var(--white);
-  color: var(--primary-text);
-  border-radius: 999px;
-  padding: 8px 14px;
-  font-family: var(--font-heading);
-  font-size: 13px;
+  border: 1.5px solid var(--surface-3);
+  background: var(--surface-0);
+  color: var(--text-primary);
+  border-radius: var(--radius-full);
+  padding: var(--space-xs) var(--space-md);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
   font-weight: 700;
   cursor: pointer;
+  transition: all var(--transition-fast);
 }
 
 .settings-tabs button.active {
-  background: var(--accent-color);
-  border-color: var(--accent-color);
-  color: #fff;
+  background: var(--brand-accent);
+  border-color: var(--brand-accent);
+  color: var(--surface-0);
 }
 
 .settings-subtitle {
-  margin: 24px 0 12px;
-  font-family: var(--font-heading);
-  font-size: 16px;
-  color: var(--primary-text);
+  margin: var(--space-xl) 0 var(--space-md);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
 }
 
 .settings-hint {
   color: var(--text-muted);
-  margin-bottom: 14px;
-  font-size: 14px;
+  margin-bottom: var(--space-md);
+  font-size: var(--font-size-sm);
 }
 
 .settings-preview-img {
   width: 96px;
   height: 96px;
   object-fit: cover;
-  border-radius: 12px;
-  margin-top: 10px;
-  border: 1px solid var(--primary-border);
+  border-radius: var(--radius-lg);
+  margin-top: var(--space-sm);
+  border: 1px solid var(--surface-3);
 }
 
 .settings-inline-row {

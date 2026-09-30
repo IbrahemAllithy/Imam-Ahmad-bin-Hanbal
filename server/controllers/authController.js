@@ -318,8 +318,14 @@ export const refresh = async (req, res, next) => {
 
     const accessToken = await issueTokens(user, res);
     res.json({ success: true, accessToken });
-  } catch {
+  } catch (err) {
     res.clearCookie(REFRESH_COOKIE, cookieOptions);
+    if (err.name === 'TokenExpiredError') {
+      return next(new AppError('انتهت صلاحية التوكن — يرجى تسجيل الدخول', 401));
+    }
+    if (err.name === 'JsonWebTokenError') {
+      return next(new AppError('التوكن غير صالح', 401));
+    }
     next(new AppError('انتهت الجلسة — يرجى تسجيل الدخول', 401));
   }
 };

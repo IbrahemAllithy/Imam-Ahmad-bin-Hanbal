@@ -24,8 +24,16 @@ export const protect = async (req, _res, next) => {
 
     req.user = user;
     next();
-  } catch {
-    next(new AppError('انتهت صلاحية الجلسة — يرجى تسجيل الدخول مجدداً', 401));
+  } catch (err) {
+    // تمييز أنواع أخطاء JWT للمساعدة في debugging
+    if (err.name === 'TokenExpiredError') {
+      return next(new AppError('انتهت صلاحية الجلسة — يرجى تسجيل الدخول مجدداً', 401));
+    }
+    if (err.name === 'JsonWebTokenError') {
+      return next(new AppError('رمز المصادقة غير صالح', 401));
+    }
+    // أخطاء أخرى غير متوقعة
+    next(new AppError('خطأ في التحقق من الهوية', 401));
   }
 };
 
