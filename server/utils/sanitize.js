@@ -34,12 +34,14 @@ export const sanitizeString = (value) => {
     .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
     .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, '')
     .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
-    // Strip pseudo-protocols in links or attributes
+    // Strip all inline event attributes (e.g. onerror=, onload=, onclick=)
+    .replace(/\s+on\w+\s*=\s*(?:'[^']*'|"[^"]*"|[^\s>]+)/gi, '')
+    // Strip remaining HTML tags (like <img>, <a>, etc.)
+    .replace(/<[^>]+>/g, '')
+    // Strip pseudo-protocols in remaining text
     .replace(/javascript\s*:/gi, '')
     .replace(/vbscript\s*:/gi, '')
     .replace(/data\s*:\s*text\/html/gi, '')
-    // Strip all inline event attributes (e.g. onerror=, onload=, onclick=)
-    .replace(/\s+on\w+\s*=\s*(?:'[^']*'|"[^"]*"|[^\s>]+)/gi, '')
     .trim();
 };
 
