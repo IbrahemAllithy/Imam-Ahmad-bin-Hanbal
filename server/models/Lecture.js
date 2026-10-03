@@ -49,11 +49,13 @@ const lectureSchema = new mongoose.Schema(
     },
     youtubeUrl: {
       type: String,
-      required: [true, 'رابط اليوتيوب مطلوب'],
+      required: false,
+      default: '',
     },
     youtubeId: {
       type: String,
-      required: true,
+      required: false,
+      default: '',
     },
     description: {
       type: String,
