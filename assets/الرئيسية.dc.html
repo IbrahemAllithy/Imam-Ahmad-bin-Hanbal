@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>body{margin:0;background:oklch(0.16 0.03 255);}*{box-sizing:border-box;}a{text-decoration:none;}</style>
+</helmet>
+
+<div dir="rtl" style="direction:rtl;font-family:'Tajawal',sans-serif;background:oklch(0.16 0.03 255);color:oklch(0.95 0.01 255);min-height:100vh;">
+  <dc-import name="Header" active="home" accent="{{ accent }}" hint-size="100%,74px"></dc-import>
+
+  <section style="padding:72px 48px;background:radial-gradient(circle at 30% 20%,oklch(0.24 0.05 255),oklch(0.16 0.03 255) 62%);position:relative;overflow:hidden;">
+    <div style="position:absolute;inset:0;background-image:radial-gradient(oklch(0.3 0.03 255) 1px,transparent 1px);background-size:26px 26px;opacity:0.4;"></div>
+    <div style="max-width:1200px;margin:0 auto;position:relative;display:flex;align-items:center;gap:56px;">
+      <div style="flex:1;">
+        <div style="display:inline-block;padding:6px 18px;border-radius:999px;background:oklch(0.25 0.04 255);border:1px solid oklch(0.4 0.05 255);font-size:13px;color:oklch(0.75 0.06 250);margin-bottom:24px;">مجمع الإمام أحمد</div>
+        <h1 style="font-family:'Amiri',serif;font-size:44px;line-height:1.45;font-weight:700;color:oklch(0.97 0.01 255);margin:0 0 18px;">فضيلة الشيخ أبو عبيدة شعبان العودة</h1>
+        <p style="font-size:17px;color:oklch(0.68 0.03 255);line-height:1.85;margin:0 0 34px;">دروس وكتب ومقالات مبوّبة بعناية في العقيدة والفقه والحديث والتفسير، إضافة إلى مقرأة السنة وبرامج التعلّم عن بُعد.</p>
+        <div style="display:flex;gap:16px;">
+          <a href="./الدروس.dc.html" style="padding:15px 30px;border-radius:10px;background:{{ accent }};color:white;font-weight:700;font-size:15.5px;">تصفح الدروس</a>
+          <a href="./الكتب.dc.html" style="padding:15px 30px;border-radius:10px;border:1px solid oklch(0.4 0.04 255);color:oklch(0.9 0.02 255);font-weight:700;font-size:15.5px;">تصفح الكتب</a>
+        </div>
+      </div>
+      <div style="width:340px;flex-shrink:0;">
+        <img src="assets/sheikh-hero.jpeg" alt="الشيخ شعبان العودة" style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:18px;border:1px solid oklch(0.35 0.04 255);box-shadow:0 20px 50px oklch(0.1 0.02 255 / 0.6);"/>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding:0 48px 60px;">
+    <div style="max-width:1200px;margin:0 auto;display:flex;gap:20px;align-items:stretch;">
+      <div style="flex:1;display:grid;grid-template-columns:repeat(5,1fr);gap:16px;">
+        <sc-for list="{{ quickLinks }}" as="ql" hint-placeholder-count="5">
+          <a href="{{ ql.href }}" style="background:oklch(0.2 0.032 255);border:1px solid oklch(0.28 0.03 255);border-radius:14px;padding:26px 14px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;">
+            <div style="width:44px;height:44px;border-radius:12px;background:{{ accent }};display:flex;align-items:center;justify-content:center;">
+              <span style="font-family:'Amiri',serif;font-size:19px;font-weight:700;color:white;">{{ ql.letter }}</span>
+            </div>
+            <span style="font-size:14.5px;font-weight:700;color:oklch(0.9 0.01 255);">{{ ql.label }}</span>
+          </a>
+        </sc-for>
+      </div>
+      <div style="width:220px;flex-shrink:0;background:oklch(0.2 0.032 255);border:1px solid oklch(0.28 0.03 255);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:12px;">
+        <div style="font-size:14px;font-weight:700;color:oklch(0.9 0.01 255);">إعلانات عن الدروس</div>
+        <sc-for list="{{ announcements }}" as="an" hint-placeholder-count="2">
+          <div style="font-size:12.5px;color:oklch(0.65 0.03 255);line-height:1.7;padding:10px;background:oklch(0.16 0.028 255);border-radius:9px;">{{ an }}</div>
+        </sc-for>
+        <span style="font-size:11px;color:oklch(0.45 0.03 255);margin-top:auto;">يتحدّث تلقائيًا</span>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding:80px 48px;background:oklch(0.97 0.006 255);">
+    <div style="max-width:1200px;margin:0 auto;">
+      <div style="text-align:center;margin-bottom:48px;">
+        <h2 style="font-family:'Amiri',serif;font-size:34px;color:oklch(0.2 0.02 255);margin:0 0 12px;">العلوم الشرعية</h2>
+        <p style="color:oklch(0.45 0.02 255);font-size:16px;margin:0;">اختر العلم الذي تريد البدء بدراسته</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;">
+        <sc-for list="{{ categories }}" as="cat" hint-placeholder-count="6">
+          <a href="./الدروس.dc.html" style="background:white;border:1px solid oklch(0.9 0.01 255);border-radius:16px;padding:24px;display:flex;align-items:center;gap:16px;">
+            <div style="width:52px;height:52px;border-radius:12px;background:{{ accent }};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <span style="font-family:'Amiri',serif;font-size:22px;font-weight:700;color:white;">{{ cat.letter }}</span>
+            </div>
+            <div>
+              <div style="font-size:17px;font-weight:700;color:oklch(0.2 0.02 255);margin-bottom:4px;">{{ cat.name }}</div>
+              <div style="font-size:13px;color:oklch(0.5 0.02 255);">{{ cat.count }} درسًا</div>
+            </div>
+          </a>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding:20px 48px 80px;">
+    <div style="max-width:1200px;margin:0 auto;display:flex;gap:20px;align-items:stretch;">
+      <div style="width:260px;flex-shrink:0;background:oklch(0.2 0.032 255);border:1px solid oklch(0.28 0.03 255);border-radius:16px;padding:26px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px;">
+        <img src="assets/logo.png" alt="شعار مجمع الإمام أحمد" style="width:76px;height:76px;border-radius:50%;object-fit:cover;"/>
+        <div style="font-size:16.5px;font-weight:700;color:oklch(0.95 0.01 255);font-family:'Amiri',serif;">مجمع الإمام أحمد</div>
+        <p style="font-size:13px;color:oklch(0.6 0.03 255);line-height:1.8;margin:0;">صرح علمي يقدّم دروسًا وكتبًا ومقالات شرعية تحت إشراف فضيلة الشيخ شعبان العودة.</p>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:28px;">
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px;">
+            <h2 style="font-family:'Amiri',serif;font-size:22px;color:oklch(0.97 0.01 255);margin:0;">جديد الدروس</h2>
+            <a href="./الدروس.dc.html" style="color:{{ accent }};font-size:13px;font-weight:600;">عرض الكل ‹</a>
+          </div>
+          <div style="display:flex;gap:16px;overflow-x:auto;">
+            <sc-for list="{{ lessons }}" as="ls" hint-placeholder-count="4">
+              <div style="width:200px;flex-shrink:0;background:oklch(0.2 0.032 255);border:1px solid oklch(0.28 0.03 255);border-radius:12px;overflow:hidden;">
+                <div style="aspect-ratio:16/9;background:repeating-linear-gradient(135deg,oklch(0.26 0.03 255),oklch(0.26 0.03 255) 8px,oklch(0.3 0.03 255) 8px,oklch(0.3 0.03 255) 16px);"></div>
+                <div style="padding:14px;">
+                  <div style="font-size:13.5px;font-weight:700;color:oklch(0.92 0.01 255);line-height:1.4;">{{ ls.title }}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px;">
+            <h2 style="font-family:'Amiri',serif;font-size:22px;color:oklch(0.97 0.01 255);margin:0;">جديد الكتب</h2>
+            <a href="./الكتب.dc.html" style="color:{{ accent }};font-size:13px;font-weight:600;">عرض الكل ‹</a>
+          </div>
+          <div style="display:flex;gap:16px;overflow-x:auto;">
+            <sc-for list="{{ books }}" as="bk" hint-placeholder-count="4">
+              <a href="{{ bk.href }}" style="width:140px;flex-shrink:0;">
+                <div style="aspect-ratio:2/3;border-radius:10px;background:repeating-linear-gradient(135deg,oklch(0.26 0.03 255),oklch(0.26 0.03 255) 8px,oklch(0.3 0.03 255) 8px,oklch(0.3 0.03 255) 16px);margin-bottom:10px;"></div>
+                <div style="font-size:13px;font-weight:700;color:oklch(0.92 0.01 255);line-height:1.4;">{{ bk.title }}</div>
+              </a>
+            </sc-for>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px;">
+            <h2 style="font-family:'Amiri',serif;font-size:22px;color:oklch(0.97 0.01 255);margin:0;">جديد المقالات</h2>
+            <a href="./المقالات.dc.html" style="color:{{ accent }};font-size:13px;font-weight:600;">عرض الكل ‹</a>
+          </div>
+          <div style="display:flex;gap:16px;overflow-x:auto;">
+            <sc-for list="{{ articles }}" as="ar" hint-placeholder-count="4">
+              <a href="{{ ar.href }}" style="width:200px;flex-shrink:0;background:oklch(0.2 0.032 255);border:1px solid oklch(0.28 0.03 255);border-radius:12px;overflow:hidden;">
+                <div style="aspect-ratio:16/9;background:repeating-linear-gradient(135deg,oklch(0.26 0.03 255),oklch(0.26 0.03 255) 8px,oklch(0.3 0.03 255) 8px,oklch(0.3 0.03 255) 16px);"></div>
+                <div style="padding:14px;">
+                  <div style="font-size:13.5px;font-weight:700;color:oklch(0.92 0.01 255);line-height:1.4;">{{ ar.title }}</div>
+                </div>
+              </a>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding:64px 48px;background:linear-gradient(135deg,oklch(0.3 0.08 255),oklch(0.22 0.06 255));text-align:center;">
+    <h2 style="font-family:'Amiri',serif;font-size:30px;color:white;margin:0 0 14px;">انضمّ إلى مجتمع طلاب العلم</h2>
+    <p style="color:oklch(0.85 0.02 255);font-size:16px;margin:0 0 28px;">سجّل الآن مجانًا وتابع دروسك وكتبك المفضلة أولًا بأول</p>
+    <button style="padding:15px 34px;border-radius:10px;border:none;background:white;color:oklch(0.3 0.06 255);font-weight:700;font-size:15px;cursor:pointer;">سجّل الآن مجانًا</button>
+  </section>
+
+  <dc-import name="Footer" hint-size="100%,320px"></dc-import>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1000},&quot;accentColor&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#2563eb&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#2563eb&quot;,&quot;#1d4ed8&quot;,&quot;#0ea5e9&quot;,&quot;#3b82f6&quot;]}}">
+class Component extends DCLogic {
+  categories = [
+    { id: 'aqeedah', name: 'العقيدة', letter: 'ع', count: 42 },
+    { id: 'fiqh', name: 'الفقه', letter: 'ف', count: 65 },
+    { id: 'hadith', name: 'الحديث', letter: 'ح', count: 38 },
+    { id: 'tafsir', name: 'التفسير', letter: 'ت', count: 29 },
+    { id: 'seerah', name: 'السيرة', letter: 'س', count: 21 },
+    { id: 'lugha', name: 'اللغة العربية', letter: 'ل', count: 17 },
+  ];
+  books = [
+    { id: 1, title: 'شرح الأصول الثلاثة' },
+    { id: 2, title: 'بلوغ المرام' },
+    { id: 3, title: 'الآجرومية' },
+    { id: 4, title: 'عمدة الأحكام' },
+  ];
+  articles = [
+    { id: 1, title: 'كيف تبدأ في طلب العلم الشرعي؟' },
+    { id: 2, title: 'أهمية ضبط المتون قبل الشروح' },
+    { id: 3, title: 'أدب طالب العلم مع شيخه' },
+    { id: 4, title: 'الفرق بين الفقه وأصول الفقه' },
+  ];
+  lessons = [
+    { title: 'مقدمة في التوحيد' }, { title: 'باب الطهارة' },
+    { title: 'شرح حديث الأعمال بالنيات' }, { title: 'تفسير سورة الفاتحة' },
+  ];
+
+  renderVals() {
+    const accent = this.props.accentColor ?? '#2563eb';
+    return {
+      accent,
+      categories: this.categories,
+      lessons: this.lessons,
+      books: this.books.map(b => ({ ...b, href: `./كتاب.dc.html?id=${b.id}` })),
+      articles: this.articles.map(a => ({ ...a, href: `./مقال.dc.html?id=${a.id}` })),
+      quickLinks: [
+        { label: 'الدروس', letter: 'د', href: './الدروس.dc.html' },
+        { label: 'الكتب', letter: 'ك', href: './الكتب.dc.html' },
+        { label: 'المقالات', letter: 'م', href: './المقالات.dc.html' },
+        { label: 'مقرأة السنة', letter: 'س', href: './مقرأة-السنة.dc.html' },
+        { label: 'تعلم عن بعد', letter: 'ت', href: './تعلم-عن-بعد.dc.html' },
+      ],
+      announcements: [
+        'موعد الدرس القادم في شرح بلوغ المرام غدًا بعد صلاة العشاء.',
+        'فُتح باب التسجيل في دورة مقرأة السنة الجديدة.',
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>
