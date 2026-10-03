@@ -17,6 +17,7 @@ import {
   FiChevronDown,
   FiDownload,
   FiUpload,
+  FiVolume2,
 } from 'react-icons/fi';
 import {
   DndContext,
@@ -693,12 +694,18 @@ const AdminLectures = ({ fixedCategory }) => {
           </div>
 
           <div className="form-group">
-            <label>رابط التسجيل الصوتي (MP3)</label>
+            <label>
+              <FiVolume2 style={{ marginLeft: '6px', verticalAlign: 'middle' }} />
+              رابط التسجيل الصوتي (MP3) — للدروس الصوتية فقط
+            </label>
             <input
               value={form.audioUrl}
               onChange={(e) => setForm({ ...form, audioUrl: e.target.value })}
-              placeholder="https://.../audio.mp3"
+              placeholder="https://archive.org/download/.../audio.mp3"
             />
+            <small style={{ color: 'var(--text-muted)', display: 'block', marginTop: '4px' }}>
+              يظهر مشغل الصوت أسفل الفيديو مباشرة. للدروس الصوتية فقط، ضع أي رابط في حقل اليوتيوب (مثل: audio-only)
+            </small>
           </div>
         </div>
 
