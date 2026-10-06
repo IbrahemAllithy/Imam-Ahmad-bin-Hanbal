@@ -3,12 +3,6 @@ import './VideoPlayer.css';
 
 const VideoPlayer = ({ youtubeId, youtubeUrl, title }) => {
   const id = youtubeId || extractYoutubeId(youtubeUrl);
-
-  // إذا كان الدرس صوتي فقط، لا نعرض أي شيء
-  if (id === 'audio-only' || !id) {
-    return null;
-  }
-
   const embedUrl = getYoutubeEmbedUrl(id);
 
   if (!embedUrl) {
