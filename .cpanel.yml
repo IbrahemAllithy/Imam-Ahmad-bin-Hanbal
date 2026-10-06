@@ -1,0 +1,10 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home2/shabanalawda/repositories/Imam-Ahmad-bin-Hanbal
+    - /bin/cp -R * $DEPLOYPATH
+    - cd $DEPLOYPATH/client
+    - npm install --production
+    - npm run build
+    - cd $DEPLOYPATH/server
+    - npm install --production
